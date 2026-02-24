@@ -1,1 +1,1698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3 Investor CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef1f8;
+    --border: #dde3f0;
+    --text: #1a2340;
+    --text2: #5a6682;
+    --text3: #8fa0c0;
+    --accent: #3b7bff;
+    --accent2: #00c9a7;
+    --accent3: #ffb347;
+    --accent4: #ff6b8a;
+    --accent5: #7c5cfc;
+    --shadow: 0 2px 16px rgba(59,123,255,0.08);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
 
+  /* ── LAYOUT ── */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px; min-width: 240px; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    padding: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    transition: width .2s;
+  }
+  .sidebar-logo {
+    padding: 28px 24px 20px; border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .logo-mark {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem;
+    color: var(--accent); letter-spacing: -0.5px;
+  }
+  .sidebar-logo .logo-sub { font-size: .72rem; color: var(--text3); margin-top: 2px; letter-spacing: .04em; text-transform: uppercase; }
+  .nav { padding: 16px 0; flex: 1; }
+  .nav-section { padding: 6px 20px 4px; font-size: .68rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-top: 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; cursor: pointer; border-radius: 0;
+    font-size: .88rem; color: var(--text2); font-weight: 500; transition: all .15s;
+    border-left: 3px solid transparent; margin: 1px 0;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: linear-gradient(90deg,rgba(59,123,255,.1),transparent); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+  .nav-item .badge { margin-left: auto; background: var(--accent); color: #fff; font-size: .68rem; border-radius: 20px; padding: 1px 7px; font-weight: 700; }
+
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 16px 32px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar h2 { font-size: 1.2rem; font-weight: 700; flex: 1; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px; border-radius: var(--radius-sm); font-size: .84rem;
+    font-weight: 600; cursor: pointer; transition: all .15s; border: none; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-success { background: var(--accent2); color: #fff; }
+  .btn-success:hover { background: #00a98e; }
+  .btn-danger { background: var(--accent4); color: #fff; }
+  .btn-sm { padding: 5px 12px; font-size: .78rem; }
+
+  .content { padding: 28px 32px; flex: 1; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+
+  /* ── STATS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 22px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow);
+  }
+  .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+  .stat-body .stat-val { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; line-height: 1; }
+  .stat-body .stat-label { font-size: .78rem; color: var(--text2); margin-top: 4px; }
+  .stat-body .stat-change { font-size: .75rem; font-weight: 600; margin-top: 3px; }
+  .pos { color: var(--accent2); } .neg { color: var(--accent4); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { background: var(--surface2); padding: 10px 14px; text-align: left; font-family: 'Syne', sans-serif; font-size: .75rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  /* ── BADGES ── */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: .74rem; font-weight: 600; white-space: nowrap;
+  }
+  .tag-blue { background: rgba(59,123,255,.12); color: var(--accent); }
+  .tag-green { background: rgba(0,201,167,.12); color: #00a98e; }
+  .tag-orange { background: rgba(255,179,71,.15); color: #e08000; }
+  .tag-purple { background: rgba(124,92,252,.12); color: var(--accent5); }
+  .tag-pink { background: rgba(255,107,138,.12); color: #e0456a; }
+  .tag-gray { background: var(--surface2); color: var(--text2); }
+
+  /* ── FUNNEL ── */
+  .funnel { display: flex; flex-direction: column; gap: 10px; }
+  .funnel-stage {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); overflow: hidden;
+  }
+  .funnel-header {
+    padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    transition: background .15s;
+  }
+  .funnel-header:hover { background: var(--surface2); }
+  .funnel-color { width: 4px; height: 32px; border-radius: 4px; flex-shrink: 0; }
+  .funnel-info { flex: 1; }
+  .funnel-info h4 { font-size: .9rem; font-weight: 700; }
+  .funnel-info p { font-size: .78rem; color: var(--text2); margin-top: 2px; }
+  .funnel-count { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; }
+  .funnel-bar-wrap { padding: 0 16px 12px; }
+  .funnel-bar { height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .funnel-bar-fill { height: 100%; border-radius: 10px; transition: width .5s ease; }
+  .funnel-body { padding: 0 16px 12px; border-top: 1px solid var(--border); display: none; }
+  .funnel-body.open { display: block; }
+  .funnel-investors { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 10px; }
+  .investor-chip {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 20px;
+    padding: 4px 12px; font-size: .78rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px;
+  }
+  .investor-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── FORM ── */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: .8rem; font-weight: 600; color: var(--text2); }
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 9px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: .86rem; font-family: inherit; color: var(--text); background: var(--bg);
+    transition: border .15s; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: var(--surface); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ── EMAIL TEMPLATE ── */
+  .email-preview {
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 24px; font-size: .87rem; line-height: 1.7;
+  }
+  .email-preview .email-from { font-size: .78rem; color: var(--text3); margin-bottom: 12px; }
+  .email-preview .email-subject { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .email-preview .email-body { color: var(--text2); }
+  .variable { background: rgba(59,123,255,.1); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-size: .83rem; font-weight: 600; }
+
+  /* ── TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item { display: flex; gap: 14px; position: relative; padding-bottom: 18px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; border: 2px solid var(--surface); }
+  .tl-line { width: 2px; background: var(--border); flex: 1; margin: 4px 0; min-height: 16px; }
+  .tl-content { flex: 1; }
+  .tl-meta { font-size: .75rem; color: var(--text3); margin-bottom: 3px; }
+  .tl-text { font-size: .85rem; color: var(--text); }
+  .tl-note { background: var(--surface2); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 6px; font-size: .82rem; color: var(--text2); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(26,35,64,.25); z-index: 100;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(3px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 640px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(59,123,255,.18);
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header { padding: 22px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
+  .modal-close { cursor: pointer; color: var(--text3); font-size: 1.3rem; line-height: 1; background: none; border: none; }
+  .modal-body { padding: 22px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    position: relative; display: flex; align-items: center;
+  }
+  .search-bar input {
+    padding: 8px 14px 8px 36px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: .85rem; background: var(--bg); width: 220px; font-family: inherit; outline: none; color: var(--text);
+    transition: all .15s;
+  }
+  .search-bar input:focus { border-color: var(--accent); background: var(--surface); width: 280px; }
+  .search-bar .search-icon { position: absolute; left: 10px; color: var(--text3); font-size: .9rem; }
+
+  /* ── AVATAR ── */
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center;
+    justify-content: center; font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700;
+    flex-shrink: 0; color: #fff;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar { height: 8px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width .4s ease; }
+
+  /* ── TABS NAV INSIDE CONTENT ── */
+  .inner-tabs { display: flex; gap: 4px; margin-bottom: 22px; border-bottom: 2px solid var(--border); }
+  .inner-tab { padding: 9px 18px; font-size: .85rem; font-weight: 600; color: var(--text2); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .inner-tab:hover { color: var(--text); }
+  .inner-pane { display: none; }
+  .inner-pane.active { display: block; }
+
+  /* ── NOTIFICATION TOAST ── */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px; background: var(--text); color: #fff;
+    padding: 12px 20px; border-radius: var(--radius-sm); font-size: .85rem; font-weight: 500;
+    z-index: 200; transform: translateY(60px); opacity: 0; transition: all .3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 32px;
+    text-align: center; cursor: pointer; transition: all .2s; background: var(--bg);
+  }
+  .upload-zone:hover, .upload-zone.dragging { border-color: var(--accent); background: rgba(59,123,255,.04); }
+  .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .upload-zone h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .upload-zone p { font-size: .82rem; color: var(--text2); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { width: 64px; min-width: 64px; }
+    .sidebar-logo .logo-sub, .nav-item span, .nav-section { display: none; }
+    .nav-item { justify-content: center; padding: 12px; }
+    .nav-item .icon { width: auto; }
+    .nav-item .badge { display: none; }
+    .content { padding: 18px 16px; }
+    .topbar { padding: 14px 16px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .topbar h2 { font-size: 1rem; }
+    .inner-tabs { overflow-x: auto; white-space: nowrap; }
+  }
+
+  /* ── MISC ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+  .spacer { margin-bottom: 20px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .text-muted { color: var(--text2); font-size: .82rem; }
+  .inline-edit { background: none; border: none; font-family: inherit; font-size: inherit; color: inherit; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .inline-edit:hover { background: var(--surface2); }
+  select.status-select { border: none; background: none; font-family: inherit; font-size: .8rem; cursor: pointer; color: inherit; font-weight: 600; }
+  .chip-actions { display: flex; gap: 6px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⬡ W3CRM</div>
+      <div class="logo-sub">Investor Management</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="navigate('dashboard',this)">
+        <span class="icon">📊</span><span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="navigate('investors',this)">
+        <span class="icon">👥</span><span>Inversores</span>
+        <span class="badge" id="badge-count">4</span>
+      </div>
+      <div class="nav-section">Gestión</div>
+      <div class="nav-item" onclick="navigate('funnel',this)">
+        <span class="icon">🎯</span><span>Pipeline / Funnel</span>
+      </div>
+      <div class="nav-item" onclick="navigate('comms',this)">
+        <span class="icon">💬</span><span>Comunicaciones</span>
+      </div>
+      <div class="nav-section">Automatización</div>
+      <div class="nav-item" onclick="navigate('email',this)">
+        <span class="icon">✉️</span><span>Email Automation</span>
+      </div>
+      <div class="nav-item" onclick="navigate('sequences',this)">
+        <span class="icon">🔄</span><span>Secuencias</span>
+      </div>
+      <div class="nav-section">Sistema</div>
+      <div class="nav-item" onclick="navigate('import',this)">
+        <span class="icon">📥</span><span>Importar CSV</span>
+      </div>
+      <div class="nav-item" onclick="navigate('settings',this)">
+        <span class="icon">⚙️</span><span>Configuración</span>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h2 id="page-title">Dashboard</h2>
+      <div class="topbar-actions">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Buscar inversor…" id="global-search" oninput="globalSearch(this.value)">
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-investor-modal')">+ Añadir Inversor</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══════════════════ DASHBOARD ══════════════════ -->
+      <div class="tab-pane active" id="pane-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(59,123,255,.1)">👥</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-total">4</div>
+              <div class="stat-label">Inversores totales</div>
+              <div class="stat-change pos">↑ Activos</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,201,167,.1)">🤝</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-deals">1</div>
+              <div class="stat-label">Deals en curso</div>
+              <div class="stat-change pos">↑ +1 este mes</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(255,179,71,.1)">📨</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-emails">0</div>
+              <div class="stat-label">Emails enviados</div>
+              <div class="stat-change" style="color:var(--text3)">Pendientes: <b>4</b></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(124,92,252,.1)">🎯</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-conv">25%</div>
+              <div class="stat-label">Tasa de conversión</div>
+              <div class="stat-change pos">Pipeline activo</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Funnel rápido -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🎯 Estado del Funnel</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;" id="dash-funnel"></div>
+          </div>
+
+          <!-- Actividad reciente -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Actividad Reciente</div>
+            </div>
+            <div class="timeline" id="dash-activity">
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot" style="background:#eef1f8">📥</div><div class="tl-line"></div></div>
+                <div class="tl-content">
+                  <div class="tl-meta">Hoy, 14:30</div>
+                  <div class="tl-text">Base de datos importada (4 inversores)</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot" style="background:#eef1f8">🏦</div><div class="tl-line"></div></div>
+                <div class="tl-content">
+                  <div class="tl-meta">Hoy</div>
+                  <div class="tl-text">Goldman Sachs — Mathew McDermott añadido al pipeline <span class="tag tag-orange">Calificado</span></div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot" style="background:#eef1f8">✉️</div></div>
+                <div class="tl-content">
+                  <div class="tl-meta">Pendiente</div>
+                  <div class="tl-text">Secuencia de outreach inicial lista para enviar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+        <!-- Tabla quick view -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Vista rápida — Inversores</div>
+            <button class="btn btn-secondary btn-sm" onclick="navigate('investors', document.querySelector('.nav-item:nth-child(2)'))">Ver todos →</button>
+          </div>
+          <div class="table-wrap" id="dash-quick-table"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ INVERSORES ══════════════════ -->
+      <div class="tab-pane" id="pane-investors">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Base de Datos de Inversores</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📤 Exportar CSV</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('add-investor-modal')">+ Añadir</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="investors-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Nombre</th>
+                  <th>Rol</th>
+                  <th>Empresa</th>
+                  <th>LinkedIn</th>
+                  <th>Inversión</th>
+                  <th>Contacto</th>
+                  <th>Estado</th>
+                  <th>Prioridad</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="investors-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ FUNNEL ══════════════════ -->
+      <div class="tab-pane" id="pane-funnel">
+        <div class="grid-2">
+          <div>
+            <div class="card spacer">
+              <div class="card-header"><div class="card-title">🎯 Pipeline de Inversores</div></div>
+              <div class="funnel" id="funnel-stages"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">📝 Mover Inversor de Etapa</div></div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Inversor</label>
+                  <select id="funnel-inv-select"></select>
+                </div>
+                <div class="form-group">
+                  <label>Nueva etapa</label>
+                  <select id="funnel-stage-select">
+                    <option>Prospecto</option>
+                    <option>Contactado</option>
+                    <option>Calificado</option>
+                    <option>Reunión Programada</option>
+                    <option>Propuesta Enviada</option>
+                    <option>Negociación</option>
+                    <option>Deal Cerrado</option>
+                    <option>Descartado</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>Nota sobre el movimiento</label>
+                  <textarea placeholder="Añade contexto sobre este cambio de etapa…" id="funnel-note"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" onclick="moveInvestorStage()">Actualizar Etapa</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ COMUNICACIONES ══════════════════ -->
+      <div class="tab-pane" id="pane-comms">
+        <div class="inner-tabs">
+          <div class="inner-tab active" onclick="innerNav('comms','log',this)">Registro</div>
+          <div class="inner-tab" onclick="innerNav('comms','notes',this)">Notas</div>
+          <div class="inner-tab" onclick="innerNav('comms','tasks',this)">Tareas</div>
+        </div>
+
+        <div class="inner-pane active" id="comms-log">
+          <div class="card spacer">
+            <div class="card-header">
+              <div class="card-title">📞 Añadir Comunicación</div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Inversor</label>
+                <select id="comm-inv-select"></select>
+              </div>
+              <div class="form-group">
+                <label>Tipo</label>
+                <select id="comm-type">
+                  <option>Email enviado</option>
+                  <option>Email recibido</option>
+                  <option>Llamada</option>
+                  <option>Reunión</option>
+                  <option>LinkedIn DM</option>
+                  <option>Nota interna</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Fecha</label>
+                <input type="datetime-local" id="comm-date">
+              </div>
+              <div class="form-group">
+                <label>Resultado</label>
+                <select id="comm-result">
+                  <option>Positivo</option>
+                  <option>Neutral</option>
+                  <option>Pendiente respuesta</option>
+                  <option>Sin respuesta</option>
+                  <option>Negativo</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Resumen / Notas</label>
+                <textarea id="comm-notes" placeholder="Describe qué pasó, qué dijo el inversor, próximos pasos…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="logCommunication()">Registrar Comunicación</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Historial de Comunicaciones</div></div>
+            <div class="timeline" id="comm-history">
+              <p class="text-muted">Aún no hay comunicaciones registradas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="inner-pane" id="comms-notes">
+          <div class="card spacer">
+            <div class="card-header"><div class="card-title">📌 Notas por Inversor</div></div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Inversor</label>
+                <select id="note-inv-select"></select>
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Nota</label>
+                <textarea id="note-text" rows="4" placeholder="Escribe una nota sobre este inversor…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="saveNote()">Guardar Nota</button>
+            </div>
+          </div>
+          <div id="notes-list"></div>
+        </div>
+
+        <div class="inner-pane" id="comms-tasks">
+          <div class="card spacer">
+            <div class="card-header"><div class="card-title">✅ Nueva Tarea</div></div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Inversor</label>
+                <select id="task-inv-select"></select>
+              </div>
+              <div class="form-group">
+                <label>Tipo de tarea</label>
+                <select id="task-type">
+                  <option>📧 Enviar email de seguimiento</option>
+                  <option>📞 Llamar</option>
+                  <option>📅 Programar reunión</option>
+                  <option>📄 Enviar propuesta</option>
+                  <option>🔍 Investigar</option>
+                  <option>💬 Enviar LinkedIn DM</option>
+                  <option>📝 Otra</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Fecha límite</label>
+                <input type="date" id="task-date">
+              </div>
+              <div class="form-group">
+                <label>Prioridad</label>
+                <select id="task-priority">
+                  <option>Alta 🔴</option>
+                  <option>Media 🟡</option>
+                  <option>Baja 🟢</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Descripción</label>
+                <textarea id="task-desc" placeholder="Detalla qué hay que hacer…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="addTask()">Crear Tarea</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Tareas Pendientes</div></div>
+            <div id="tasks-list"><p class="text-muted">Sin tareas pendientes.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ EMAIL AUTOMATION ══════════════════ -->
+      <div class="tab-pane" id="pane-email">
+        <div class="inner-tabs">
+          <div class="inner-tab active" onclick="innerNav('email','composer',this)">Composer</div>
+          <div class="inner-tab" onclick="innerNav('email','templates',this)">Plantillas</div>
+          <div class="inner-tab" onclick="innerNav('email','sent',this)">Enviados</div>
+        </div>
+
+        <div class="inner-pane active" id="email-composer">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">✉️ Nuevo Email</div></div>
+              <div class="form-grid">
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>Destinatarios</label>
+                  <select id="email-recipients" multiple style="height:90px">
+                  </select>
+                  <span class="text-muted" style="margin-top:4px">Ctrl+Click para seleccionar múltiples</span>
+                </div>
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>Plantilla</label>
+                  <select id="email-template-select" onchange="loadTemplate(this.value)">
+                    <option value="">— Sin plantilla —</option>
+                    <option value="outreach">Primer contacto (Outreach)</option>
+                    <option value="followup1">Seguimiento 1 (Soft)</option>
+                    <option value="followup2">Seguimiento 2 (Urgente)</option>
+                    <option value="pitch">Envío de Pitch Deck</option>
+                    <option value="meeting">Solicitud de Reunión</option>
+                    <option value="closing">Cierre de Deal</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>Asunto</label>
+                  <input type="text" id="email-subject" placeholder="Asunto del email…">
+                </div>
+                <div class="form-group" style="grid-column:1/-1">
+                  <label>Cuerpo del mensaje</label>
+                  <textarea id="email-body" rows="10" placeholder="Escribe tu mensaje aquí…"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Enviar en</label>
+                  <select id="email-timing">
+                    <option value="now">Ahora</option>
+                    <option value="1h">En 1 hora</option>
+                    <option value="tomorrow">Mañana 9:00</option>
+                    <option value="custom">Fecha personalizada</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Variables disponibles</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+                    <span class="variable" style="cursor:pointer" onclick="insertVar('{{nombre}}')">{{nombre}}</span>
+                    <span class="variable" style="cursor:pointer" onclick="insertVar('{{empresa}}')">{{empresa}}</span>
+                    <span class="variable" style="cursor:pointer" onclick="insertVar('{{rol}}')">{{rol}}</span>
+                    <span class="variable" style="cursor:pointer" onclick="insertVar('{{inversion}}')">{{inversion}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-secondary" onclick="previewEmail()">👁 Preview</button>
+                <button class="btn btn-primary" onclick="sendEmail()">📤 Enviar Email</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">👁 Vista Previa</div></div>
+              <div class="email-preview" id="email-preview-box">
+                <div class="email-from">De: tu@empresa.com | Para: <span id="preview-to">—</span></div>
+                <div class="email-subject" id="preview-subject">Asunto aparecerá aquí</div>
+                <div class="email-body" id="preview-body">El cuerpo del mensaje aparecerá aquí…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inner-pane" id="email-templates">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Plantillas de Email</div>
+              <button class="btn btn-primary btn-sm" onclick="openModal('add-template-modal')">+ Nueva Plantilla</button>
+            </div>
+            <div id="templates-grid" style="display:flex;flex-direction:column;gap:14px"></div>
+          </div>
+        </div>
+
+        <div class="inner-pane" id="email-sent">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📬 Emails Enviados</div></div>
+            <div id="sent-list"><p class="text-muted">Aún no se han enviado emails desde este CRM.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ SECUENCIAS ══════════════════ -->
+      <div class="tab-pane" id="pane-sequences">
+        <div class="card spacer">
+          <div class="card-header"><div class="card-title">🔄 Secuencias de Automatización</div></div>
+          <div id="sequences-list" style="display:flex;flex-direction:column;gap:16px">
+            <!-- Seq 1 -->
+            <div class="card" style="background:var(--surface2)">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+                <div style="background:rgba(59,123,255,.1);border-radius:10px;padding:10px;font-size:1.2rem">🚀</div>
+                <div style="flex:1">
+                  <h4 style="font-size:.95rem">Secuencia: Primer Contacto Web3</h4>
+                  <p class="text-muted">5 pasos · Duración: 14 días</p>
+                </div>
+                <span class="tag tag-green">Activa</span>
+                <button class="btn btn-secondary btn-sm" onclick="toggleSequence(this)">Pausar</button>
+              </div>
+              <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap">
+                <div class="seq-step">📧 Email D0</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">⏳ Esperar 3d</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">📧 Follow-up D3</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">⏳ Esperar 4d</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">💬 LinkedIn DM</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">⏳ Esperar 7d</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">📧 Último intento</div>
+              </div>
+            </div>
+            <!-- Seq 2 -->
+            <div class="card" style="background:var(--surface2)">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+                <div style="background:rgba(0,201,167,.1);border-radius:10px;padding:10px;font-size:1.2rem">🤝</div>
+                <div style="flex:1">
+                  <h4 style="font-size:.95rem">Secuencia: Post-Reunión Nurture</h4>
+                  <p class="text-muted">3 pasos · Duración: 7 días</p>
+                </div>
+                <span class="tag tag-orange">Pausada</span>
+                <button class="btn btn-secondary btn-sm" onclick="toggleSequence(this)">Activar</button>
+              </div>
+              <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap">
+                <div class="seq-step">📧 Thanks + Recap</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">⏳ Esperar 3d</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">📄 Pitch Deck</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">⏳ Esperar 4d</div>
+                <div class="seq-arrow">→</div>
+                <div class="seq-step">📞 Call CTA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">➕ Asignar Secuencia a Inversores</div></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Secuencia</label>
+              <select>
+                <option>Primer Contacto Web3</option>
+                <option>Post-Reunión Nurture</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Inversores (selección múltiple)</label>
+              <select id="seq-inv-select" multiple style="height:90px"></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="showToast('✅ Secuencia asignada correctamente')">Asignar Secuencia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ IMPORTAR CSV ══════════════════ -->
+      <div class="tab-pane" id="pane-import">
+        <div class="card spacer">
+          <div class="card-header"><div class="card-title">📥 Actualizar Base de Datos desde CSV</div></div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('csv-file').click()" ondragover="event.preventDefault();this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="handleDrop(event)">
+            <div class="upload-icon">📂</div>
+            <h3>Arrastra tu CSV aquí o haz clic para seleccionar</h3>
+            <p>Formato esperado: Nombre completo, Título/Rol, LinkedIn URL, Empresa/Fondo, Inversión, Contacto, Notas</p>
+            <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSVImport(event)">
+          </div>
+          <div id="import-preview" style="margin-top:20px;display:none">
+            <h4 style="font-family:'Syne',sans-serif;margin-bottom:12px">Vista previa de importación</h4>
+            <div class="table-wrap"><table id="import-table"><thead></thead><tbody></tbody></table></div>
+            <div class="form-actions" style="margin-top:16px">
+              <button class="btn btn-secondary" onclick="cancelImport()">Cancelar</button>
+              <button class="btn btn-success" onclick="confirmImport()">✅ Confirmar importación</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📋 Historial de Importaciones</div></div>
+          <div id="import-history">
+            <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:1.3rem">📥</span>
+              <div style="flex:1">
+                <div style="font-size:.87rem;font-weight:600">crypto_web3_investors_contacts.csv</div>
+                <div class="text-muted">4 inversores · Hoy · Importación inicial</div>
+              </div>
+              <span class="tag tag-green">✓ Completado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ SETTINGS ══════════════════ -->
+      <div class="tab-pane" id="pane-settings">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">⚙️ Configuración de Email</div></div>
+            <div class="form-grid">
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Email remitente</label>
+                <input type="email" placeholder="tu@empresa.com" id="config-email">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Nombre remitente</label>
+                <input type="text" placeholder="Tu nombre o empresa" id="config-name">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Firma de email</label>
+                <textarea rows="4" placeholder="Tu firma…" id="config-signature"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="saveSettings()">Guardar Configuración</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">🎨 Preferencias CRM</div></div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Moneda por defecto</label>
+                <select><option>€ EUR</option><option>$ USD</option><option>₿ BTC</option></select>
+              </div>
+              <div class="form-group">
+                <label>Zona horaria</label>
+                <select><option>Europe/Madrid</option><option>Europe/London</option><option>America/New_York</option></select>
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Nombre de tu empresa / proyecto</label>
+                <input type="text" placeholder="Ej: DeFi Protocol XYZ" id="config-project">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Descripción corta del proyecto</label>
+                <textarea rows="3" placeholder="Ej: Protocolo DeFi Layer 2 para pagos cross-chain" id="config-desc"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="saveSettings()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<!-- Add Investor -->
+<div class="modal-overlay" id="add-investor-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>➕ Añadir Nuevo Inversor</h3>
+      <button class="modal-close" onclick="closeModal('add-investor-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombre completo *</label><input type="text" id="new-name" placeholder="Nombre completo"></div>
+        <div class="form-group"><label>Título / Rol *</label><input type="text" id="new-role" placeholder="CTO, Founding Partner…"></div>
+        <div class="form-group"><label>Empresa / Fondo *</label><input type="text" id="new-company" placeholder="Empresa o Fondo"></div>
+        <div class="form-group"><label>LinkedIn URL</label><input type="url" id="new-linkedin" placeholder="https://linkedin.com/in/…"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Publicación / Inversión anunciada</label><input type="text" id="new-investment" placeholder="Serie A, Seed, Web3 VC…"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Métodos de contacto</label><input type="text" id="new-contact" placeholder="email@empresa.com | https://…"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Notas sobre inversión reciente</label><textarea id="new-notes" placeholder="Contexto sobre sus últimas inversiones…"></textarea></div>
+        <div class="form-group"><label>Estado inicial</label>
+          <select id="new-status">
+            <option>Prospecto</option><option>Contactado</option><option>Calificado</option>
+            <option>Reunión Programada</option><option>Propuesta Enviada</option><option>Negociación</option><option>Deal Cerrado</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Prioridad</label>
+          <select id="new-priority">
+            <option>Alta 🔴</option><option>Media 🟡</option><option>Baja 🟢</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('add-investor-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addInvestor()">Guardar Inversor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Investor -->
+<div class="modal-overlay" id="edit-investor-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Editar Inversor</h3>
+      <button class="modal-close" onclick="closeModal('edit-investor-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-idx">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombre completo</label><input type="text" id="edit-name"></div>
+        <div class="form-group"><label>Título / Rol</label><input type="text" id="edit-role"></div>
+        <div class="form-group"><label>Empresa / Fondo</label><input type="text" id="edit-company"></div>
+        <div class="form-group"><label>LinkedIn URL</label><input type="url" id="edit-linkedin"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Publicación / Inversión</label><input type="text" id="edit-investment"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Métodos de contacto</label><input type="text" id="edit-contact"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Notas</label><textarea id="edit-notes"></textarea></div>
+        <div class="form-group"><label>Estado</label>
+          <select id="edit-status">
+            <option>Prospecto</option><option>Contactado</option><option>Calificado</option>
+            <option>Reunión Programada</option><option>Propuesta Enviada</option><option>Negociación</option><option>Deal Cerrado</option><option>Descartado</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Prioridad</label>
+          <select id="edit-priority">
+            <option>Alta 🔴</option><option>Media 🟡</option><option>Baja 🟢</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('edit-investor-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditInvestor()">Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Template -->
+<div class="modal-overlay" id="add-template-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 Nueva Plantilla</h3>
+      <button class="modal-close" onclick="closeModal('add-template-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1"><label>Nombre de la plantilla</label><input type="text" id="tmpl-name" placeholder="Ej: Outreach inicial DeFi"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Asunto</label><input type="text" id="tmpl-subject" placeholder="Asunto del email"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Cuerpo (usa {{nombre}}, {{empresa}}, {{rol}}, {{inversion}})</label><textarea id="tmpl-body" rows="8"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('add-template-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">Guardar Plantilla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="detail-title">Detalle de Inversor</h3>
+      <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+  </div>
+</div>
+
+<div id="toast">📬 Acción completada</div>
+
+<style>
+.seq-step { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 12px; font-size:.78rem; font-weight:600; }
+.seq-arrow { color:var(--text3); padding:0 6px; font-weight:700; }
+</style>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA STORE
+// ══════════════════════════════════════════
+const STATUSES = ['Prospecto','Contactado','Calificado','Reunión Programada','Propuesta Enviada','Negociación','Deal Cerrado','Descartado'];
+const STATUS_COLORS = {
+  'Prospecto':'tag-gray','Contactado':'tag-blue','Calificado':'tag-orange',
+  'Reunión Programada':'tag-purple','Propuesta Enviada':'tag-purple',
+  'Negociación':'tag-orange','Deal Cerrado':'tag-green','Descartado':'tag-pink'
+};
+const FUNNEL_COLORS = ['#8fa0c0','#3b7bff','#ffb347','#7c5cfc','#3b7bff','#ffb347','#00c9a7','#ff6b8a'];
+
+let investors = [
+  { id:1, name:'Mathew McDermott', role:'Global Head of Digital Assets', company:'Goldman Sachs', linkedin:'https://www.linkedin.com/in/mathew-mcdermott', investment:'Participación en ronda Series B de Fnality y actividad en activos digitales', contact:'Contacto institucional vía https://www.goldmansachs.com', notes:'Goldman Sachs reforzando exposición a infraestructura blockchain y activos digitales', status:'Calificado', priority:'Alta 🔴', tags:['Institucional','DeFi'] },
+  { id:2, name:'Equipo Directivo Bit2Me', role:'Equipo Ejecutivo', company:'Bit2Me', linkedin:'https://www.linkedin.com/company/bit2me/', investment:'Entrada de Bankinter en ronda de €30M', contact:'https://bit2me.com | info@bit2me.com', notes:'Expansión tras licencia MiCA y crecimiento en UE', status:'Contactado', priority:'Alta 🔴', tags:['Exchange','MiCA'] },
+  { id:3, name:'Blockchain Founders Fund Team', role:'Venture Capital Web3', company:'Blockchain Founders Fund', linkedin:'https://www.linkedin.com/company/blockchainfoundersfund/', investment:'Inversiones en startups blockchain early-stage', contact:'https://www.blockchainff.com', notes:'Fondo activo en rondas Seed y Series A Web3', status:'Prospecto', priority:'Media 🟡', tags:['VC','Seed','Series A'] },
+  { id:4, name:'Wise3 Ventures Team', role:'Web3 Venture Fund', company:'Wise3 Ventures', linkedin:'https://www.linkedin.com/company/wise3-ventures/', investment:'Participación en proyectos Web3 y blockchain', contact:'Perfil LinkedIn corporativo', notes:'Actividad en ecosistema Web3 y eventos de inversión', status:'Prospecto', priority:'Media 🟡', tags:['VC','Web3'] }
+];
+
+let communications = [];
+let tasks = [];
+let notes_store = {};
+let sentEmails = [];
+let customTemplates = [];
+let importBuffer = [];
+let nextId = 5;
+
+const EMAIL_TEMPLATES = {
+  outreach: {
+    subject: 'Oportunidad de inversión Web3 — {{empresa}}',
+    body: `Hola {{nombre}},
+
+Mi nombre es [TU NOMBRE] y te contacto porque he visto tu trabajo en {{empresa}} y tu reciente actividad en {{inversion}}.
+
+Estoy construyendo [NOMBRE DEL PROYECTO], un protocolo [DESCRIPCIÓN BREVE] que creemos podría encajar perfectamente con tu tesis de inversión en Web3.
+
+¿Tendrías 20 minutos esta semana para explorar si hay fit? Me encantaría presentarte los números y el roadmap.
+
+Un saludo,
+[TU NOMBRE]`
+  },
+  followup1: {
+    subject: 'Re: Oportunidad de inversión Web3 — seguimiento',
+    body: `Hola {{nombre}},
+
+Solo quería hacer seguimiento de mi email anterior.
+
+Sé que eres muy activo en {{empresa}} y que tienes mucho en el radar, por lo que no quiero hacerte perder el tiempo. Si esto no encaja en tu estrategia actual, solo dímelo y lo entenderé perfectamente.
+
+Si hay interés, estaré encantado de enviar el pitch deck.
+
+Gracias,
+[TU NOMBRE]`
+  },
+  followup2: {
+    subject: 'Última oportunidad de unirte a la ronda — {{empresa}}',
+    body: `Hola {{nombre}},
+
+Estamos cerrando nuestra ronda de financiación en los próximos días y todavía hay hueco para un inversor más.
+
+Dado tu expertise en {{inversion}}, creo que podría ser una buena fit. ¿Podemos hablar esta semana?
+
+Un saludo,
+[TU NOMBRE]`
+  },
+  pitch: {
+    subject: 'Pitch Deck — [PROYECTO] para {{nombre}} de {{empresa}}',
+    body: `Hola {{nombre}},
+
+Adjunto nuestro pitch deck según lo acordado.
+
+Los highlights clave:
+• TAM: [TAMAÑO DEL MERCADO]
+• Tracción: [MÉTRICAS CLAVE]
+• Equipo: [DESCRIPCIÓN BREVE]
+• Uso de fondos: [DESTINO]
+
+Avísame si tienes alguna pregunta. Feliz de hacer una sesión Q&A.
+
+Saludos,
+[TU NOMBRE]`
+  },
+  meeting: {
+    subject: '¿Disponible para una llamada de 20 min? — {{nombre}}',
+    body: `Hola {{nombre}},
+
+He seguido tu trayectoria en {{empresa}} y creo que lo que estamos construyendo puede interesarte.
+
+¿Tendrías disponibilidad para una llamada de 20 minutos esta semana? Te propongo:
+• Martes 16:00 - 16:20
+• Miércoles 11:00 - 11:20
+• Jueves 15:00 - 15:20
+
+O usa este enlace para elegir el mejor momento: [CALENDLY]
+
+Gracias,
+[TU NOMBRE]`
+  },
+  closing: {
+    subject: 'Confirmación de participación en ronda — {{nombre}}',
+    body: `Hola {{nombre}},
+
+Siguiendo nuestra conversación, me alegra confirmar tu participación en la ronda.
+
+Próximos pasos:
+1. Firma del term sheet (adjunto)
+2. Due diligence (1-2 semanas)
+3. Transferencia y closing
+
+Por favor revisa los documentos y avísame si necesitas algo.
+
+¡Bienvenido al equipo!
+[TU NOMBRE]`
+  }
+};
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderInvestorsTable();
+  renderFunnel();
+  renderDashFunnel();
+  renderDashQuickTable();
+  populateAllSelects();
+  renderTemplates();
+  renderEmailRecipients();
+});
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+const PAGE_TITLES = { dashboard:'Dashboard', investors:'Inversores', funnel:'Pipeline / Funnel', comms:'Comunicaciones', email:'Email Automation', sequences:'Secuencias', import:'Importar CSV', settings:'Configuración' };
+
+function navigate(page, el) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
+}
+
+function innerNav(section, tab, el) {
+  const pane = document.getElementById('pane-' + section);
+  pane.querySelectorAll('.inner-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(section + '-' + tab).classList.add('active');
+  pane.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  INVESTORS TABLE
+// ══════════════════════════════════════════
+function avatarColor(name) {
+  const colors = ['#3b7bff','#00c9a7','#ffb347','#7c5cfc','#ff6b8a','#38bdf8'];
+  let h = 0; for(let c of name) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+  return colors[h % colors.length];
+}
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w => w[0] || '').join('').toUpperCase();
+}
+
+function renderInvestorsTable(list) {
+  const data = list || investors;
+  const tbody = document.getElementById('investors-tbody');
+  tbody.innerHTML = '';
+  data.forEach((inv, i) => {
+    const idx = list ? investors.indexOf(inv) : i;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="avatar" style="background:${avatarColor(inv.name)}">${initials(inv.name)}</div></td>
+      <td><strong>${inv.name}</strong></td>
+      <td class="text-muted">${inv.role}</td>
+      <td>${inv.company}</td>
+      <td><a href="${inv.linkedin}" target="_blank" style="font-size:.8rem">🔗 LinkedIn</a></td>
+      <td style="max-width:180px;font-size:.78rem;color:var(--text2)">${inv.investment}</td>
+      <td style="max-width:140px;font-size:.78rem">${inv.contact}</td>
+      <td><span class="tag ${STATUS_COLORS[inv.status]||'tag-gray'}">${inv.status}</span></td>
+      <td><span class="tag ${inv.priority.includes('Alta')?'tag-pink':inv.priority.includes('Media')?'tag-orange':'tag-green'}">${inv.priority}</span></td>
+      <td>
+        <div class="chip-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openDetail(${investors.indexOf(inv)})">👁</button>
+          <button class="btn btn-secondary btn-sm" onclick="openEdit(${investors.indexOf(inv)})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteInvestor(${investors.indexOf(inv)})">🗑</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('stat-total').textContent = investors.length;
+  document.getElementById('badge-count').textContent = investors.length;
+}
+
+function renderDashQuickTable() {
+  const c = document.getElementById('dash-quick-table');
+  c.innerHTML = `<table><thead><tr><th></th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Prioridad</th></tr></thead><tbody>${investors.slice(0,4).map(inv=>`<tr>
+    <td><div class="avatar" style="background:${avatarColor(inv.name)};width:28px;height:28px;font-size:.7rem">${initials(inv.name)}</div></td>
+    <td><strong>${inv.name}</strong></td><td>${inv.company}</td>
+    <td><span class="tag ${STATUS_COLORS[inv.status]||'tag-gray'}">${inv.status}</span></td>
+    <td><span class="tag ${inv.priority.includes('Alta')?'tag-pink':inv.priority.includes('Media')?'tag-orange':'tag-green'}">${inv.priority}</span></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function addInvestor() {
+  const name = document.getElementById('new-name').value.trim();
+  if(!name) { showToast('❗ El nombre es obligatorio'); return; }
+  investors.push({
+    id: nextId++,
+    name, role: document.getElementById('new-role').value,
+    company: document.getElementById('new-company').value,
+    linkedin: document.getElementById('new-linkedin').value,
+    investment: document.getElementById('new-investment').value,
+    contact: document.getElementById('new-contact').value,
+    notes: document.getElementById('new-notes').value,
+    status: document.getElementById('new-status').value,
+    priority: document.getElementById('new-priority').value,
+    tags: []
+  });
+  closeModal('add-investor-modal');
+  renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
+  ['new-name','new-role','new-company','new-linkedin','new-investment','new-contact','new-notes'].forEach(id => document.getElementById(id).value='');
+  showToast('✅ Inversor añadido correctamente');
+}
+
+function openEdit(idx) {
+  const inv = investors[idx];
+  document.getElementById('edit-idx').value = idx;
+  document.getElementById('edit-name').value = inv.name;
+  document.getElementById('edit-role').value = inv.role;
+  document.getElementById('edit-company').value = inv.company;
+  document.getElementById('edit-linkedin').value = inv.linkedin;
+  document.getElementById('edit-investment').value = inv.investment;
+  document.getElementById('edit-contact').value = inv.contact;
+  document.getElementById('edit-notes').value = inv.notes;
+  document.getElementById('edit-status').value = inv.status;
+  document.getElementById('edit-priority').value = inv.priority;
+  openModal('edit-investor-modal');
+}
+
+function saveEditInvestor() {
+  const idx = parseInt(document.getElementById('edit-idx').value);
+  investors[idx] = { ...investors[idx],
+    name: document.getElementById('edit-name').value,
+    role: document.getElementById('edit-role').value,
+    company: document.getElementById('edit-company').value,
+    linkedin: document.getElementById('edit-linkedin').value,
+    investment: document.getElementById('edit-investment').value,
+    contact: document.getElementById('edit-contact').value,
+    notes: document.getElementById('edit-notes').value,
+    status: document.getElementById('edit-status').value,
+    priority: document.getElementById('edit-priority').value
+  };
+  closeModal('edit-investor-modal');
+  renderInvestorsTable(); renderFunnel(); renderDashFunnel(); populateAllSelects();
+  showToast('✅ Inversor actualizado');
+}
+
+function deleteInvestor(idx) {
+  if(!confirm(`¿Eliminar a ${investors[idx].name}?`)) return;
+  investors.splice(idx, 1);
+  renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
+  showToast('🗑 Inversor eliminado');
+}
+
+function openDetail(idx) {
+  const inv = investors[idx];
+  document.getElementById('detail-title').textContent = inv.name;
+  document.getElementById('detail-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+      <div class="avatar" style="background:${avatarColor(inv.name)};width:56px;height:56px;font-size:1.2rem;border-radius:16px">${initials(inv.name)}</div>
+      <div>
+        <h3 style="font-family:'Syne',sans-serif">${inv.name}</h3>
+        <p class="text-muted">${inv.role} · ${inv.company}</p>
+        <div style="margin-top:6px"><span class="tag ${STATUS_COLORS[inv.status]||'tag-gray'}">${inv.status}</span> <span class="tag ${inv.priority.includes('Alta')?'tag-pink':inv.priority.includes('Media')?'tag-orange':'tag-green'}">${inv.priority}</span></div>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>LinkedIn</label><a href="${inv.linkedin}" target="_blank">${inv.linkedin||'—'}</a></div>
+      <div class="form-group"><label>Contacto</label><span style="font-size:.85rem">${inv.contact}</span></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Inversión / Publicación</label><p style="font-size:.85rem;color:var(--text2)">${inv.investment}</p></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Notas</label><p style="font-size:.85rem;color:var(--text2)">${inv.notes}</p></div>
+    </div>
+    ${notes_store[inv.id] ? `<div style="margin-top:16px"><label style="font-size:.8rem;font-weight:700;color:var(--text2)">NOTAS INTERNAS</label><div class="tl-note" style="margin-top:6px">${notes_store[inv.id].join('<br><hr style="border:none;border-top:1px solid var(--border);margin:6px 0">')}</div></div>` : ''}
+  `;
+  openModal('detail-modal');
+}
+
+// ══════════════════════════════════════════
+//  FUNNEL
+// ══════════════════════════════════════════
+function renderFunnel() {
+  const container = document.getElementById('funnel-stages');
+  container.innerHTML = '';
+  STATUSES.forEach((stage, si) => {
+    const list = investors.filter(inv => inv.status === stage);
+    const pct = investors.length ? Math.round(list.length / investors.length * 100) : 0;
+    const div = document.createElement('div');
+    div.className = 'funnel-stage';
+    div.innerHTML = `
+      <div class="funnel-header" onclick="toggleFunnelStage(this)">
+        <div class="funnel-color" style="background:${FUNNEL_COLORS[si]}"></div>
+        <div class="funnel-info">
+          <h4>${stage}</h4>
+          <p>${list.length} inversor${list.length!==1?'es':''}</p>
+        </div>
+        <div class="funnel-count" style="color:${FUNNEL_COLORS[si]}">${list.length}</div>
+      </div>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar"><div class="funnel-bar-fill" style="width:${pct}%;background:${FUNNEL_COLORS[si]}"></div></div>
+      </div>
+      ${list.length ? `<div class="funnel-body">
+        <div class="funnel-investors">
+          ${list.map(inv=>`<div class="investor-chip" onclick="openDetail(${investors.indexOf(inv)})"><div class="avatar" style="background:${avatarColor(inv.name)};width:22px;height:22px;font-size:.65rem">${initials(inv.name)}</div>${inv.name}</div>`).join('')}
+        </div>
+      </div>` : ''}`;
+    container.appendChild(div);
+  });
+  // populate funnel select
+  const sel = document.getElementById('funnel-inv-select');
+  if(sel) { sel.innerHTML = investors.map((inv,i) => `<option value="${i}">${inv.name} — ${inv.company}</option>`).join(''); }
+}
+
+function renderDashFunnel() {
+  const container = document.getElementById('dash-funnel');
+  container.innerHTML = '';
+  const active = STATUSES.slice(0,-1);
+  active.forEach((stage, si) => {
+    const cnt = investors.filter(inv => inv.status === stage).length;
+    const pct = investors.length ? Math.round(cnt / investors.length * 100) : 0;
+    container.innerHTML += `<div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:.78rem;color:var(--text2);width:130px;flex-shrink:0">${stage}</span>
+      <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%;background:${FUNNEL_COLORS[si]}"></div></div>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;width:20px;text-align:right">${cnt}</span>
+    </div>`;
+  });
+}
+
+function toggleFunnelStage(header) {
+  const body = header.parentElement.querySelector('.funnel-body');
+  if(body) body.classList.toggle('open');
+}
+
+function moveInvestorStage() {
+  const idx = parseInt(document.getElementById('funnel-inv-select').value);
+  const stage = document.getElementById('funnel-stage-select').value;
+  const note = document.getElementById('funnel-note').value;
+  investors[idx].status = stage;
+  if(note) {
+    communications.push({ inv: investors[idx].name, type:'Nota interna', date: new Date().toISOString(), notes: `Movido a "${stage}": ${note}`, result:'Neutral' });
+  }
+  renderFunnel(); renderDashFunnel(); renderInvestorsTable(); renderDashQuickTable();
+  document.getElementById('funnel-note').value = '';
+  showToast(`✅ ${investors[idx].name} → ${stage}`);
+}
+
+// ══════════════════════════════════════════
+//  COMMUNICATIONS
+// ══════════════════════════════════════════
+function populateAllSelects() {
+  const ids = ['comm-inv-select','note-inv-select','task-inv-select','seq-inv-select'];
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = investors.map((inv,i) => `<option value="${i}">${inv.name} — ${inv.company}</option>`).join('');
+    if(prev) sel.value = prev;
+  });
+}
+
+function logCommunication() {
+  const idx = parseInt(document.getElementById('comm-inv-select').value);
+  const comm = {
+    inv: investors[idx].name, company: investors[idx].company,
+    type: document.getElementById('comm-type').value,
+    date: document.getElementById('comm-date').value || new Date().toISOString(),
+    result: document.getElementById('comm-result').value,
+    notes: document.getElementById('comm-notes').value
+  };
+  communications.unshift(comm);
+  renderCommHistory();
+  document.getElementById('comm-notes').value = '';
+  showToast('✅ Comunicación registrada');
+}
+
+function renderCommHistory() {
+  const container = document.getElementById('comm-history');
+  if(!communications.length) { container.innerHTML = '<p class="text-muted">Aún no hay comunicaciones registradas.</p>'; return; }
+  const icons = {'Email enviado':'📤','Email recibido':'📥','Llamada':'📞','Reunión':'🤝','LinkedIn DM':'💼','Nota interna':'📝'};
+  const rColors = {'Positivo':'tag-green','Neutral':'tag-gray','Pendiente respuesta':'tag-orange','Sin respuesta':'tag-pink','Negativo':'tag-pink'};
+  container.innerHTML = communications.map((c,i) => `
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--surface2)">${icons[c.type]||'📌'}</div>${i<communications.length-1?'<div class="tl-line"></div>':''}</div>
+      <div class="tl-content">
+        <div class="tl-meta">${new Date(c.date).toLocaleString('es-ES')} · ${c.inv} — ${c.company}</div>
+        <div class="tl-text"><strong>${c.type}</strong> <span class="tag ${rColors[c.result]||'tag-gray'}">${c.result}</span></div>
+        ${c.notes?`<div class="tl-note">${c.notes}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function saveNote() {
+  const idx = parseInt(document.getElementById('note-inv-select').value);
+  const text = document.getElementById('note-text').value.trim();
+  if(!text) return;
+  const id = investors[idx].id;
+  if(!notes_store[id]) notes_store[id] = [];
+  notes_store[id].unshift(`<strong>${new Date().toLocaleDateString('es-ES')}</strong> — ${text}`);
+  document.getElementById('note-text').value = '';
+  renderNotes();
+  showToast('📌 Nota guardada');
+}
+
+function renderNotes() {
+  const c = document.getElementById('notes-list');
+  const entries = investors.map(inv => ({inv, notes: notes_store[inv.id]||[]})).filter(e => e.notes.length);
+  c.innerHTML = entries.length ? entries.map(e => `
+    <div class="card spacer">
+      <div class="card-header"><div class="card-title">${e.inv.name} — ${e.inv.company}</div></div>
+      <div>${e.notes.map(n => `<div class="tl-note" style="margin-bottom:8px">${n}</div>`).join('')}</div>
+    </div>`).join('') : '<p class="text-muted">Sin notas guardadas.</p>';
+}
+
+function addTask() {
+  const idx = parseInt(document.getElementById('task-inv-select').value);
+  tasks.push({
+    inv: investors[idx].name, company: investors[idx].company,
+    type: document.getElementById('task-type').value,
+    date: document.getElementById('task-date').value,
+    priority: document.getElementById('task-priority').value,
+    desc: document.getElementById('task-desc').value,
+    done: false
+  });
+  renderTasks();
+  document.getElementById('task-desc').value = '';
+  showToast('✅ Tarea creada');
+}
+
+function renderTasks() {
+  const c = document.getElementById('tasks-list');
+  const pending = tasks.filter(t => !t.done);
+  if(!pending.length) { c.innerHTML = '<p class="text-muted">Sin tareas pendientes.</p>'; return; }
+  c.innerHTML = pending.map((t,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <input type="checkbox" style="width:18px;height:18px;cursor:pointer" onchange="doneTask(${i})">
+      <div style="flex:1">
+        <div style="font-size:.87rem;font-weight:600">${t.type}</div>
+        <div class="text-muted">${t.inv} — ${t.company}${t.date?' · '+t.date:''}</div>
+        ${t.desc?`<div style="font-size:.8rem;color:var(--text2);margin-top:3px">${t.desc}</div>`:''}
+      </div>
+      <span class="tag ${t.priority.includes('Alta')?'tag-pink':t.priority.includes('Media')?'tag-orange':'tag-green'}">${t.priority}</span>
+    </div>`).join('');
+}
+
+function doneTask(i) {
+  tasks.filter(t => !t.done)[i].done = true;
+  renderTasks();
+  showToast('✅ Tarea completada');
+}
+
+// ══════════════════════════════════════════
+//  EMAIL
+// ══════════════════════════════════════════
+function renderEmailRecipients() {
+  const sel = document.getElementById('email-recipients');
+  if(!sel) return;
+  sel.innerHTML = investors.map((inv,i) => `<option value="${i}">${inv.name} — ${inv.company}</option>`).join('');
+}
+
+function loadTemplate(key) {
+  if(!key) return;
+  let tmpl = EMAIL_TEMPLATES[key];
+  if(!tmpl) {
+    const custom = customTemplates.find(t => t.key === key);
+    if(custom) tmpl = custom;
+  }
+  if(!tmpl) return;
+  document.getElementById('email-subject').value = tmpl.subject || '';
+  document.getElementById('email-body').value = tmpl.body || '';
+  previewEmail();
+}
+
+function previewEmail() {
+  const recipIdxs = Array.from(document.getElementById('email-recipients').selectedOptions).map(o => parseInt(o.value));
+  const names = recipIdxs.map(i => investors[i]?.name || '').join(', ');
+  document.getElementById('preview-to').textContent = names || '—';
+  let subject = document.getElementById('email-subject').value;
+  let body = document.getElementById('email-body').value;
+  if(recipIdxs.length === 1) {
+    const inv = investors[recipIdxs[0]];
+    if(inv) {
+      subject = subject.replace(/\{\{nombre\}\}/g, inv.name).replace(/\{\{empresa\}\}/g, inv.company).replace(/\{\{rol\}\}/g, inv.role).replace(/\{\{inversion\}\}/g, inv.investment);
+      body = body.replace(/\{\{nombre\}\}/g, inv.name).replace(/\{\{empresa\}\}/g, inv.company).replace(/\{\{rol\}\}/g, inv.role).replace(/\{\{inversion\}\}/g, inv.investment);
+    }
+  }
+  document.getElementById('preview-subject').textContent = subject || 'Asunto aparecerá aquí';
+  document.getElementById('preview-body').innerHTML = body.replace(/\n/g,'<br>') || 'Cuerpo del mensaje…';
+}
+
+function insertVar(v) {
+  const ta = document.getElementById('email-body');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.substring(0, start) + v + ta.value.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + v.length;
+  ta.focus();
+  previewEmail();
+}
+
+function sendEmail() {
+  const recipIdxs = Array.from(document.getElementById('email-recipients').selectedOptions).map(o => parseInt(o.value));
+  if(!recipIdxs.length) { showToast('❗ Selecciona al menos un destinatario'); return; }
+  const subject = document.getElementById('email-subject').value;
+  if(!subject) { showToast('❗ El asunto es obligatorio'); return; }
+  recipIdxs.forEach(idx => {
+    const inv = investors[idx];
+    sentEmails.push({ to: inv.name, company: inv.company, subject, date: new Date().toISOString() });
+    communications.push({ inv: inv.name, company: inv.company, type:'Email enviado', date: new Date().toISOString(), result:'Pendiente respuesta', notes: `Asunto: ${subject}` });
+  });
+  renderSentEmails(); renderCommHistory();
+  document.getElementById('stat-emails').textContent = sentEmails.length;
+  showToast(`📤 Email enviado a ${recipIdxs.length} destinatario${recipIdxs.length>1?'s':''}`);
+}
+
+function renderSentEmails() {
+  const c = document.getElementById('sent-list');
+  if(!sentEmails.length) { c.innerHTML = '<p class="text-muted">Aún no se han enviado emails.</p>'; return; }
+  c.innerHTML = `<table><thead><tr><th>Destinatario</th><th>Empresa</th><th>Asunto</th><th>Fecha</th><th>Estado</th></tr></thead><tbody>${sentEmails.map(e=>`<tr>
+    <td>${e.to}</td><td>${e.company}</td><td>${e.subject}</td>
+    <td>${new Date(e.date).toLocaleDateString('es-ES')}</td>
+    <td><span class="tag tag-orange">Enviado</span></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function renderTemplates() {
+  const c = document.getElementById('templates-grid');
+  const all = [
+    { key:'outreach', name:'Primer contacto (Outreach)', desc:'Email inicial para presentarte al inversor' },
+    { key:'followup1', name:'Seguimiento 1 (Soft)', desc:'Recordatorio amable tras email inicial' },
+    { key:'followup2', name:'Seguimiento 2 (Urgente)', desc:'Cierre de ronda inminente' },
+    { key:'pitch', name:'Envío de Pitch Deck', desc:'Acompaña el envío del deck' },
+    { key:'meeting', name:'Solicitud de Reunión', desc:'Propone slots de llamada' },
+    { key:'closing', name:'Confirmación de Closing', desc:'Formaliza la participación' },
+    ...customTemplates.map(t => ({ key:t.key, name:t.name, desc:'Plantilla personalizada' }))
+  ];
+  c.innerHTML = all.map(t => `
+    <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+      <div style="font-size:1.5rem">📄</div>
+      <div style="flex:1">
+        <div style="font-size:.9rem;font-weight:700">${t.name}</div>
+        <div class="text-muted">${t.desc}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="navigate('email', document.querySelector('.nav-item:nth-child(8)'));setTimeout(()=>{document.getElementById('email-template-select').value='${t.key}';loadTemplate('${t.key}')},100)">Usar →</button>
+    </div>`).join('');
+}
+
+function saveTemplate() {
+  const name = document.getElementById('tmpl-name').value.trim();
+  if(!name) return;
+  const key = 'custom_' + Date.now();
+  customTemplates.push({ key, name, subject: document.getElementById('tmpl-subject').value, body: document.getElementById('tmpl-body').value });
+  const sel = document.getElementById('email-template-select');
+  sel.innerHTML += `<option value="${key}">${name}</option>`;
+  closeModal('add-template-modal');
+  renderTemplates();
+  showToast('✅ Plantilla guardada');
+}
+
+// ══════════════════════════════════════════
+//  SEQUENCES
+// ══════════════════════════════════════════
+function toggleSequence(btn) {
+  const tag = btn.parentElement.querySelector('.tag');
+  if(btn.textContent === 'Pausar') { tag.className='tag tag-orange'; tag.textContent='Pausada'; btn.textContent='Activar'; }
+  else { tag.className='tag tag-green'; tag.textContent='Activa'; btn.textContent='Pausar'; }
+  showToast('🔄 Secuencia actualizada');
+}
+
+// ══════════════════════════════════════════
+//  CSV IMPORT
+// ══════════════════════════════════════════
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if(file && file.name.endsWith('.csv')) parseCSV(file);
+}
+
+function handleCSVImport(e) {
+  const file = e.target.files[0];
+  if(file) parseCSV(file);
+}
+
+function parseCSV(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const headers = lines[0].split(',');
+    importBuffer = lines.slice(1).map(line => {
+      const cols = line.split(',');
+      return { name: cols[0]||'', role: cols[1]||'', linkedin: cols[2]||'', company: cols[3]||'', investment: cols[4]||'', contact: cols[5]||'', notes: cols[6]||'', status:'Prospecto', priority:'Media 🟡', tags:[] };
+    }).filter(r => r.name);
+    showImportPreview(headers, importBuffer);
+  };
+  reader.readAsText(file);
+}
+
+function showImportPreview(headers, data) {
+  const preview = document.getElementById('import-preview');
+  const table = document.getElementById('import-table');
+  table.querySelector('thead').innerHTML = '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+  table.querySelector('tbody').innerHTML = data.slice(0,5).map(r => `<tr><td>${r.name}</td><td>${r.role}</td><td>${r.linkedin}</td><td>${r.company}</td><td>${r.investment}</td><td>${r.contact}</td><td>${r.notes}</td></tr>`).join('');
+  preview.style.display = 'block';
+  document.getElementById('upload-zone').style.display = 'none';
+}
+
+function cancelImport() {
+  importBuffer = [];
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+}
+
+function confirmImport() {
+  let added = 0;
+  importBuffer.forEach(r => {
+    const exists = investors.find(i => i.name.toLowerCase() === r.name.toLowerCase());
+    if(!exists) { investors.push({...r, id: nextId++}); added++; }
+  });
+  const filename = document.getElementById('csv-file')?.files[0]?.name || 'archivo.csv';
+  const histEl = document.getElementById('import-history');
+  histEl.innerHTML = `<div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+    <span style="font-size:1.3rem">📥</span>
+    <div style="flex:1"><div style="font-size:.87rem;font-weight:600">${filename}</div>
+    <div class="text-muted">${added} inversores nuevos · ${new Date().toLocaleDateString('es-ES')}</div></div>
+    <span class="tag tag-green">✓ Completado</span>
+  </div>` + histEl.innerHTML;
+  cancelImport();
+  renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
+  showToast(`✅ ${added} inversores importados`);
+}
+
+// ══════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════
+function saveSettings() { showToast('✅ Configuración guardada'); }
+
+// ══════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════
+function globalSearch(q) {
+  if(!q) { renderInvestorsTable(); return; }
+  const filtered = investors.filter(inv =>
+    [inv.name, inv.role, inv.company, inv.notes, inv.investment, inv.contact].join(' ').toLowerCase().includes(q.toLowerCase())
+  );
+  renderInvestorsTable(filtered);
+  navigate('investors', document.querySelectorAll('.nav-item')[1]);
+}
+
+// ══════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════
+function exportCSV() {
+  const headers = ['Nombre completo','Título / Rol profesional','LinkedIn URL','Empresa / Fondo','Publicación o inversión anunciada','Métodos de contacto público','Notas sobre inversión reciente','Estado','Prioridad'];
+  const rows = investors.map(inv => [inv.name, inv.role, inv.linkedin, inv.company, inv.investment, inv.contact, inv.notes, inv.status, inv.priority].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'inversores_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📤 CSV exportado');
+}
+
+// ══════════════════════════════════════════
+//  MODAL UTILS
+// ══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
