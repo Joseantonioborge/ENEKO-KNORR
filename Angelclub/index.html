@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portfolio Dashboard</title>
+<title>AngelClub — Portal Inversor</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -23,9 +23,7 @@
     --border: rgba(30,136,229,0.18);
     --shadow: rgba(21,101,192,0.10);
   }
-
   * { margin:0; padding:0; box-sizing:border-box; }
-
   body {
     font-family: 'DM Mono', monospace;
     background: var(--bg);
@@ -33,926 +31,499 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* Soft light background */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background:
       radial-gradient(ellipse 80% 50% at 15% 10%, rgba(30,136,229,0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 85% 85%, rgba(21,101,192,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 50% 50%, rgba(227,236,248,0.6) 0%, transparent 80%);
-    z-index: 0;
-    pointer-events: none;
+      radial-gradient(ellipse 60% 40% at 85% 85%, rgba(21,101,192,0.07) 0%, transparent 60%);
+    z-index: 0; pointer-events: none;
   }
-
-  /* Subtle grid lines */
   body::after {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image:
       linear-gradient(rgba(30,136,229,0.06) 1px, transparent 1px),
       linear-gradient(90deg, rgba(30,136,229,0.06) 1px, transparent 1px);
     background-size: 60px 60px;
-    z-index: 0;
-    pointer-events: none;
+    z-index: 0; pointer-events: none;
   }
 
-  .container {
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #EEF3FB 0%, #D6E4F5 100%);
+  }
+  .login-card {
+    background: rgba(255,255,255,0.90);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(21,101,192,0.15);
+    animation: fadeUp 0.6s ease both;
     position: relative;
     z-index: 1;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 40px 32px;
   }
-
-  /* HEADER */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 40px;
-    animation: fadeDown 0.8s ease both;
+  .login-logo {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 36px; justify-content: center;
   }
-
-  .logo-area {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .logo-icon {
-    width: 52px;
-    height: 52px;
+  .login-logo-icon {
+    width: 48px; height: 48px;
     background: linear-gradient(135deg, var(--blue), var(--blue-bright));
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 24px;
-    color: white;
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: white;
     box-shadow: 0 4px 18px rgba(21,101,192,0.25);
   }
-
-  .logo-text {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 28px;
-    letter-spacing: -0.5px;
+  .login-logo-text {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px;
     color: var(--blue);
   }
-
-  .logo-text span {
-    color: var(--blue-bright);
+  .login-logo-text span { color: var(--blue-bright); }
+  .login-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px;
+    color: var(--text); text-align: center; margin-bottom: 8px;
+  }
+  .login-sub {
+    font-size: 11px; color: var(--muted); text-align: center;
+    letter-spacing: 0.05em; margin-bottom: 32px; line-height: 1.6;
+  }
+  .login-field { margin-bottom: 18px; }
+  .login-label {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--muted); margin-bottom: 7px;
+  }
+  .login-input {
+    width: 100%; background: rgba(30,136,229,0.05);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 13px 16px; font-family: 'DM Mono', monospace; font-size: 13px;
+    color: var(--text); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .login-input::placeholder { color: var(--muted); opacity: 0.6; }
+  .login-input:focus {
+    border-color: var(--blue-bright); background: rgba(30,136,229,0.08);
+    box-shadow: 0 0 0 3px rgba(30,136,229,0.10);
+  }
+  .login-btn {
+    width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+    color: white; border: none; border-radius: 12px;
+    padding: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    cursor: pointer; margin-top: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(21,101,192,0.25);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,0.35); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.20);
+    color: var(--red); border-radius: 10px; padding: 10px 14px;
+    font-size: 12px; margin-top: 14px; display: none; text-align: center;
+  }
+  .login-hint {
+    font-size: 10px; color: var(--muted); text-align: center;
+    margin-top: 20px; line-height: 1.7;
   }
 
-  .header-meta {
-    text-align: right;
+  /* ── MAIN DASHBOARD ── */
+  #dashboard { display: none; }
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1400px; margin: 0 auto; padding: 40px 32px;
   }
 
-  .header-meta p {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  /* TOPBAR */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px; margin-bottom: 40px;
+    animation: fadeDown 0.8s ease both;
   }
-
-  .header-meta .date {
-    font-size: 14px;
-    color: var(--blue-bright);
-    font-weight: 500;
-    margin-top: 4px;
+  .logo-area { display: flex; align-items: center; gap: 16px; }
+  .logo-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px; color: white;
+    box-shadow: 0 4px 18px rgba(21,101,192,0.25);
   }
+  .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.5px; color: var(--blue); }
+  .logo-text span { color: var(--blue-bright); }
+  .topbar-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .investor-badge {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 30px;
+    padding: 8px 18px; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+  .investor-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: white;
+  }
+  .investor-name-badge { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--text); }
+  .investor-email-badge { font-size: 10px; color: var(--muted); }
+  .logout-btn {
+    background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.18);
+    color: var(--red); border-radius: 10px; padding: 8px 16px;
+    font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  }
+  .logout-btn:hover { background: rgba(198,40,40,0.14); }
+  .topbar-date { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-align: right; }
+  .topbar-date strong { display: block; color: var(--blue-bright); font-size: 13px; margin-bottom: 2px; }
 
   /* KPI CARDS */
   .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 20px; margin-bottom: 40px;
   }
-
   .kpi-card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 2px 16px var(--shadow);
+    background: var(--glass); border: 1px solid var(--border); border-radius: 20px;
+    padding: 24px; position: relative; overflow: hidden;
+    backdrop-filter: blur(20px); box-shadow: 0 2px 16px var(--shadow);
     animation: fadeUp 0.8s ease both;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-
-  .kpi-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(21,101,192,0.16);
-  }
-
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(21,101,192,0.16); }
   .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, transparent, var(--blue-bright), transparent);
   }
-
   .kpi-card:nth-child(1) { animation-delay: 0.1s; }
   .kpi-card:nth-child(2) { animation-delay: 0.2s; }
   .kpi-card:nth-child(3) { animation-delay: 0.3s; }
   .kpi-card:nth-child(4) { animation-delay: 0.4s; }
-
-  .kpi-icon {
-    font-size: 28px;
-    margin-bottom: 12px;
-    display: block;
-  }
-
-  .kpi-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  .kpi-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 32px;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  .kpi-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
+  .kpi-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 30px; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
   .kpi-accent { color: var(--blue-bright); }
   .kpi-gold { color: var(--gold); }
   .kpi-green { color: var(--green); }
-  .kpi-red { color: var(--red); }
 
-  /* MAIN GRID */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-
+  /* PANEL */
   .panel {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 2px 16px var(--shadow);
-    animation: fadeUp 0.9s ease both;
+    background: var(--glass); border: 1px solid var(--border); border-radius: 20px;
+    padding: 28px; backdrop-filter: blur(20px);
+    box-shadow: 0 2px 16px var(--shadow); animation: fadeUp 0.9s ease both;
   }
-
   .panel-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--text);
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+    color: var(--text); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
   }
-
-  .panel-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  .panel-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
   /* INVESTMENTS TABLE */
-  .investments-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
+  .investments-table { width: 100%; border-collapse: collapse; }
   .investments-table th {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-align: left;
-    padding: 0 12px 14px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted); text-align: left; padding: 0 14px 14px;
     border-bottom: 1px solid var(--border);
   }
-
   .investments-table td {
-    padding: 14px 12px;
-    font-size: 12px;
-    border-bottom: 1px solid rgba(30,136,229,0.08);
-    vertical-align: middle;
+    padding: 16px 14px; font-size: 12px;
+    border-bottom: 1px solid rgba(30,136,229,0.08); vertical-align: middle;
   }
-
-  .investments-table tr {
-    transition: background 0.2s ease;
-    animation: fadeIn 0.5s ease both;
-  }
-
-  .investments-table tr:hover td {
-    background: rgba(30,136,229,0.05);
-  }
-
+  .investments-table tr { transition: background 0.2s ease; }
+  .investments-table tr:hover td { background: rgba(30,136,229,0.05); }
   .startup-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text);
-    text-decoration: none;
-    transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    color: var(--text); text-decoration: none; transition: color 0.2s;
+    display: flex; align-items: center; gap: 8px;
   }
-
   .startup-name:hover { color: var(--blue-bright); }
-
-  .startup-name .link-icon {
-    opacity: 0;
-    font-size: 10px;
-    transition: opacity 0.2s;
-  }
-
-  tr:hover .startup-name .link-icon { opacity: 1; }
-
+  .link-icon { opacity: 0; font-size: 11px; transition: opacity 0.2s; }
+  tr:hover .link-icon { opacity: 1; }
   .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 9px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
   }
+  .status-exit { background: rgba(46,125,50,0.12); color: var(--green); border: 1px solid rgba(46,125,50,0.25); }
+  .status-fail { background: rgba(198,40,40,0.10); color: var(--red); border: 1px solid rgba(198,40,40,0.22); }
+  .status-active { background: rgba(30,136,229,0.10); color: var(--blue-bright); border: 1px solid rgba(30,136,229,0.22); }
+  .tir-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--gold); }
+  .amount-cell { font-weight: 500; color: var(--text); font-size: 13px; }
+  .investor-amount { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .equity-tag { color: var(--muted); font-size: 11px; }
+  .bar-mini { background: rgba(30,136,229,0.10); border-radius: 3px; height: 5px; overflow: hidden; margin-top: 5px; }
+  .bar-mini-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), var(--blue-bright)); animation: growBar 1s ease both; }
 
-  .status-exit {
-    background: rgba(46,125,50,0.12);
-    color: var(--green);
-    border: 1px solid rgba(46,125,50,0.25);
+  /* CHART / DONUT */
+  .two-col { display: grid; grid-template-columns: 1fr 360px; gap: 24px; margin-bottom: 24px; }
+  .chart-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  svg.donut { filter: drop-shadow(0 4px 12px rgba(21,101,192,0.15)); }
+  .donut-segments circle { fill: none; stroke-width: 18; transform-origin: center; transition: stroke-width 0.3s ease; cursor: pointer; }
+  .donut-center-text { font-family: 'Syne', sans-serif; fill: var(--text); font-weight: 800; font-size: 18px; text-anchor: middle; dominant-baseline: middle; }
+  .donut-center-sub { fill: var(--muted); font-size: 9px; text-anchor: middle; dominant-baseline: middle; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+  .legend { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-label { flex: 1; color: var(--muted); font-size: 10px; }
+  .legend-pct { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text); font-size: 12px; }
+
+  /* BOTTOM GRID */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .stat-row { display: flex; justify-content: space-around; padding: 20px 0; flex-wrap: wrap; gap: 12px; }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 34px; }
+  .stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 4px; }
+
+  /* CONTACT FORM */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  .field-input {
+    background: rgba(30,136,229,0.06); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 16px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text);
+    outline: none; width: 100%; appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   }
-
-  .status-fail {
-    background: rgba(198,40,40,0.10);
-    color: var(--red);
-    border: 1px solid rgba(198,40,40,0.22);
+  .field-input::placeholder { color: var(--muted); opacity: 0.7; }
+  .field-input:focus { border-color: var(--blue-bright); background: rgba(30,136,229,0.09); box-shadow: 0 0 0 3px rgba(30,136,229,0.10); }
+  .field-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A7A9F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer;
   }
-
-  .status-active {
-    background: rgba(30,136,229,0.10);
-    color: var(--blue-bright);
-    border: 1px solid rgba(30,136,229,0.22);
+  .field-textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
+  .contact-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+  .contact-hint { font-size: 11px; color: var(--muted); }
+  .contact-hint strong { color: var(--blue-bright); }
+  .send-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+    color: white; border: none; border-radius: 12px; padding: 12px 28px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(21,101,192,0.25);
   }
+  .send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,0.35); }
+  .send-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-arrow { font-size: 16px; transition: transform 0.2s; }
+  .send-btn:hover .btn-arrow { transform: translateX(3px); }
+  .cf-feedback { padding: 12px 16px; border-radius: 12px; font-size: 12px; margin-top: 8px; }
+  .cf-feedback.success { background: rgba(46,125,50,0.10); border: 1px solid rgba(46,125,50,0.25); color: var(--green); }
+  .cf-feedback.error { background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.20); color: var(--red); }
 
-  .bar-cell {
-    width: 120px;
+  /* ── ADMIN STYLES ── */
+  .admin-badge-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    background:linear-gradient(135deg,rgba(230,168,23,0.18),rgba(249,200,70,0.10));
+    border:1px solid rgba(230,168,23,0.40); border-radius:20px;
+    padding:3px 10px 3px 6px; font-size:10px; color:#B8860B; font-weight:700;
+    letter-spacing:0.05em; vertical-align:middle; margin-left:8px;
   }
-
-  .bar-wrapper {
-    background: rgba(30,136,229,0.10);
-    border-radius: 4px;
-    height: 6px;
-    overflow: hidden;
+  #admin-section .kpi-card::before {
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
   }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--blue), var(--blue-bright));
-    transform-origin: left;
-    animation: growBar 1s ease both;
+  .adm-rank-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 0; border-bottom:1px solid rgba(30,136,229,0.07);
   }
+  .adm-rank-item:last-child { border-bottom:none; }
+  .adm-rank-num { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; color:rgba(30,136,229,0.22); width:28px; flex-shrink:0; }
+  .adm-rank-name { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
+  .adm-rank-email { font-size:10px; color:var(--muted); }
+  .adm-rank-amt { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; color:var(--gold); white-space:nowrap; }
+  .adm-rank-startups { font-size:10px; color:var(--muted); margin-top:1px; }
+  .admin-tab-glow { box-shadow: 0 0 0 3px rgba(230,168,23,0.15), 0 4px 16px rgba(230,168,23,0.20) !important; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(30,136,229,0.25); border-radius: 3px; }
+  .table-scroll { max-height: 480px; overflow-y: auto; }
 
-  .tir-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--gold);
-  }
-
-  .amount {
-    font-weight: 500;
-    color: var(--text);
-    font-size: 12px;
-  }
-
-  .equity {
-    color: var(--muted);
-    font-size: 11px;
-  }
-
-  .year-tag {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  /* PIE CHART PANEL */
-  .chart-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-  }
-
-  svg.donut {
-    filter: drop-shadow(0 4px 12px rgba(21,101,192,0.15));
-  }
-
-  .donut-segments circle {
-    fill: none;
-    stroke-width: 18;
-    transform-origin: center;
-    transition: stroke-width 0.3s ease;
-  }
-
-  .donut-segments circle:hover {
-    stroke-width: 22;
-  }
-
-  .donut-center-text {
-    font-family: 'Syne', sans-serif;
-    fill: var(--text);
-    font-weight: 800;
-    font-size: 20px;
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-
-  .donut-center-sub {
-    fill: var(--muted);
-    font-size: 9px;
-    text-anchor: middle;
-    dominant-baseline: middle;
-    font-family: 'DM Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .legend {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 11px;
-    transition: opacity 0.2s;
-  }
-
-  .legend-item:hover { opacity: 1 !important; }
-
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    flex-shrink: 0;
-  }
-
-  .legend-label {
-    flex: 1;
-    color: var(--muted);
-    font-size: 10px;
-  }
-
-  .legend-pct {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    color: var(--text);
-    font-size: 12px;
-  }
-
-  /* TIMELINE */
-  .timeline-panel {
-    animation: fadeUp 1s ease 0.2s both;
-  }
-
-  .timeline {
-    display: flex;
-    gap: 0;
-    align-items: flex-end;
-    height: 140px;
-    padding-bottom: 24px;
-    position: relative;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    bottom: 24px;
-    left: 0; right: 0;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .timeline-bar-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    position: relative;
-  }
-
-  .timeline-bar {
-    width: 80%;
-    border-radius: 4px 4px 0 0;
-    background: linear-gradient(180deg, var(--blue-bright), var(--blue));
-    position: relative;
-    transition: filter 0.3s ease;
-    animation: growUp 1s ease both;
-    cursor: pointer;
-  }
-
-  .timeline-bar:hover {
-    filter: brightness(1.15);
-  }
-
-  .timeline-bar:hover::after {
-    content: attr(data-amount);
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 12px var(--shadow);
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    color: var(--blue-bright);
-    white-space: nowrap;
-    z-index: 10;
-  }
-
-  .timeline-label {
-    position: absolute;
-    bottom: 0;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  /* BOTTOM ROW */
-  .bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-    animation: fadeUp 1s ease 0.3s both;
-  }
-
-  /* Animations */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes growBar {
-    from { width: 0; }
-  }
-
-  @keyframes growUp {
-    from { height: 0 !important; }
-  }
-
+  /* ANIMATIONS */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes growBar { from { width: 0; } }
   @keyframes pulse-glow {
     0%, 100% { box-shadow: 0 2px 16px rgba(21,101,192,0.10); }
     50% { box-shadow: 0 4px 28px rgba(21,101,192,0.22), 0 0 0 3px rgba(30,136,229,0.07); }
   }
+  .glowing { animation: pulse-glow 3s ease infinite; }
 
-  .glowing {
-    animation: pulse-glow 3s ease infinite;
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
   }
-
-  /* STATUS STATS */
-  .stat-ring {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 20px 0;
-    flex-wrap: wrap;
-  }
-
-  .ring-stat {
-    text-align: center;
-  }
-
-  .ring-num {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 36px;
-  }
-
-  .ring-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* TOP INVESTMENTS */
-  .top-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .top-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .top-rank {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 20px;
-    color: rgba(30,136,229,0.25);
-    width: 30px;
-    flex-shrink: 0;
-  }
-
-  .top-info { flex: 1; }
-
-  .top-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .top-name:hover { color: var(--blue-bright); }
-
-  .top-amount {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .top-bar-wrap {
-    width: 80px;
-  }
-
-  .top-bar {
-    height: 4px;
-    background: rgba(30,136,229,0.10);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .top-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--blue), var(--blue-bright));
-    animation: growBar 1.2s ease both;
-  }
-
-  /* SECTOR GRID */
-  .sector-wrap {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .sector-item {
-    background: rgba(30,136,229,0.06);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    text-align: center;
-    transition: all 0.3s ease;
-  }
-
-  .sector-item:hover {
-    background: rgba(30,136,229,0.12);
-    border-color: rgba(30,136,229,0.35);
-  }
-
-  .sector-emoji { font-size: 24px; margin-bottom: 6px; }
-
-  .sector-name {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-  }
-
-  .sector-count {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--text);
-    margin-top: 2px;
-  }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb { background: rgba(30,136,229,0.25); border-radius: 3px; }
-
-  .table-scroll {
-    max-height: 520px;
-    overflow-y: auto;
-  }
-
-  /* ─── CONTACT FORM ───────────────────────────── */
-  .contact-panel {
-    animation: fadeUp 1s ease 0.4s both;
-  }
-
-  .contact-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .field-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-  }
-
-  .field-input {
-    background: rgba(30,136,229,0.06);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--text);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    outline: none;
-    width: 100%;
-    appearance: none;
-  }
-
-  .field-input::placeholder { color: var(--muted); opacity: 0.7; }
-
-  .field-input:focus {
-    border-color: var(--blue-bright);
-    background: rgba(30,136,229,0.09);
-    box-shadow: 0 0 0 3px rgba(30,136,229,0.10);
-  }
-
-  .field-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A7A9F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-    cursor: pointer;
-  }
-
-  .field-textarea {
-    min-height: 100px;
-    resize: vertical;
-    line-height: 1.6;
-  }
-
-  .contact-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 4px;
-  }
-
-  .contact-hint {
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .contact-hint strong {
-    color: var(--blue-bright);
-    font-weight: 600;
-  }
-
-  .send-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, var(--blue), var(--blue-bright));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 28px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
-    box-shadow: 0 4px 16px rgba(21,101,192,0.25);
-  }
-
-  .send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(21,101,192,0.35);
-  }
-
-  .send-btn:active { transform: translateY(0); }
-
-  .send-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-arrow {
-    font-size: 16px;
-    transition: transform 0.2s ease;
-  }
-
-  .send-btn:hover .btn-arrow { transform: translateX(3px); }
-
-  .cf-feedback {
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    margin-top: 4px;
-  }
-
-  .cf-feedback.success {
-    background: rgba(46,125,50,0.10);
-    border: 1px solid rgba(46,125,50,0.25);
-    color: var(--green);
-  }
-
-  .cf-feedback.error {
-    background: rgba(198,40,40,0.08);
-    border: 1px solid rgba(198,40,40,0.20);
-    color: var(--red);
-  }
-
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
+    .container { padding: 24px 16px; }
+    .topbar { flex-direction: column; align-items: flex-start; }
+    .topbar-right { width: 100%; justify-content: space-between; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .kpi-value { font-size: 24px; }
     .field-row { grid-template-columns: 1fr; }
     .contact-actions { flex-direction: column; align-items: flex-start; }
     .send-btn { width: 100%; justify-content: center; }
+    .investments-table th:nth-child(3), .investments-table td:nth-child(3) { display: none; }
   }
-  @media (max-width: 1200px) {
-    .main-grid { grid-template-columns: 1fr 340px; }
-  }
-
-  @media (max-width: 1024px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .main-grid { grid-template-columns: 1fr; }
-    .bottom-grid { grid-template-columns: 1fr 1fr; }
-  }
-
-  @media (max-width: 768px) {
-    .container { padding: 24px 16px; }
-    header { flex-direction: column; align-items: flex-start; }
-    .header-meta { text-align: left; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .kpi-value { font-size: 26px; }
-    .main-grid { grid-template-columns: 1fr; gap: 16px; }
-    .bottom-grid { grid-template-columns: 1fr; gap: 16px; }
-    .panel { padding: 20px 16px; }
-    .investments-table th:nth-child(4),
-    .investments-table td:nth-child(4) { display: none; } /* hide equity col */
-    .bar-cell { width: 80px; }
-    .stat-ring { gap: 16px; }
-    .ring-num { font-size: 28px; }
-  }
-
   @media (max-width: 480px) {
     .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .kpi-card { padding: 16px; }
-    .kpi-value { font-size: 22px; }
-    .kpi-icon { font-size: 22px; }
-    .logo-text { font-size: 22px; }
-    .investments-table th:nth-child(5),
-    .investments-table td:nth-child(5) { display: none; } /* hide bar col */
-    .sector-wrap { grid-template-columns: repeat(3, 1fr); }
+    .kpi-value { font-size: 20px; }
+    .login-card { padding: 32px 24px; margin: 16px; }
   }
 </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">A</div>
+      <div class="login-logo-text">ANGEL<span>CLUB</span></div>
+    </div>
+    <!-- MODE TABS -->
+    <div style="display:flex;gap:0;margin-bottom:28px;background:rgba(30,136,229,0.07);border-radius:12px;padding:4px;">
+      <button id="tab-investor" onclick="setLoginMode('investor')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:linear-gradient(135deg,var(--blue),var(--blue-bright));color:white;box-shadow:0 2px 8px rgba(21,101,192,0.20);">👤 Inversor</button>
+      <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
+    </div>
+
+    <div id="login-title" class="login-title">Portal del Inversor</div>
+    <div id="login-sub" class="login-sub">Accede con tu nombre completo y correo electrónico<br>tal como figuran en tu ficha de inversor</div>
+
+    <!-- INVESTOR FIELDS -->
+    <div id="investor-fields">
+      <div class="login-field">
+        <label class="login-label">Nombre y apellidos</label>
+        <input class="login-input" id="login-name" type="text" placeholder="Ej: Ana García López" autocomplete="name">
+      </div>
+      <div class="login-field">
+        <label class="login-label">Correo electrónico</label>
+        <input class="login-input" id="login-email" type="email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+    </div>
+
+    <!-- ADMIN FIELDS -->
+    <div id="admin-fields" style="display:none;">
+      <div class="login-field">
+        <label class="login-label">Usuario administrador</label>
+        <input class="login-input" id="admin-user" type="email" placeholder="equipo@angelclub.es" autocomplete="off">
+      </div>
+      <div class="login-field" style="position:relative;">
+        <label class="login-label">Contraseña</label>
+        <input class="login-input" id="admin-pass" type="password" placeholder="••••••••••••" autocomplete="off" style="padding-right:46px;">
+        <button onclick="togglePass()" style="position:absolute;right:14px;top:35px;background:none;border:none;cursor:pointer;font-size:15px;color:var(--muted);padding:0;" id="pass-eye">👁</button>
+      </div>
+    </div>
+
+    <button class="login-btn" id="login-btn" onclick="doLogin()">
+      <span id="login-btn-text">Acceder al Portal</span> <span>→</span>
+    </button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-hint" id="login-hint">
+      ¿Problemas de acceso? Contacta con nosotros en<br>
+      <a href="/cdn-cgi/l/email-protection#bdd8ccc8d4cdd2fddcd3dad8d1ded1c8df93d8ce" style="color:var(--blue-bright);text-decoration:none;"><span class="__cf_email__" data-cfemail="d7b2a6a2bea7b897b6b9b0b2bbb4bba2b5f9b2a4">[email&#160;protected]</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════════════════ -->
+<div id="dashboard">
 <div class="container">
 
-  <!-- HEADER -->
-  <header>
+  <!-- TOPBAR -->
+  <div class="topbar">
     <div class="logo-area">
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portfolio Dashboard</div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor</div>
       </div>
     </div>
-    <div class="header-meta">
-      <p>Actualizado</p>
-      <div class="date" id="today-date"></div>
-      <p style="margin-top:6px;">33 Inversiones · 2017–2021</p>
+    <div class="topbar-right">
+      <div class="investor-badge" id="user-badge">
+        <div class="investor-avatar" id="inv-avatar">?</div>
+        <div>
+          <div class="investor-name-badge" id="inv-name-display">—</div>
+          <div class="investor-email-badge" id="inv-email-display">—</div>
+        </div>
+      </div>
+      <!-- ADMIN BADGE (hidden by default) -->
+      <div id="admin-badge" style="display:none;background:linear-gradient(135deg,rgba(230,168,23,0.15),rgba(230,168,23,0.08));border:1px solid rgba(230,168,23,0.35);border-radius:30px;padding:8px 18px;display:none;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(230,168,23,0.10);">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#E6A817,#F9C846);display:flex;align-items:center;justify-content:center;font-size:15px;">⚙️</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Administrador</div>
+          <div style="font-size:10px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0a6f7b7f637a654a6b646d6f6669667f68246f79">[email&#160;protected]</a></div>
+        </div>
+      </div>
+      <div class="topbar-date">
+        <strong id="today-date"></strong>
+        <span id="topbar-view-label">Mi Portfolio</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">⎋ Cerrar sesión</button>
     </div>
-  </header>
+  </div>
 
   <!-- KPI CARDS -->
   <div class="kpi-grid">
     <div class="kpi-card glowing">
       <span class="kpi-icon">💰</span>
-      <div class="kpi-label">Capital Total Invertido</div>
-      <div class="kpi-value kpi-accent" id="counter-total">€0</div>
-      <div class="kpi-sub">En 22 startups</div>
+      <div class="kpi-label" id="kpi-total-label">Capital Invertido</div>
+      <div class="kpi-value kpi-accent" id="kpi-total">€0</div>
+      <div class="kpi-sub" id="kpi-total-sub">En — startups</div>
     </div>
     <div class="kpi-card">
-      <span class="kpi-icon">🚀</span>
-      <div class="kpi-label">Inversiones Activas</div>
-      <div class="kpi-value" style="color:var(--text);">26</div>
-      <div class="kpi-sub" style="color:var(--blue-bright);">79% del portfolio</div>
+      <span class="kpi-icon" id="kpi2-icon">🚀</span>
+      <div class="kpi-label" id="kpi2-label">Inversiones Activas</div>
+      <div class="kpi-value" id="kpi-active" style="color:var(--text);">0</div>
+      <div class="kpi-sub" id="kpi-active-sub">proyectos en cartera</div>
     </div>
     <div class="kpi-card">
       <span class="kpi-icon">🏆</span>
-      <div class="kpi-label">Exits Exitosos</div>
-      <div class="kpi-value kpi-green">1</div>
-      <div class="kpi-sub">Mailtrack · TIR 74%</div>
+      <div class="kpi-label" id="kpi3-label">Exits Exitosos</div>
+      <div class="kpi-value kpi-green" id="kpi-exits">0</div>
+      <div class="kpi-sub" id="kpi-exits-sub">retorno de inversión</div>
     </div>
     <div class="kpi-card">
       <span class="kpi-icon">📊</span>
-      <div class="kpi-label">Inversión Media</div>
-      <div class="kpi-value kpi-gold">€96K</div>
-      <div class="kpi-sub">Por startup</div>
+      <div class="kpi-label" id="kpi4-label">Mejor TIR</div>
+      <div class="kpi-value kpi-gold" id="kpi-tir">—</div>
+      <div class="kpi-sub" id="kpi-tir-sub">en portfolio activo</div>
     </div>
   </div>
 
-  <!-- MAIN GRID: TABLE + DONUT -->
-  <div class="main-grid">
-    <!-- INVESTMENTS TABLE -->
+  <!-- TABLE + DONUT -->
+  <div class="two-col">
     <div class="panel">
-      <div class="panel-title">🗂 Todas las Inversiones</div>
+      <div class="panel-title" id="table-panel-title">📋 Mis Inversiones</div>
       <div class="table-scroll">
         <table class="investments-table">
           <thead>
             <tr>
-              <th>Año</th>
               <th>Startup</th>
-              <th>Capital</th>
+              <th>Capital Total</th>
+              <th>Mi Aportación</th>
               <th>Equity</th>
-              <th>Peso</th>
               <th>Estado</th>
               <th>TIR</th>
+              <th>Web</th>
             </tr>
           </thead>
-          <tbody id="table-body"></tbody>
+          <tbody id="inv-table-body"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- DONUT CHART -->
     <div class="panel" style="animation-delay:0.15s;">
       <div class="panel-title">🎯 Distribución</div>
       <div class="chart-wrap">
-        <svg class="donut" width="200" height="200" viewBox="0 0 200 200">
-          <g class="donut-segments" id="donut-segments"></g>
-          <text class="donut-center-text" x="100" y="93">€2M</text>
+        <svg class="donut" width="190" height="190" viewBox="0 0 200 200" id="donut-svg">
+          <g id="donut-segments"></g>
+          <text class="donut-center-text" x="100" y="93" id="donut-center-val">€0</text>
           <text class="donut-center-sub" x="100" y="113">invertido</text>
         </svg>
         <div class="legend" id="donut-legend"></div>
@@ -960,364 +531,1928 @@
     </div>
   </div>
 
-  <!-- TIMELINE -->
-  <div class="panel timeline-panel" style="margin-bottom:24px;">
-    <div class="panel-title">📅 Inversiones por Año</div>
-    <div class="timeline" id="timeline"></div>
-  </div>
-
-  <!-- BOTTOM GRID -->
+  <!-- BOTTOM: STATS + SECTOR -->
   <div class="bottom-grid">
-    <!-- STATUS STATS -->
     <div class="panel">
-      <div class="panel-title">📈 Estado del Portfolio</div>
-      <div class="stat-ring">
-        <div class="ring-stat">
-          <div class="ring-num" style="color:var(--blue-bright);">26</div>
-          <div class="ring-label">Activas</div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-num" style="color:var(--green);">1</div>
-          <div class="ring-label">Exit</div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-num" style="color:var(--red);">3</div>
-          <div class="ring-label">Fail</div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-num" style="color:var(--gold);">74%</div>
-          <div class="ring-label">Mejor TIR</div>
-        </div>
-      </div>
-      <!-- Mini donut status -->
-      <svg width="100%" height="12" style="border-radius:8px;overflow:hidden;display:block;margin-top:12px;">
-        <rect x="0" y="0" width="79%" height="12" fill="#1976D2" rx="0"/>
-        <rect x="79%" y="0" width="3%" height="12" fill="var(--green)" rx="0"/>
-        <rect x="82%" y="0" width="9%" height="12" fill="var(--red)" rx="0"/>
-        <rect x="91%" y="0" width="9%" height="12" fill="var(--bg3)" rx="0"/>
-      </svg>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--muted);">
-        <span>Activas 79%</span><span>Exit 3%</span><span>Fail 9%</span><span>ND 9%</span>
+      <div class="panel-title">📈 Resumen del Portfolio</div>
+      <div class="stat-row" id="stat-row"></div>
+      <div id="portfolio-bar-wrap" style="margin-top:12px;">
+        <svg width="100%" height="12" style="border-radius:8px;overflow:hidden;display:block;" id="portfolio-bar-svg">
+          <rect x="0" y="0" width="0%" height="12" fill="#1976D2" id="bar-active"/>
+          <rect x="0%" y="0" width="0%" height="12" fill="var(--green)" id="bar-exit"/>
+          <rect x="0%" y="0" width="0%" height="12" fill="var(--red)" id="bar-fail"/>
+        </svg>
+        <div id="bar-legend" style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--muted);"></div>
       </div>
     </div>
 
-    <!-- TOP INVESTMENTS -->
     <div class="panel">
-      <div class="panel-title">🔝 Top Inversiones</div>
-      <div class="top-list" id="top-list"></div>
-    </div>
-
-    <!-- SECTORS -->
-    <div class="panel">
-      <div class="panel-title">🏭 Sectores</div>
-      <div class="sector-wrap">
-        <div class="sector-item">
-          <div class="sector-emoji">🏠</div>
-          <div class="sector-name">Proptech</div>
-          <div class="sector-count">3</div>
-        </div>
-        <div class="sector-item">
-          <div class="sector-emoji">💳</div>
-          <div class="sector-name">Fintech</div>
-          <div class="sector-count">4</div>
-        </div>
-        <div class="sector-item">
-          <div class="sector-emoji">🚗</div>
-          <div class="sector-name">Mobility</div>
-          <div class="sector-count">2</div>
-        </div>
-        <div class="sector-item">
-          <div class="sector-emoji">🧬</div>
-          <div class="sector-name">Healthtech</div>
-          <div class="sector-count">2</div>
-        </div>
-        <div class="sector-item">
-          <div class="sector-emoji">✉️</div>
-          <div class="sector-name">SaaS</div>
-          <div class="sector-count">3</div>
-        </div>
-        <div class="sector-item">
-          <div class="sector-emoji">👗</div>
-          <div class="sector-name">Fashion</div>
-          <div class="sector-count">2</div>
-        </div>
-      </div>
+      <div class="panel-title" id="top-panel-title">🔝 Top Inversiones Propias</div>
+      <div id="top-list" style="display:flex;flex-direction:column;gap:12px;"></div>
     </div>
   </div>
 
-  <!-- CONTACT FORM -->
-  <div class="panel contact-panel" style="margin-top:24px;animation-delay:0.4s;">
+  <!-- CONTACT -->
+  <div class="panel" style="margin-top:24px;animation-delay:0.4s;">
     <div class="panel-title">✉️ Solicitar Información sobre un Proyecto</div>
-    <div class="contact-grid">
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Tu nombre</label>
-          <input class="field-input" id="cf-name" type="text" placeholder="Nombre completo">
-        </div>
-        <div class="field-group">
-          <label class="field-label">Tu email</label>
-          <input class="field-input" id="cf-email" type="email" placeholder="email@ejemplo.com">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Proyecto de interés</label>
-          <select class="field-input field-select" id="cf-project">
-            <option value="">— Selecciona un proyecto —</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Tipo de consulta</label>
-          <select class="field-input field-select" id="cf-type">
-            <option value="Información general">Información general</option>
-            <option value="Oportunidad de inversión">Oportunidad de inversión</option>
-            <option value="Estado actual del proyecto">Estado actual del proyecto</option>
-            <option value="Datos financieros">Datos financieros</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Tu nombre</label>
+        <input class="field-input" id="cf-name" type="text" placeholder="Nombre completo">
       </div>
       <div class="field-group">
-        <label class="field-label">Mensaje</label>
-        <textarea class="field-input field-textarea" id="cf-message" placeholder="Escribe tu consulta sobre el proyecto…"></textarea>
+        <label class="field-label">Tu email</label>
+        <input class="field-input" id="cf-email" type="email" placeholder="email@ejemplo.com">
       </div>
-      <div class="contact-actions">
-        <div class="contact-hint">📬 El mensaje se enviará a <strong>equipo@angelclub.es</strong></div>
-        <button class="send-btn" id="cf-send" onclick="sendContactForm()">
-          <span id="cf-btn-text">Enviar solicitud</span>
-          <span class="btn-arrow">→</span>
-        </button>
-      </div>
-      <div id="cf-feedback" class="cf-feedback" style="display:none;"></div>
     </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Proyecto de interés</label>
+        <select class="field-input field-select" id="cf-project">
+          <option value="">— Selecciona un proyecto —</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Tipo de consulta</label>
+        <select class="field-input field-select" id="cf-type">
+          <option value="Información general">Información general</option>
+          <option value="Oportunidad de inversión">Oportunidad de inversión</option>
+          <option value="Estado actual del proyecto">Estado actual del proyecto</option>
+          <option value="Datos financieros">Datos financieros</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Mensaje</label>
+      <textarea class="field-input field-textarea" id="cf-message" placeholder="Escribe tu consulta sobre el proyecto…"></textarea>
+    </div>
+    <div class="contact-actions">
+      <div class="contact-hint">📬 El mensaje se enviará a <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e78296928e9788a7868980828b848b9285c98294">[email&#160;protected]</a></strong></div>
+      <button class="send-btn" id="cf-send" onclick="sendContactForm()">
+        <span id="cf-btn-text">Enviar solicitud</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </div>
+    <div id="cf-feedback" style="display:none;"></div>
   </div>
 
+  <!-- ═══════ ADMIN ONLY SECTION ═══════ -->
+  <div id="admin-section" style="display:none;">
+
+    <!-- ADMIN KPI EXTRA ROW -->
+    <div class="kpi-grid" style="margin-top:24px;">
+      <div class="kpi-card" style="animation-delay:0.1s;">
+        <span class="kpi-icon">👥</span>
+        <div class="kpi-label">Total Inversores</div>
+        <div class="kpi-value" id="adm-investors" style="color:var(--text);">0</div>
+        <div class="kpi-sub">con posición activa</div>
+      </div>
+      <div class="kpi-card" style="animation-delay:0.2s;">
+        <span class="kpi-icon">📈</span>
+        <div class="kpi-label">Capital Medio / Inversor</div>
+        <div class="kpi-value kpi-accent" id="adm-avg">€0</div>
+        <div class="kpi-sub">por inversor registrado</div>
+      </div>
+      <div class="kpi-card" style="animation-delay:0.3s;">
+        <span class="kpi-icon">🎯</span>
+        <div class="kpi-label">Startup Más Respaldada</div>
+        <div class="kpi-value kpi-gold" id="adm-top-startup" style="font-size:16px;line-height:1.2;margin-top:6px;">—</div>
+        <div class="kpi-sub" id="adm-top-startup-sub">por nº de inversores</div>
+      </div>
+      <div class="kpi-card" style="animation-delay:0.4s;">
+        <span class="kpi-icon">💼</span>
+        <div class="kpi-label">Capital Total Club</div>
+        <div class="kpi-value kpi-green" id="adm-total-capital">€0</div>
+        <div class="kpi-sub">en todas las startups</div>
+      </div>
+    </div>
+
+    <!-- TABLA GLOBAL STARTUPS -->
+    <div class="panel" style="margin-top:24px;animation-delay:0.15s;">
+      <div class="panel-title">🏢 Portfolio Completo AngelClub — Todas las Startups</div>
+      <div class="table-scroll">
+        <table class="investments-table" id="admin-startup-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Startup</th>
+              <th>Capital Total</th>
+              <th>Equity</th>
+              <th>Estado</th>
+              <th>TIR</th>
+              <th>Inversores</th>
+              <th>Web</th>
+            </tr>
+          </thead>
+          <tbody id="admin-startup-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RANKING INVERSORES + PIE BY STARTUP -->
+    <div class="bottom-grid" style="margin-top:24px;">
+
+      <div class="panel" style="animation-delay:0.2s;">
+        <div class="panel-title">🏆 Top Inversores por Capital Total</div>
+        <div id="adm-investor-ranking" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;"></div>
+      </div>
+
+      <div class="panel" style="animation-delay:0.25s;">
+        <div class="panel-title">🎯 Distribución Global del Portfolio</div>
+        <div class="chart-wrap">
+          <svg class="donut" width="190" height="190" viewBox="0 0 200 200" id="admin-donut-svg">
+            <g id="admin-donut-segments"></g>
+            <text class="donut-center-text" x="100" y="93" id="admin-donut-center-val">€0</text>
+            <text class="donut-center-sub" x="100" y="113">total club</text>
+          </svg>
+          <div class="legend" id="admin-donut-legend"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TABLA INVERSORES DETALLE -->
+    <div class="panel" style="margin-top:24px;animation-delay:0.3s;">
+      <div class="panel-title">👥 Directorio de Inversores
+        <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:8px;" id="adm-investor-count-label"></span>
+      </div>
+      <div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <input id="adm-search" class="field-input" type="text" placeholder="🔍 Buscar inversor o startup…" oninput="filterAdminTable()" style="max-width:320px;margin:0;">
+        <select id="adm-filter-startup" class="field-input field-select" onchange="filterAdminTable()" style="max-width:220px;margin:0;">
+          <option value="">Todas las startups</option>
+        </select>
+      </div>
+      <div class="table-scroll" style="max-height:520px;">
+        <table class="investments-table" id="adm-investors-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Inversor</th>
+              <th>Email</th>
+              <th>Startup</th>
+              <th>Aportación</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="adm-investors-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <!-- END ADMIN SECTION -->
+
+</div>
 </div>
 
-<script>
-// DATA
-const investments = [
-  { date:'2017', startup:'BADI', web:'https://badi.com/es/', capital:81700, equity:'0%', status:'active', tir:null },
-  { date:'2017', startup:'MAILTRACK', web:'https://mailtrack.email/', capital:104000, equity:'0%', status:'exit', tir:74 },
-  { date:'2017', startup:'VITCORD', web:null, capital:107400, equity:'1%', status:'active', tir:null },
-  { date:'2017', startup:'CABIFY', web:'https://cabify.com/es/prensa', capital:340000, equity:'1%', status:'active', tir:null },
-  { date:'2017', startup:'GOIN', web:'https://www.goin.app/', capital:131200, equity:'2%', status:'active', tir:null },
-  { date:'2017', startup:'COVERFY', web:'https://www.coverfy.com/', capital:147000, equity:'3%', status:'active', tir:null },
-  { date:'2017', startup:'HOUSERS', web:'https://www.housers.com/es/', capital:72000, equity:'1%', status:'active', tir:null },
-  { date:'2018', startup:'KASITOKO', web:'http://kasitoko.com/', capital:104700, equity:'3%', status:'fail', tir:null },
-  { date:'2018', startup:'CHICISIMO', web:'https://chicisimo.com/', capital:141000, equity:'3%', status:'fail', tir:null },
-  { date:'2018', startup:'CHARPLANET', web:'https://www.nisgo.com/es/', capital:62500, equity:'3%', status:'active', tir:null },
-  { date:'2018', startup:'MYTRIPLEA', web:'https://mytriplea.com/', capital:71240, equity:'2%', status:'active', tir:null },
-  { date:'2018', startup:'ORBITALADS', web:'https://www.orbitalads.com/', capital:85848, equity:'3%', status:'active', tir:null },
-  { date:'2018', startup:'GOMAPI', web:'http://gomapi.io/', capital:91600, equity:'4%', status:'active', tir:null },
-  { date:'2018', startup:'GOIN II', web:null, capital:25500, equity:'3%', status:'active', tir:null },
-  { date:'2019', startup:'ACCURATE', web:'https://atranslations.com/', capital:87100, equity:'3%', status:'active', tir:null },
-  { date:'2019', startup:'ACCURATE II', web:null, capital:20000, equity:'2%', status:'active', tir:null },
-  { date:'2019', startup:'LOBSTER', web:'https://projectlobster.com/', capital:46700, equity:'14%', status:'fail', tir:null },
-  { date:'2019', startup:'MYHAIR', web:'https://www.myhair.ai/es', capital:47000, equity:'2%', status:'active', tir:null },
-  { date:'2020', startup:'MOX', web:'https://www.linkedin.com/company/grupo-mox/about/', capital:74925, equity:'3%', status:'active', tir:null },
-  { date:'2020', startup:'KASAZ', web:'https://www.kasaz.es/', capital:81955, equity:'4%', status:'active', tir:null },
-  { date:'2020', startup:'ONCOHEROES', web:'https://www.oncoheroes.com/', capital:49765, equity:'3%', status:'active', tir:null },
-  { date:'2020', startup:'BNEXT', web:'https://bnext.es/b2b/es', capital:142744, equity:'3%', status:'active', tir:null },
-  { date:'—', startup:'ROAMS', web:null, capital:46000, equity:'4%', status:'active', tir:null },
-  { date:'—', startup:'GREENDATACHAIN', web:null, capital:113550, equity:'3%', status:'active', tir:null },
-  { date:'—', startup:'EVIL ZEPPELING', web:null, capital:70000, equity:'1%', status:'active', tir:null },
-  { date:'—', startup:'LUDA', web:null, capital:178000, equity:'2%', status:'active', tir:null },
-  { date:'—', startup:'ZAPIENS', web:null, capital:232000, equity:'5%', status:'active', tir:null },
-  { date:'—', startup:'CLAPS', web:null, capital:202000, equity:'5%', status:'active', tir:null },
-  { date:'—', startup:'WELLBEINGOS', web:null, capital:89000, equity:'4%', status:'active', tir:null },
-  { date:'—', startup:'EDIT ORG', web:null, capital:64865, equity:'3%', status:'active', tir:null },
-  { date:'—', startup:'GENIALLY', web:null, capital:196000, equity:'5%', status:'active', tir:null },
-  { date:'—', startup:'ALTERHOME', web:null, capital:102000, equity:'6%', status:'active', tir:null },
-  { date:'—', startup:'FROGED', web:null, capital:43000, equity:'4%', status:'active', tir:null },
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════════════════════════════════════════════════════
+// MASTER STARTUP DATA
+// ═══════════════════════════════════════════════════════════════
+const STARTUPS = {
+  'badi':           { name:'BADI',            web:'https://badi.com/es/',                       capital:81700,   equity:'0%',  status:'active', tir:null },
+  'mailtrack':      { name:'MAILTRACK',        web:'https://mailtrack.email/',                   capital:104000,  equity:'0%',  status:'exit',   tir:74   },
+  'vitcord':        { name:'VITCORD',          web:null,                                          capital:107400,  equity:'1%',  status:'active', tir:null },
+  'cabify':         { name:'CABIFY',           web:'https://cabify.com/es/prensa',               capital:340000,  equity:'1%',  status:'active', tir:null },
+  'goin':           { name:'GOIN',             web:'https://www.goin.app/',                      capital:131200,  equity:'2%',  status:'active', tir:null },
+  'coverfy':        { name:'COVERFY',          web:'https://www.coverfy.com/',                   capital:147000,  equity:'3%',  status:'active', tir:null },
+  'housers':        { name:'HOUSERS',          web:'https://www.housers.com/es/',                capital:72000,   equity:'1%',  status:'active', tir:null },
+  'kasitoko':       { name:'KASITOKO',         web:'http://kasitoko.com/',                       capital:104700,  equity:'3%',  status:'fail',   tir:null },
+  'chicisimo':      { name:'CHICISIMO',        web:'https://chicisimo.com/',                     capital:141000,  equity:'3%',  status:'fail',   tir:null },
+  'charplanet':     { name:'CHARPLANET',       web:'https://www.nisgo.com/es/',                  capital:62500,   equity:'3%',  status:'active', tir:null },
+  'mytriplea':      { name:'MYTRIPLEA',        web:'https://mytriplea.com/',                     capital:71240,   equity:'2%',  status:'active', tir:null },
+  'orbitalads':     { name:'ORBITALADS',       web:'https://www.orbitalads.com/',                capital:85848,   equity:'3%',  status:'active', tir:null },
+  'gomapi':         { name:'GOMAPI',           web:'http://gomapi.io/',                          capital:91600,   equity:'4%',  status:'active', tir:null },
+  'accurate':       { name:'ACCURATE',         web:'https://atranslations.com/',                 capital:107100,  equity:'3%',  status:'active', tir:null },
+  'lobster':        { name:'LOBSTER',          web:'https://projectlobster.com/',                capital:46700,   equity:'14%', status:'fail',   tir:null },
+  'myhair':         { name:'MYHAIR',           web:'https://www.myhair.ai/es',                  capital:47000,   equity:'2%',  status:'active', tir:null },
+  'mox':            { name:'MOX',              web:'https://www.linkedin.com/company/grupo-mox/',capital:74925,   equity:'3%',  status:'active', tir:null },
+  'kasaz':          { name:'KASAZ',            web:'https://www.kasaz.es/',                      capital:81955,   equity:'4%',  status:'active', tir:null },
+  'oncoheroes':     { name:'ONCOHEROES',       web:'https://www.oncoheroes.com/',                capital:49765,   equity:'3%',  status:'active', tir:null },
+  'bnext':          { name:'BNEXT',            web:'https://bnext.es/b2b/es',                   capital:142744,  equity:'3%',  status:'active', tir:null },
+  'roams':          { name:'ROAMS',            web:null,                                          capital:46000,   equity:'4%',  status:'active', tir:null },
+  'greendatachain': { name:'GREEN DATA CHAIN', web:null,                                          capital:113550,  equity:'3%',  status:'active', tir:null },
+  'evil zeppeling': { name:'EVIL ZEPPELING',   web:null,                                          capital:70000,   equity:'1%',  status:'active', tir:null },
+  'luda':           { name:'LUDA',             web:null,                                          capital:178000,  equity:'2%',  status:'active', tir:null },
+  'zapiens.ai':     { name:'ZAPIENS',          web:null,                                          capital:232000,  equity:'5%',  status:'active', tir:null },
+  'claps':          { name:'CLAPS',            web:null,                                          capital:202000,  equity:'5%',  status:'active', tir:null },
+  'wellbeingos':    { name:'WELLBEINGOS',      web:null,                                          capital:89000,   equity:'4%',  status:'active', tir:null },
+  'edit.org':       { name:'EDIT ORG',         web:null,                                          capital:64865,   equity:'3%',  status:'active', tir:null },
+  'genially':       { name:'GENIALLY',         web:null,                                          capital:196000,  equity:'5%',  status:'active', tir:null },
+  'alterhome':      { name:'ALTERHOME',        web:null,                                          capital:102000,  equity:'6%',  status:'active', tir:null },
+  'froged':         { name:'FROGED',           web:null,                                          capital:43000,   equity:'4%',  status:'active', tir:null },
+  'mytriplea':      { name:'MYTRIPLEA',        web:'https://mytriplea.com/',                     capital:71240,   equity:'2%',  status:'active', tir:null },
+  'goin ii':        { name:'GOIN II',          web:null,                                          capital:25500,   equity:'3%',  status:'active', tir:null },
+};
+
+// Normalizer: match CSV startup names → STARTUPS keys
+function normalizeStartup(n) {
+  const s = n.toLowerCase().trim()
+    .replace(/^18\.\s*/,'').replace(/^4\.\s*/,'').replace(/\s+/g,' ');
+  if (s.includes('orbital')) return 'orbitalads';
+  if (s.includes('mytriplea') || s.includes('mytriplea')) return 'mytriplea';
+  if (s.includes('cabify')) return 'cabify';
+  if (s.includes('zapien')) return 'zapiens.ai';
+  if (s.includes('genial')) return 'genially';
+  if (s.includes('lobster') && !s.includes('ii') && !s.includes('iii')) return 'lobster';
+  if (s.includes('lobster')) return 'lobster'; // treat all lobster rounds as same
+  if (s.includes('green data') || s.includes('greendatachain')) return 'greendatachain';
+  if (s.includes('evil')) return 'evil zeppeling';
+  if (s.includes('wellbeing')) return 'wellbeingos';
+  if (s.includes('edit')) return 'edit.org';
+  if (s.includes('froged')) return 'froged';
+  if (s.includes('luda')) return 'luda';
+  if (s.includes('roams')) return 'roams';
+  if (s.includes('alterhome')) return 'alterhome';
+  if (s.includes('claps')) return 'claps';
+  if (s.includes('oncoheroes')) return 'oncoheroes';
+  if (s.includes('vitcord')) return 'vitcord';
+  if (s.includes('mailtrack')) return 'mailtrack';
+  if (s.includes('badi')) return 'badi';
+  if (s.includes('goin')) return 'goin';
+  if (s.includes('coverfy')) return 'coverfy';
+  if (s.includes('housers')) return 'housers';
+  if (s.includes('kasitoko')) return 'kasitoko';
+  if (s.includes('chicisimo')) return 'chicisimo';
+  if (s.includes('charplanet') || s.includes('nisgo')) return 'charplanet';
+  if (s.includes('gomapi')) return 'gomapi';
+  if (s.includes('accurate') || s.includes('atranslation')) return 'accurate';
+  if (s.includes('myhair')) return 'myhair';
+  if (s.includes('mox')) return 'mox';
+  if (s.includes('kasaz')) return 'kasaz';
+  if (s.includes('bnext')) return 'bnext';
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INVESTOR DATABASE (from CSV)
+// ═══════════════════════════════════════════════════════════════
+// 1049 entries
+const RAW_INVESTORS = [
+["","juanortizcamarero@gmail.com","Vitcord",null],
+["Adrian Bernabéu Escudero","adrian.bernabeu1@gmail.com","CLAPS",1000],
+["Adrián Bernabéu Escudero","adrian.bernabeu1@gmail.com","Green Data Chain",2000],
+["Adrián Bernabéu Escudero","adrian.bernabeu1@gmail.com","Zapiens.ai",2000],
+["Adrián Bernabéu Escudero","soy@adrianbernabeu.com","Bnext",1000],
+["Adrián Escudero Alonso","a.escuderoalonso@gmail.com","Zapiens.ai",2000],
+["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","LOBSTER II",null],
+["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","LUDA",null],
+["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","Lobster",null],
+["Aga Marketing & Business S.L. Lumbreras van Dulken","lumbrerasgerardo@gmail.com","LOBSTER II",null],
+["Aga Marketing & Business S.L. Lumbreras van Dulken","lumbrerasgerardo@gmail.com","Lobster",null],
+["Agustin Rubini","rubinilondon@gmail.com","EVIL ZEPPELING",1000],
+["Agustín de la Villa","agusdelavilla@gmail.com","Cabify",null],
+["Agustín de la Villa","agusdelavilla@gmail.com","MyTripleA",1500],
+["Aica Partners S.L","cm@aicapartners.com","CLAPS",2000],
+["Aica Partners S.L.","cm@aicapartners.com","edit.org",null],
+["Aica Partners S.L. Carlo Magnoni","cm@aicapartners.com","Zapiens.ai",3500],
+["Aica Partners S.L. Magnoni","cm@aicapartners.com","LOBSTER II",null],
+["Aica Partners S.L. Magnoni","cm@aicapartners.com","LOBSTER III",3000],
+["Aica Partners S.L. Magnoni","cm@aicapartners.com","LUDA",null],
+["Aica Partners S.L. Magnoni","cm@aicapartners.com","Lobster",null],
+["Aitor Elcoroaristizabal","aitorelcoro@hotmail.com","Goin",null],
+["Aitor Elcoroaristizabal","aitorelcoro@hotmail.com","LUDA",null],
+["Aitor Elcoroaristizabal Martín","aitorelcoro@hotmail.com","CLAPS",2500],
+["Aitor Gaisan Montoya","aitorgaisan@mercuryconsultores.com","edit.org",null],
+["Albert Vilà Ciurana","albvil@gmail.com","LOBSTER II",null],
+["Albert Vilà Ciurana","albvil@gmail.com","LOBSTER III",6450],
+["Albert Vilà Ciurana","albvil@gmail.com","Lobster",null],
+["Alberto Batres Villalba","abatres@gmail.com","Genially",null],
+["Alberto Batres Villalba","abatres@gmail.com","LOBSTER III",2000],
+["Alberto Batres Villalba","abatres@gmail.com","LUDA",null],
+["Alberto Batres Villalba","abatres@gmail.com","Zapiens.ai",2000],
+["Alberto Fernandez Molina","afmh2@yahoo.es","Zapiens.ai",2000],
+["Alberto Jimenez San Mateo","alberto.jimenez@smileatbaby.com","LOBSTER II",null],
+["Alberto Jimenez San Mateo","alberto.jimenez@smileatbaby.com","Lobster",null],
+["Alberto Martinez de Aguirre Pinedo","albmaguirre@gmail.com","LOBSTER II",null],
+["Alberto Martinez de Aguirre Pinedo","albmaguirre@gmail.com","LUDA",null],
+["Alberto Martinez de Aguirre Pinedo","albmaguirre@gmail.com","Lobster",null],
+["Alberto Martinez de Aguirre Pinedo","albmaguirre@gmail.com","Zapiens.ai",2000],
+["Alejandro Andres","fuzzy.alej@gmail.com","ACCURATE",1000],
+["Alejandro Andres","fuzzy.alej@gmail.com","Goin",null],
+["Alejandro Andres","fuzzy.alej@gmail.com","MyTripleA",1000],
+["Alejandro Aznar Argelich","aleargel@outlook.com","CLAPS",1200],
+["Alejandro Aznar Argelich","aleargel@outlook.com","CLAPS",1200],
+["Alejandro Aznar Argelich","aleargel@outlook.com","FROGED",1200],
+["Alejandro Aznar Argelich","aleargel@outlook.com","Genially",null],
+["Alejandro Aznar Argelich","aleargel@outlook.com","LOBSTER II",null],
+["Alejandro Aznar Argelich","aleargel@outlook.com","LUDA",null],
+["Alejandro Aznar Argelich","aleargel@outlook.com","Lobster",null],
+["Alejandro Aznar Argelich","aleargel@outlook.com","Zapiens.ai",1200],
+["Alejandro Cavallero","a.cavallero@GuiaLocal.com","Goin",null],
+["Alejandro Escolar Pabón","alex.escolar@gmail.com","Bnext",2000],
+["Alejandro Fresneda","alejandro@mrnoow.com","Cabify",null],
+["Alex Barquero","abarqueropayo@gmail.com","MyTripleA",1000],
+["Alex Barquero","abarqueropayo@gmail.com","Zapiens.ai",1000],
+["Alexandre Antoine Bryszkowsky Lopez xx","alex@bki.es","KASAZ",5000],
+["Alfonso Ferreras Vaquero","alfervaq@yahoo.es","Bnext",1000],
+["Alfonso Ferreras Vaquero","alfervaq@yahoo.es","Genially",null],
+["Alfonso Ferreras Vaquero","alfervaq@yahoo.es","Green Data Chain",1000],
+["Alfonso Ferreras Vaqueros","alfervaq@yahoo.es","Oncoheroes",null],
+["Alfonso González Martínez","algonmart@gmail.com","Bnext",2000],
+["Alvaro Cabezón Martínez","alvarocabezonmartinez@gmail.com","Green Data Chain",2000],
+["Alvaro Martinez Barrio","martinezbarrio.alvaro@gmail.com","FROGED",5000],
+["Alvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","Oncoheroes",null],
+["Alvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","WellbeingOS",null],
+["Alvaro Villacorta","villacortafood@gmail.com","Cabify",null],
+["Alvaro Villacorta","villacortafood@gmail.com","Goin",null],
+["Amaia Añua Martínez de Antoñana","aberasturi6@hotmail.com","KASAZ",10000],
+["Ana Aldea","ana@datasocial.es","Cabify",null],
+["Ana Aldea","ana@datasocial.es","OrbitalAds",null],
+["Ander García Diez","agdaa92@gmail.com","edit.org",null],
+["Ander Uriarte","ander.uriarte@hotmail.com","Cabify",null],
+["Ander Uriarte","ander.uriarte@hotmail.com","Goin",null],
+["Ander Uriarte","ander.uriarte@hotmail.com","OrbitalAds",null],
+["Andres Carballo Pacheco","acarballopacheco@gmail.com","Gomapi",1000],
+["Andrés Gonzalez Gutiérrez","andresglez93@hotmail.es","WellbeingOS",null],
+["Angel Rodriguez Cabrera","angelrodriguezcabrera1988@gmail.com","LOBSTER III",1000],
+["Angel Salamanca","angelsalamanca@gmail.com","Cabify",null],
+["Angel Salamanca Cardona","angelsalamanca@gmail.com","Zapiens.ai",1000],
+["Anna Gisbert Atarés","info@lespicardes.com","WellbeingOS",null],
+["Antonio Alonso Daroca","antonio.alonso@gmail.com","Cabify",null],
+["Antonio Garcia","antonio@gpumarino.name","Goin",null],
+["Antonio Garcia","antonio@gpumarino.name","MyTripleA",1000],
+["Antonio Gómez","gomeza@gmail.com","Cabify",null],
+["Antonio José Rocha","rrja79@yahoo.es","Green Data Chain",2000],
+["Antonio José Rocha Rodriguez","rrja79@yahoo.es","LUDA",null],
+["Antonio José Rocha Rodríguez","rrja79@yahoo.es","EVIL ZEPPELING",2000],
+["Anxo Armada","anxo.armada@gmail.com","Cabify",null],
+["Anxo Armada","anxo.armada@gmail.com","MyTripleA",3000],
+["Anxo Armada","anxo.armada@gmail.com","OrbitalAds",null],
+["Anxo Armada Fernández","anxo.armada@gmail.com","KASAZ",5000],
+["Anxo Armada Fernández","anxo.armada@gmail.com","WellbeingOS",null],
+["Argi Investor s.l.u Bravo Duque","Jesusangel.bravo@camptecnologico.com","Green Data Chain",20000],
+["Aritz Exposito Saratxo","aritz.saratxo@icloud.com","Cabify",null],
+["Arufin Consulting SL Roig Fernández de la Reguera","daniroig@me.com","Genially",null],
+["Asier Salsamendi García","asier@asiersalsamendi.com","Bnext",3000],
+["Asier Salsamendi García","asier@asiersalsamendi.com","CLAPS",1075],
+["BENCHMARK INVEST SL (Juanjo García)","jjhenarejos@gmail.com","KASAZ",2000],
+["Babieka Kapital, S.L Ruiz Ruiz","vruiz@tbig.es","EVIL ZEPPELING",1000],
+["Babieka Kapital, S.L Ruiz Ruiz","vruiz@tbig.es","Green Data Chain",1000],
+["Babieka Kapital, S.L Ruiz Ruiz","vruiz@tbig.es","LOBSTER III",1000],
+["Babieka Kapital, S.L Vicente Ruiz Ruiz","vruiz@tbig.es","Zapiens.ai",1000],
+["Babieka Kapital, S.L, Ruiz Ruiz","vruiz@tbig.es","Genially",null],
+["Babieka Kapital, S.L, Ruiz Ruiz","vruiz@tbig.es","ROAMS",1000],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","EVIL ZEPPELING",1000],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","Green Data Chain",1500],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","LOBSTER III",1000],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","LUDA",null],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","ROAMS",1000],
+["Beatriz Pérez Sanz","beatriz.perez_sanz@roche.com","Oncoheroes",null],
+["Beatriz Ríos Rivas","abarqueropayo@gmail.com","LUDA",null],
+["Begoña Beobide Azpeitia","bbeobide@gmail.com","Gomapi",1000],
+["Begoña Beobide Azpeitia","bbeobide@gmail.com","LOBSTER III",1000],
+["Begoña Beobide Azpeitia","bbeobide@gmail.com","Zapiens.ai",1500],
+["Belcua, S.L.U. Belda Cuadrado","innovation@belcua.com","LOBSTER III",5000],
+["Benchmark Invest SL","jjhenarejos@gmail.com","CLAPS",5000],
+["Benchmark Invest SL Juan José García","jjhenarejos@gmail.com","Zapiens.ai",3000],
+["Benji Coll","benjicoll@gmail.com","Cabify",null],
+["Benji Coll","benjicoll@gmail.com","Goin",null],
+["Bernardo Martinez Gil","bernardo.martinez.gil@gmail.com","Zapiens.ai",1000],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","CLAPS",1000],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","Green Data Chain",1000],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","LOBSTER II",null],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","LOBSTER III",1500],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","Lobster",null],
+["Bernat San Martin Guiral","bernatsanmartin@gmail.com","Zapiens.ai",1000],
+["Beta Growth LTD","bruneau.damien@gmail.com","CLAPS",10000],
+["Beta Growth LTD Bruneau","bruneau.damien@gmail.com","Genially",null],
+["Beta Growth LTD Bruneau","bruneau.damien@gmail.com","Green Data Chain",10000],
+["Beta Growth LTD Bruneau","bruneau.damien@gmail.com","LOBSTER II",null],
+["Beta Growth LTD Bruneau","bruneau.damien@gmail.com","Lobster",null],
+["Beta Growth LTD Damien Bruneau","bruneau.damien@gmail.com","Zapiens.ai",10000],
+["Borja Berastegui Anzorandia","borjaberastegui@gmail.com","FROGED",4000],
+["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","CLAPS",8000],
+["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","Genially",null],
+["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","LOBSTER II",null],
+["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","Lobster",null],
+["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","Zapiens.ai",8000],
+["Borja Berástegui Anzorandía","borjaberastegui@gmail.com","edit.org",null],
+["Borja Fernandez","borja.fernandez.sanchez@gmail.com","Cabify",null],
+["Borja Fernandez","borja.fernandez.sanchez@gmail.com","OrbitalAds",null],
+["Borja Fernández Sánchez","borja.fernandez.sanchez@gmail.com","LOBSTER III",2000],
+["Borja Fernández Sánchez","borja.fernandez.sanchez@gmail.com","Oncoheroes",null],
+["Borja Jose Jover de Olives","borjover5@hotmail.com","Green Data Chain",1000],
+["Borja Llorens","bllorenspurti@gmail.com","LOBSTER II",null],
+["Borja Llorens","bllorenspurti@gmail.com","Lobster",null],
+["Borja Mera","borjan@techpump.com","Cabify",null],
+["Borja Mera Urrestarazu","borjan@techpump.com","Goin",null],
+["Borja Mera Urrestarazu","borjan@techpump.com","Gomapi",3000],
+["Borja Mera Urrestarazu","borjan@techpump.com","MyTripleA",2000],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","CLAPS",2000],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","EVIL ZEPPELING",1500],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","Green Data Chain",2000],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","LOBSTER II",null],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","LOBSTER III",4000],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","LUDA",null],
+["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","Lobster",null],
+["Brice Lapouble","brice.lapouble@gmail.com","Bnext",2000],
+["Canteli Capital SLU","empresas@genei.es","CLAPS",10000],
+["Carlo Magnoni","cm@aicapartners.com","ROAMS",2500],
+["Carlos Barrachina Berbís","carlos.barrachina.upv@gmail.com","Genially",null],
+["Carlos De Pedro","carlos.dped@gmail.com","MyTripleA",5000],
+["Carlos De Pedro Guri","carlos.dped@gmail.com","Bnext",5000],
+["Carlos De Pedro Guri","carlos.dped@gmail.com","Gomapi",3000],
+["Carlos Francisco Guerra Sanchez","cf_guerra_s@yahoo.es","Cabify",null],
+["Carlos Francisco Guerra Sanchez","cf_guerra_s@yahoo.es","Gomapi",5000],
+["Carlos García Chapa","karlosgch@gmail.com","LOBSTER II",null],
+["Carlos García Chapa","karlosgch@gmail.com","Lobster",null],
+["Carlos Guerra","cf_guerra_s@yahoo.es","MyTripleA",1000],
+["Carlos Guerra","cf_guerra_s@yahoo.es","OrbitalAds",null],
+["Carlos Laorden","claorden@gmail.com","ACCURATE",1000],
+["Carlos Laorden","claorden@gmail.com","Goin",null],
+["Carlos Laorden Gomez","claorden@gmail.com","CLAPS",2000],
+["Carlos Laorden Gomez","claorden@gmail.com","EVIL ZEPPELING",2000],
+["Carlos Laorden Gomez","claorden@gmail.com","LOBSTER III",2000],
+["Carlos Laorden Gomez","claorden@gmail.com","LUDA",null],
+["Carlos Madolell Domenech","carlos.madolell@bancomediolanum.es","Zapiens.ai",1000],
+["Carlos Nuño Romero","carlos@monteserrado.com","WellbeingOS",null],
+["Carlos Torrejón Puchol","Carles.torrejon@gmail.com","CLAPS",2000],
+["Carlos Torrejón Puchol","Carles.torrejon@gmail.com","Genially",null],
+["Carlos Tortajada Rodés","ctr@trcorporacion.com","KASAZ",3000],
+["Carlos de Pedro","carlos.dped@gmail.com","OrbitalAds",null],
+["Carolina Soriano Monreal","csorianomon@gmail.com","Green Data Chain",1000],
+["Carolina Soriano Monreal","csorianomon@gmail.com","LUDA",null],
+["Celia María Pajares López","celia.pajares@gmail.com","CLAPS",2000],
+["Celia María Pajares López","celia.pajares@gmail.com","LOBSTER II",null],
+["Celia María Pajares López","celia.pajares@gmail.com","Lobster",null],
+["Celia María Pajares López","celia.pajares@gmail.com","Zapiens.ai",1085],
+["Clemente Hernandez Sanchez","clemente.hernandez.s@gmail.com","LOBSTER III",2150],
+["Crazy Caravaners SL","ericsanchezgalvez@gmail.com","edit.org",null],
+["Cristina Cerdà Ubia","crisceub@gmail.com","Bnext",1000],
+["Cristina Cerdà Ubia","crisceub@gmail.com","CLAPS",1000],
+["Cristina Cerdà Ubia","crisceub@gmail.com","Oncoheroes",null],
+["Damien Bruneau","bruneau.damien@gmail.com","Bnext",10750],
+["Damien Bruneau","bruneau.damien@gmail.com","FROGED",5000],
+["Dani Herrero Martínez","dani.herrero.m@gmail.com","LOBSTER II",null],
+["Dani Herrero Martínez","dani.herrero.m@gmail.com","Lobster",null],
+["Daniel García García","daniel@abirtone.com","Zapiens.ai",2000],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","CLAPS",2150],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","EVIL ZEPPELING",2150],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","Genially",null],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","LOBSTER III",4300],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","LUDA",null],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","ROAMS",3225],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","WellbeingOS",null],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","Zapiens.ai",3225],
+["Daniel José García","dani.naturaforma@gmail.com","ACCURATE",1000],
+["Daniel José García","dani.naturaforma@gmail.com","Gomapi",1000],
+["Daniel José García","dani.naturaforma@gmail.com","OrbitalAds",null],
+["Daniel Planas Fernandez","daniel.planas@gmail.com","WellbeingOS",null],
+["Daniel Roig Fernández de la Reguera","daniroig@me.com","edit.org",null],
+["David Alayón","alayon.david@gmail.com","Cabify",null],
+["David Bustos Fernandez","david.bustos@gmail.com","LOBSTER II",null],
+["David Bustos Fernandez","david.bustos@gmail.com","LOBSTER III",2000],
+["David Bustos Fernandez","david.bustos@gmail.com","Lobster",null],
+["David Carnicer Sospedra","carnicer@yahoo.com","Bnext",2000],
+["David Carnicer Sospedra","carnicer@yahoo.com","CLAPS",1000],
+["David Carnicer Sospedra","carnicer@yahoo.com","Genially",null],
+["David Carnicer Sospedra","carnicer@yahoo.com","LUDA",null],
+["David Carnicer Sospedra","carnicer@yahoo.com","Zapiens.ai",1000],
+["David Carrero Fdez-Baillo","david@carrero.es","Cabify",null],
+["David Granda Rossi (Sara Vaca)","savalo@gmail.com","KASAZ",1000],
+["David Lozano Lucas","dlozanolu@gmail.com","LOBSTER II",null],
+["David Lozano Lucas","dlozanolu@gmail.com","Lobster",null],
+["David Motos Perez","dmotosp@gmail.com","LOBSTER III",1000],
+["David Motos Perez","dmotosp@gmail.com","LUDA",null],
+["David Motos Perez","dmotosp@gmail.com","ROAMS",1000],
+["David Periscal","davidperiscal@gmail.com","WellbeingOS",null],
+["David Primo","goraastrabu@gmail.com","FROGED",1000],
+["David Primo Castillo","goraastrabu@gmail.com","CLAPS",1500],
+["David Primo Castillo","goraastrabu@gmail.com","Zapiens.ai",1500],
+["David Primo Castillo","goraastrabu@gmail.com","edit.org",null],
+["David Sanchez Primo","dsanchez@stackscale.com","CLAPS",1500],
+["David Sanchez Primo","dsanchez@stackscale.com","Cabify",null],
+["David Sanchez Primo","dsanchez@stackscale.com","Genially",null],
+["David Sánchez Arfelis","david@innocells.io","Genially",null],
+["David Sánchez Arfelis","david@innocells.io","Zapiens.ai",2500],
+["David Zaera Allue","monsieurdeivid@gmail.com","LOBSTER II",null],
+["David Zaera Allue","monsieurdeivid@gmail.com","LOBSTER III",1000],
+["David Zaera Allue","monsieurdeivid@gmail.com","Lobster",null],
+["Debora Fontenla Oliveira","correo@lamarka.es","FROGED",1000],
+["Debora Fontenla Oliveira","correo@lamarka.es","WellbeingOS",null],
+["Debora Fontenla Oliveira","correo@lamarka.es","edit.org",null],
+["Delia Angulo","delia.angulo13@gmail.com","Oncoheroes",null],
+["Dennis Faulkner Pallaruelo","dennis.faulkner7@gmail.com","FROGED",1000],
+["Diego Lafuente García","tufosa@gmail.com","Cabify",null],
+["Diego Lafuente García","tufosa@gmail.com","Cabify",null],
+["Donald Faulkner","do.faulkner@gmail.com","edit.org",null],
+["Duarte Libano Monteiro","libanomonteiro@gmail.com","Cabify",null],
+["Duarte Libano Monteiro","libanomonteiro@gmail.com","Cabify",null],
+["Débora Fontenla Oliveira","Correo@lamarka.es","LOBSTER II",null],
+["Débora Fontenla Oliveira","Correo@lamarka.es","Lobster",null],
+["Débora Fontenla Oliveira","Correo@lamarka.es","Zapiens.ai",1000],
+["ENRENOW ADVERTISING, S.L. (Enric Romero)","enric@dribo.es","KASAZ",5000],
+["Edorta Iturraspe Perea","eiturras@gmail.com","Bnext",3000],
+["Edorta Iturraspe Perea","eiturras@gmail.com","LOBSTER II",null],
+["Edorta Iturraspe Perea","eiturras@gmail.com","LOBSTER III",2000],
+["Edorta Iturraspe Perea","eiturras@gmail.com","Lobster",null],
+["Edorta Iturraspe Perea","eiturras@gmail.com","Zapiens.ai",1000],
+["Edorta Iturraspe Perea xx","eiturras@gmail.com","KASAZ",2000],
+["Eduardo Carrillo Huelva","educarrillohuelva@gmail.com","CLAPS",1100],
+["Eduardo Rodriguez","eduardorodper@hotmail.com","MyTripleA",2000],
+["Ekaitz Etxebarria Diaz de Guereñu","ekaitzplant@hotmail.com","Green Data Chain",1000],
+["Eladio Rodríguez Escandon","elrodesmo@gmail.com","EVIL ZEPPELING",1000],
+["Eladio Rodríguez Escandon","elrodesmo@gmail.com","Green Data Chain",1000],
+["Eladio Rodríguez Escandon","elrodesmo@gmail.com","LUDA",null],
+["Emilio Aviles","emilio@slashmobility.com","OrbitalAds",null],
+["Emilio Avilés","emilio@slashmobility.com","Cabify",null],
+["Emilio Avilés emilio@slashmobility.com","emilio@slashmobility.com","Cabify",null],
+["Emilio Avilés Ávila","emilio@slashmobility.com","Gomapi",3000],
+["Emilio Rodriguez","emilio@lyra.digital","Cabify",null],
+["Emilio Rodriguez Sanchez","emilio@lyra.digital","LOBSTER II",null],
+["Emilio Rodriguez Sanchez","emilio@lyra.digital","Lobster",null],
+["Emilio Rodríguez Sanchez","emilio@lyra.digital","Oncoheroes",null],
+["Enric Gallemí Castelló","egallemi@gmail.com","LOBSTER II",null],
+["Enric Gallemí Castelló","egallemi@gmail.com","Lobster",null],
+["Enrique Lopez de Ceballos Reyna","enriqueceballos@gmail.com","Bnext",5000],
+["Enrique Lopez de Ceballos Reyna","enriqueceballos@gmail.com","FROGED",3500],
+["Enrique López de Ceballos","enriqueceballos@gmail.com","Oncoheroes",null],
+["Enrique Ranedo","eranedo@magnoliafin.com","Cabify",null],
+["Enrique Ranedo","eranedo@magnoliafin.com","Goin",null],
+["Enrique Ranedo","eranedo@magnoliafin.com","OrbitalAds",null],
+["Enrique Vilar Garcia","ervilarg@icloud.com","Bnext",2000],
+["Esdos Labs SL","hola@dewinter.es","CLAPS",1001],
+["Esoria Investments SLU","eduardoteotico@gmail.com","CLAPS",2000],
+["Esoria Investments SLU Eduardo Teótico Soria García","eduardoteotico@gmail.com","Zapiens.ai",4000],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","Genially",null],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","Green Data Chain",1500],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","LOBSTER II",null],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","LOBSTER III",2000],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","Lobster",null],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","ROAMS",2000],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","edit.org",null],
+["Esteban Rubini","rubini.esteban@gmail.com","EVIL ZEPPELING",1000],
+["Ester Caldentey","barcelonaplace@hotmail.com","CLAPS",1000],
+["Ester Caldentey","barcelonaplace@hotmail.com","Genially",null],
+["Ester Caldentey","barcelonaplace@hotmail.com","LOBSTER II",null],
+["Ester Caldentey","barcelonaplace@hotmail.com","Lobster",null],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","WellbeingOS",null],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","Zapiens.ai",1000],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","CLAPS",3000],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Gomapi",2000],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","LUDA",null],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Oncoheroes",null],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Zapiens.ai",3000],
+["Esther Saiz","esaiz@cxcrenovables.com","Cabify",null],
+["Eustaquio Zamora Olmos","parmopunt58@gmail.com","LUDA",null],
+["Evelio Miñano","evelio.minano@gmail.com","MyTripleA",2000],
+["Fabcau Dinero SL","info@fabcaudinero.com","CLAPS",10000],
+["Fabio Castañeda","fcp@redycomercio.com","Cabify",null],
+["Fabio Castañeda","fcp@redycomercio.com","Cabify",null],
+["Federico Castanedo","castanedofede@gmail.com","MyTripleA",3000],
+["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","LOBSTER III",1000],
+["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","LUDA",null],
+["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","ROAMS",1000],
+["Fermin Albiol Forés","ferminalbiol@gmail.com","Genially",null],
+["Fermin Albiol Forés","ferminalbiol@gmail.com","LUDA",null],
+["Fermin Albiol Forés","ferminalbiol@gmail.com","Zapiens.ai",1000],
+["Fernando Aguado","fernando.aguadog@iese.net","Cabify",null],
+["Fernando Aguado García","aguado_fernando@hotmail.com","FROGED",1500],
+["Fernando Egido","fernando@egido.info","OrbitalAds",null],
+["Fernando Egido Egaña","fernando@egido.info","LUDA",null],
+["Fernando Ferrer","fernandoferrermoreno@gmail.com","Cabify",null],
+["Fernando Ferrer","fernandoferrermoreno@gmail.com","Goin",null],
+["Fernando Ferrer Moreno","fernandoferrermoreno@gmail.com","Gomapi",3000],
+["Fernando Orejón","fog980@hotmail.com","Cabify",null],
+["Fernando Orejón fog980@hotmail.com","fog980@hotmail.com","Cabify",null],
+["Fernando Sanz Prieto","fernandosanz82@gmail.com","KASAZ",3000],
+["Flavia Bartolomé Tocino","f.bartolometocino@gmail.com","Cabify",null],
+["Fran Conejos Mengó","franconejos@gmail.com","EVIL ZEPPELING",2500],
+["Francesc Miquel González Solà","fgonzalezsola@gmail.com","Genially",null],
+["Francesc Miquel González Solà","fgonzalezsola@gmail.com","Zapiens.ai",1000],
+["Francisco Javier Garcia Rodriguez","escribejavi@hotmail.com","LUDA",null],
+["Francisco Javier Perez Alonso","fperezalonso@gmail.com","CLAPS",1000],
+["Francisco Javier Saiz","fjaviersaiz@yahoo.es","Cabify",null],
+["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","CLAPS",1000],
+["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","Genially",null],
+["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","KASAZ",2000],
+["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","LUDA",null],
+["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","Zapiens.ai",2000],
+["Francisco Rízquez Castellano","francisco.rizquez@gmail.com","KASAZ",5000],
+["Francisco Rízquez Castellano","francisco.rizquez@gmail.com","Oncoheroes",null],
+["Francisco Rí­zquez Castellano","francisco.rizquez@gmail.com","Bnext",2000],
+["Francisco Rí­zquez Castellano","francisco.rizquez@gmail.com","LOBSTER III",5000],
+["Francisco Rí­zquez Castellano","francisco.rizquez@gmail.com","Zapiens.ai",3000],
+["GCON4 Spain S.L.","ion.otaegi@gcon4.com","CLAPS",3000],
+["Gaitegi SL Goti","maria.ecd@gmail.com","Genially",null],
+["Gemma Sebastián","gemma.sebastian@argonconsultores.com","MyTripleA",1000],
+["Gemma Sebastián","gemma.sebastian@argonconsultores.com","OrbitalAds",null],
+["Gloria Concostrina Sicilia","gloriaconcostrina@gmail.com","Cabify",null],
+["Gonzalo Campuzano","gcampu@gmail.com","OrbitalAds",null],
+["Gonzalo Campuzano Gomez-Acebo","gcampu@gmail.com","EVIL ZEPPELING",2000],
+["Gonzalo Fernández","gonzalo.fernandez.pico@gmail.com","LOBSTER III",1000],
+["Gonzalo Hafner","hafnergonzalo@gmail.com","KASAZ",1000],
+["Gonzalo Hafner Roda","hafnergonzalo@gmail.com","CLAPS",1000],
+["Gonzalo Rubio Olmedo","g5.rubio@hotmail.com","Bnext",2800],
+["Gorka Goti","gorka.goti@gmail.com","LOBSTER III",3000],
+["Gorka Goti Ciprian","gorka.goti@gmail.com","LOBSTER II",null],
+["Gorka Goti Ciprian","gorka.goti@gmail.com","Lobster",null],
+["Gorka Mendaza Urtiaga","gmendaza23@gmail.com","LOBSTER II",null],
+["Gorka Mendaza Urtiaga","gmendaza23@gmail.com","Lobster",null],
+["Grup de Coordinacio de Serveis i Mitjans, SL Carbonell Socias","toni.carbonell@homerti.com","LOBSTER III",5000],
+["Grupo Auditor de Cuentas S.L","luis@rbhglobal.com","CLAPS",1000],
+["Grupo Auditor de Cuentas S.L. Luís Ángel Roberto Flórez","luis@rbhglobal.com","Zapiens.ai",1000],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","CLAPS",1500],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","FROGED",1100],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","Genially",null],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","Green Data Chain",1500],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","LOBSTER II",null],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","LOBSTER III",2000],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","LUDA",null],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","Lobster",null],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","WellbeingOS",null],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","Zapiens.ai",1000],
+["Guillem Perernau Sebastià","g.perernau@gmail.com","edit.org",null],
+["Gustavo Guidobono","g.guidobono@yahoo.com","ACCURATE",2500],
+["Gustavo Guidobono","g.guidobono@yahoo.com","Gomapi",5000],
+["Hector","hfdli85@gmail.com","Zapiens.ai",null],
+["Hector García Fernández","hector@habichuelas.es","ROAMS",2000],
+["Hector José García Fernández","hector@habichuelas.es","LUDA",null],
+["Hector Perez","hi@hectorperezarenas.com","Cabify",null],
+["Hoboken Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","ROAMS",10000],
+["Hokoben Inversiones S.L","francisco.oliver@wonders.com","CLAPS",10000],
+["Hokoben Inversiones S.L Francisco Oliver Guardiola","francisco.oliver@wonders.com","Zapiens.ai",25000],
+["Hokoben Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","EVIL ZEPPELING",10000],
+["Hokoben Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","Genially",null],
+["Hokoben Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","LUDA",null],
+["Hokoben Inversiones S.L. Oliver Guardiola","francisco.oliver@wonders.com","LOBSTER III",20000],
+["Hugo Gómez Crespo","hgomecre@gmail.com","LOBSTER II",null],
+["Hugo Gómez Crespo","hgomecre@gmail.com","Lobster",null],
+["Héctor García Fernández","hector@habichuelas.es","Genially",null],
+["Héctor Trujillo Pérez","elrodesmo@gmail.com","Green Data Chain",1000],
+["IGN ALBER SLU Jose Ramón Sánchez García","Info.ignalber@gmail.com","Zapiens.ai",5000],
+["IGN ALBER SLU Sanchez","Info.ignalber@gmail.com","LOBSTER II",null],
+["IGN ALBER SLU Sanchez","Info.ignalber@gmail.com","Lobster",null],
+["IGN Alber SLU","Info.ignalber@gmail.com","CLAPS",5000],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","EVIL ZEPPELING",10000],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","Genially",null],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","LOBSTER III",5000],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","LUDA",null],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","ROAMS",10000],
+["Iaski Ruiz","iaskiruizdeazua@gmail.com","OrbitalAds",null],
+["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Cabify",null],
+["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Goin",null],
+["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","MyTripleA",3000],
+["Iaski Ruiz de Azua Palacios","iaskiruizdeazua@gmail.com","Gomapi",3000],
+["Ideas And Business Management S.L.U Planas Fernandez","daniel.planas@gmail.com","Genially",null],
+["Ideas And Business Management S.L.U. Daniel Planas Fernandez","daniel.planas@gmail.com","Zapiens.ai",1000],
+["Ignacio Arrieta","iarrietal@gmail.com","Genially",null],
+["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Bnext",2500],
+["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","CLAPS",3000],
+["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Genially",null],
+["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Green Data Chain",2500],
+["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","ACCURATE",3000],
+["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","Cabify",null],
+["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","Genially",null],
+["Ignacio Otalora","iotalora@digipen.edu","Cabify",null],
+["Ignacio Otalora","iotalora@digipen.edu","Goin",null],
+["Ignacio Otalora Ariño","iotalora@digipen.edu","Gomapi",1000],
+["Ignacio Rivas Ormaza","ignacio.rivas@quirumed.com","Goin",null],
+["Ignasi Casanovas","ignasi@ilizion.com","Goin",null],
+["Ignasi Casanovas Tarafa","ignasi@ilizion.com","Gomapi",1200],
+["Iker Asategui Carracedo","ikasa22@hotmail.com","Green Data Chain",1500],
+["Iker Asategui Carracedo","ikasa22@hotmail.com","LUDA",null],
+["Iker Etxeberria Ijurra jetxeberria@baiba.es","ikeretxeberria1@gmail.com","Cabify",null],
+["Indalecio Jesus De la Fuente Serrate","indaleinversiones@gmail.com","LOBSTER II",null],
+["Indalecio Jesus De la Fuente Serrate","indaleinversiones@gmail.com","Lobster",null],
+["Inmaculada Jiménez González","inmajimeglzrdgz@gmail.com","Green Data Chain",3000],
+["Inmaculada Moya García","inmamoya@protonmail.com","EVIL ZEPPELING",1000],
+["Inmaculada Moya García","inmamoya@protonmail.com","Green Data Chain",2000],
+["Inmobiliaria ARCE XV, SL Salvadó Monreal","salvadox@gmail.com","ROAMS",5000],
+["Iván Ranz Sanchez","iranz@gruposomar.es","Bnext",6450],
+["Iván Ranz Sanchez","iranz@gruposomar.es","LOBSTER II",null],
+["Iván Ranz Sanchez","iranz@gruposomar.es","Lobster",null],
+["Iván Ranz Sanchez","iranz@gruposomar.es","Zapiens.ai",5350],
+["Izaro Aretxaga Isasmendi","izaroaretxaga@gmail.com","Green Data Chain",1000],
+["Izaro Aretxaga Isasmendi","izaroaretxaga@gmail.com","Zapiens.ai",null],
+["Iñaki Aberasturi Larrañaga xx","aberasturi6@hotmail.com","KASAZ",5000],
+["Iñigo Blanco Arana","inigo@trilogic.eus","Cabify",null],
+["Iñigo De Luis","ideluis@gmail.com","Goin",null],
+["Iñigo Rivero Angulo","riveroangulo91@gmail.com","LOBSTER II",null],
+["Iñigo Rivero Angulo","riveroangulo91@gmail.com","Lobster",null],
+["Iñigo de Luis","ideluis@gmail.com","Cabify",null],
+["JBL DIGITAL SL Subirana Luque","oscarsubiranaluque@gmail.com","LUDA",null],
+["Jaime Diez","jaime.diez.net@gmail.com","Cabify",null],
+["Jaime Diez","jaime.diez.net@gmail.com","MyTripleA",1000],
+["Jaime Diez Lopez","jaime.diez.net@gmail.com","LOBSTER II",null],
+["Jaime Diez Lopez","jaime.diez.net@gmail.com","Lobster",null],
+["Jaime Díez","jaime.diez.net@gmail.com","Goin",null],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Green Data Chain",2000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","LOBSTER III",5000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Zapiens.ai",2000],
+["Jaime Enrique Perez Villoslada","jaimeperezvilloslada@gmail.com","CLAPS",1000],
+["Jaime Enrique Perez Villoslada","jaimeperezvilloslada@gmail.com","Zapiens.ai",2000],
+["Jaime Luis Torres Berenguer","jaitober@gmail.com","Goin",null],
+["Jaime Luis Torres Berenguer","jaitober@gmail.com","LUDA",null],
+["Jaime Naya Estrada","jaimenaya@gmail.com","Zapiens.ai",2000],
+["Jaime Perez Villoslada","jaimeperezvilloslada@gmail.com","WellbeingOS",null],
+["Jaldo Rojas Inversiones SL Jaldo Ortega","jrinversiones21@gmail.com","LUDA",null],
+["Javier Amenabar Iriarte","javier_amenabar@hotmail.com","Green Data Chain",1350],
+["Javier Amenabar Iriarte","javier_amenabar@hotmail.com","Oncoheroes",null],
+["Javier Añorga","soyjavier@gmail.com","Cabify",null],
+["Javier Añorga","soyjavier@gmail.com","Goin",null],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","LOBSTER II",null],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","Lobster",null],
+["Javier Duro","jduro@portiumventures.com","Goin",null],
+["Javier Español Muñoz","javierespanolmunoz@gmail.com","CLAPS",1000],
+["Javier Español Muñoz","javierespanolmunoz@gmail.com","Zapiens.ai",2000],
+["Javier Etxebeste","javier.etxebeste@gmail.com","Cabify",null],
+["Javier Lasarte Remacha","javier@shoreview.app","LUDA",null],
+["Javier Martinez Pinto","javimartinez_24@hotmail.com","Bnext",2500],
+["Javier Romero San Martín","al051944@alumail.uji.es","CLAPS",1500],
+["Javier Romero San Martín","al051944@alumail.uji.es","LOBSTER III",1000],
+["Javier Salvado","salvadox@gmail.com","Oncoheroes",null],
+["Javier Salvadó Monreal","salvadox@gmail.com","FROGED",2000],
+["Javier Vaquerizo Roldán","javiervaquerizo@gmail.com","Cabify",null],
+["Jesus Blanco Aparicio","jesusblanco@i-modena.net","Gomapi",1500],
+["Jesus Pinazo","jesus.pinazo@icloud.com","KASAZ",2000],
+["Jesus Pinazo","jesus.pinazo@icloud.com","MyTripleA",3000],
+["Jesus Ripoll Lopez","jripoll@helpersconsulting.com","CLAPS",1100],
+["Joan Enric Solina","enrisolina@gmail.com","ACCURATE",1000],
+["Joaquin Campuzano Gomez","jcampuzanoga@outlook.com","KASAZ",1000],
+["Joaquín Campuzano Gómez-Acebo","jcampuzanoga@outlook.com","Oncoheroes",null],
+["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Cabify",null],
+["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Cabify",null],
+["Jon Etxeberria Ijurra","jetxeberria@baiba.es","LOBSTER III",null],
+["Jon Etxeberria Ijurra","jetxeberria@baiba.es","edit.org",null],
+["Jon Etxeberria Zulaika","jontryp@gmail.com","CLAPS",1075],
+["Jon Etxeberria Zulaika","jontryp@gmail.com","KASAZ",1000],
+["Jon Etxeberria Zulaika","jontryp@gmail.com","LOBSTER II",null],
+["Jon Etxeberria Zulaika","jontryp@gmail.com","Lobster",null],
+["Jon Etxeberria Zulaika","jontryp@gmail.com","WellbeingOS",null],
+["Jon Iker Lorente","joniker09@gmail.com","Gomapi",1000],
+["Jon Iker Lorente","joniker09@gmail.com","MyTripleA",1000],
+["Jon Iker Lorente","joniker09@gmail.com","OrbitalAds",null],
+["Jon Mentxaka","kaixomentxaka@gmail.com","ACCURATE",1000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","CLAPS",1000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Cabify",null],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","LUDA",null],
+["Jordi","jordi.20@icloud.com","Zapiens.ai",null],
+["Jordi  Peitavi","jordipeitavi@gmail.com","CLAPS",1000],
+["Jordi Peitavi Martinez","jordipeitavi@gmail.com","LOBSTER II",null],
+["Jordi Peitavi Martinez","jordipeitavi@gmail.com","Lobster",null],
+["Jordi Peitavi martínez","jordipeitavi@gmail.com","Zapiens.ai",1000],
+["Jordi Tomàs Gleyal","tomasgleyal@gmail.com","Bnext",1000],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","CLAPS",1000],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","FROGED",1000],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","Genially",null],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","LOBSTER II",null],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","Lobster",null],
+["Jordi Tomás Gleyal","tomasgleyal@gmail.com","WellbeingOS",null],
+["Jorge Carbonell Guillo","jorge@wonders.com","CLAPS",5000],
+["Jorge Carbonell Guillo","jorge@wonders.com","Genially",null],
+["Jorge Gisbert Rueda","j0rj0@hotmail.com","Zapiens.ai",1000],
+["Jorge Gonzalez Olalla","jorge.gonzalez@ticbiomed.net","WellbeingOS",null],
+["Jorge Güil","jgr1083@yahoo.com","Genially",null],
+["Jorge Güil Rivera","jgr1083@yahoo.com","KASAZ",5000],
+["Jorge Güil Rivera","jgr1083@yahoo.com","Oncoheroes",null],
+["Jorge Maylin Larruy","jorge@oroi.eu","Genially",null],
+["Jorge Maylin Larruy","jorge@oroi.eu","LOBSTER II",null],
+["Jorge Maylin Larruy","jorge@oroi.eu","Lobster",null],
+["Jorge Montoyo","jmontoyo@gmail.com","Cabify",null],
+["Jorge Uriarte Aretxaga","jorge.uriarte@omelas.net","Cabify",null],
+["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","LUDA",null],
+["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","Oncoheroes",null],
+["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","Zapiens.ai",1000],
+["Jorge de la Peña Sordo","eldelapena@hotmail.com","Bnext",1075],
+["Joritz Etxeberria Ijurra","joritzetxe@gmail.com","Cabify",null],
+["Jose Bugeda Becerril","josepbb@hotmail.com","Genially",null],
+["Jose Bugeda Becerril","josepbb@hotmail.com","Zapiens.ai",null],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","CLAPS",3000],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Genially",null],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Green Data Chain",3000],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","KASAZ",3000],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","LOBSTER II",null],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","LOBSTER III",3000],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","LUDA",null],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Lobster",null],
+["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Zapiens.ai",3000],
+["Jose Domenech","jdomenech@gmail.com","WellbeingOS",null],
+["Jose Francisco Fernández Serna","joseyco@gmail.com","Genially",null],
+["Jose Luis Fierro Martin","jlfierromartin@gmail.com","Gomapi",1500],
+["Jose Luis Fierro Martín","jlfierromartin@gmail.com","LOBSTER II",null],
+["Jose Luis Fierro Martín","jlfierromartin@gmail.com","LOBSTER III",1500],
+["Jose Luis Fierro Martín","jlfierromartin@gmail.com","Lobster",null],
+["Jose Luis Gonzalez Junco","jlg_73@hotmail.com","Zapiens.ai",3000],
+["Jose Manuel Garcia","jmgg@google.com","ACCURATE",1000],
+["Jose Manuel Garcia","jmgg@google.com","Goin",null],
+["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","MyTripleA",1000],
+["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","OrbitalAds",null],
+["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","edit.org",null],
+["Jose Manuel Garcia Gavilán","j.garcia.gavilan@gmail.com","Cabify",null],
+["Jose Manuel Garcia Gavilán","jmgg@google.com","Cabify",null],
+["Jose Manuel García Gavilan","j.garcia.gavilan@gmail.com","Gomapi",2000],
+["Jose Manuel Gonzalez de Rueda Ramos","jm.glezderueda@gmail.com","Cabify",null],
+["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Bnext",1000],
+["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Goin",null],
+["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","LOBSTER III",1000],
+["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","LUDA",null],
+["Jose Manuel Louro Lago","jmlouro@ralightsolutions.com","Cabify",null],
+["Jose Manuel Mier Albert","josemieralbert@gmail.com","Gomapi",1000],
+["Jose Manuel Mier Albert","josemieralbert@gmail.com","Zapiens.ai",1000],
+["Jose Manuel Rollán Prada","jose.rollan.prada@gmail.com","Cabify",null],
+["Jose María De Armentia Mora","chemitarmentia@gmail.com","WellbeingOS",null],
+["Jose Ramon Lopez Rodriguez","andalnet@gmail.com","Cabify",null],
+["Jose Rodriguez Ruibal","jose@cangobox.com","Cabify",null],
+["Jose Villalobos Cortés","mrvilla@gmail.com","Cabify",null],
+["Jose Villalobos Cortés","mrvilla@gmail.com","Goin",null],
+["Joseba Santos Diez","jsandor1978@gmail.com","LOBSTER III",3000],
+["Josep Maria Bagudà Serenó","jm.baguda@gmail.com","WellbeingOS",null],
+["Josetxu Silgo","jsilgo@metxa.com","Goin",null],
+["Josu Estarrona Elizondo","josuestarrona@gmail.com","Cabify",null],
+["Josu Estarrona Elizondo","josuestarrona@gmail.com","Cabify",null],
+["José Luis Gómez Martínez","jluisete@gmail.com","Goin",null],
+["José Luis Martínez Fueyo","jlmfluky@gmail.com","WellbeingOS",null],
+["José Manuel Azofra Subia","jmanuelazofra@icloud.com","Cabify",null],
+["José Manuel Cifuentes","josemanuel@meteorainversiones.com","Cabify",null],
+["José Manuel Cifuentes Cortegaza","josemanuel@meteorainversiones.com","Green Data Chain",5000],
+["José Manuel Cifuentes Cortegaza","josemanuel@meteorainversiones.com","LUDA",null],
+["José Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","KASAZ",1000],
+["José Manuel Rollán Prada","jose.rollan.prada@gmail.com","Goin",null],
+["José María De Armentia Mora","chemitarmentia@gmail.com","CLAPS",1000],
+["José María De Armentia Mora","chemitarmentia@gmail.com","Zapiens.ai",1000],
+["José María Pimienta González","josemaria.pimienta@gmail.com","Green Data Chain",1000],
+["Joxemari Gallastegi","joxemgallastegi@gmail.com","Cabify",null],
+["Juan Barinaga Ascasibar","jbarinagasca@gmail.com","Green Data Chain",1000],
+["Juan Broullon Sampedro","juan.broullon@gmail.com","Bnext",10000],
+["Juan Francisco Leal","juan@seisdeagosto.com","CLAPS",1000],
+["Juan Francisco Leal Durán","juan@seisdeagosto.com","LOBSTER II",null],
+["Juan Francisco Leal Durán","juan@seisdeagosto.com","Lobster",null],
+["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Bnext",5000],
+["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","CLAPS",10000],
+["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Gomapi",20000],
+["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Green Data Chain",4000],
+["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Zapiens.ai",5000],
+["Juan Jesús Yubero","jjyubero@altiria.com","EVIL ZEPPELING",5000],
+["Juan Jose Etxeberria Begiristain","eugenia.ijurra@gmail.com","Cabify",null],
+["Juan Luis Hortelano","juanluis@gmail.com","CLAPS",3000],
+["Juan Manuel Escrivá Pastor","juanescrivap@gmail.com","EVIL ZEPPELING",5000],
+["Juan Ortiz","juanortizcamarero@gmail.com","ACCURATE",10000],
+["Juan Ortiz Camarero","juanortizcamarero@gmail.com","FROGED",5000],
+["Juan Ortiz Camarero","juanortizcamarero@gmail.com","LOBSTER III",6000],
+["Juan Pablo Alberca Lucas","txampa@santafixie.com","Bnext",2500],
+["Juan Pablo Alberca Lucas","txampa@santafixie.com","Cabify",null],
+["Juan Pablo Alberca Lucas","txampa@santafixie.com","Cabify",null],
+["Juan Pedro Vazquez García","jpvazquez@revalia.es","Goin",null],
+["Juan Pedro Vázquez","jpvazquez@revalia.es","MyTripleA",1000],
+["Juan Pedro Vázquez García","jpvazquez@revalia.es","Gomapi",1200],
+["Juan Pedro Vázquez García","jpvazquez@revalia.es","Oncoheroes",null],
+["Juan Seguí","juan@acceseo.com","Goin",null],
+["Juan Seguí","juan@acceseo.com","MyTripleA",2000],
+["Juan Seguí Moreno","juan@acceseo.com","ACCURATE",1500],
+["Juan Seguí Moreno","juan@acceseo.com","Bnext",2000],
+["Juan Seguí Moreno","juan@acceseo.com","Gomapi",1000],
+["Juan Seguí Moreno","juan@acceseo.com","Green Data Chain",2000],
+["Juan Seguí Moreno","juan@acceseo.com","LUDA",null],
+["Juan Seguí Moreno","juan@acceseo.com","OrbitalAds",null],
+["Juan Sevillano Zabala","jzabala@rocketfuelinc.com","Goin",null],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","Bnext",2000],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","CLAPS",1000],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","FROGED",1000],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","Genially",null],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","Green Data Chain",1000],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","LOBSTER II",null],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","LOBSTER III",10000],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","LUDA",null],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","Lobster",null],
+["Juan Vidaurrazaga Guerenabarrena","juan-chile@hotmail.com","Zapiens.ai",1500],
+["Juan Zamora Álvarez","juanzamalv@gmail.com","LOBSTER II",null],
+["Juan Zamora Álvarez","juanzamalv@gmail.com","Lobster",null],
+["Juanan Canet Peiro","carmacs@gmail.com","Bnext",2000],
+["Julio Juan Merelo Casado","jjmereloc@gmail.com","Zapiens.ai",1500],
+["Julio Merelo Casado","jjmereloc@gmail.com","Cabify",null],
+["KARUSHA INVEST S.L José Manuel Azofra Subia","jmanuelazofra@icloud.com","Zapiens.ai",2500],
+["Kadelion SL Lorenzo Rosado","contacto@kraoesp.com","LUDA",null],
+["Kaledion SL, Lorenzo Rosado","contacto@kraoesp.com","Green Data Chain",2000],
+["Karusha Invest S.L Azofra Subia","jmanuelazofra@icloud.com","Genially",null],
+["Karusha Invest S.L.","jmanuelazofra@icloud.com","CLAPS",2500],
+["Karusha Invest S.L. Azofra Subia","jmanuelazofra@icloud.com","Green Data Chain",2000],
+["Kerman Arriola Zugaza","kerman.arriola@gmail.com","LUDA",null],
+["Kike Dubois","enriquedubois10@gmail.com","Goin",null],
+["Kofer Asesores Financieros S.L.U","jjcolasf@gmail.com","CLAPS",5000],
+["Laura Ruiz","lauraruizandrino@gmail.com","Cabify",null],
+["Leonardo Nomdedeu Calvente","leo.nomdedeu@gmail.com","LUDA",null],
+["Leonardo Nomdedeu Calvente","leo.nomdedeu@gmail.com","Oncoheroes",null],
+["Levels Up Ventures SL","aescabiash@gmail.com","CLAPS",1000],
+["Luis Caldentey Torner","lcaldentey@aparteasy.com","FROGED",1500],
+["Luis Caldentey Torner","lcaldentey@aparteasy.com","WellbeingOS",null],
+["Luis Caldentey Torner","lcaldentey@aparteasy.com","edit.org",null],
+["Luis Carneiro","xluis89@gmail.com","LOBSTER III",null],
+["Luis Diaz Esteban","ldiaz@barbieri.es","FROGED",3000],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","CLAPS",2000],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","Green Data Chain",1000],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","LOBSTER II",null],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","LUDA",null],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","Lobster",null],
+["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","Zapiens.ai",1000],
+["Luis Galindo","luis@galindoasociados.es","MyTripleA",10000],
+["Luis Galindo","luis@galindoasociados.es","OrbitalAds",null],
+["Luis Laborda López","luisi_lab10@hotmail.com","Oncoheroes",null],
+["Luis Laborda López xx","luis.laborda@diageo.com","KASAZ",2000],
+["Luis Moreno Nieto  xx","luismorenonieto@gmail.com","KASAZ",1000],
+["Luis Ángel Roberto Flórez","luis@rbhglobal.com","WellbeingOS",null],
+["Luís Díaz","ldiaz@barbieri.es","OrbitalAds",null],
+["MNLJ Inversiones, SL","miguel@beruby.com","CLAPS",1500],
+["MORENO RUIZ HERMANOS S.L.(Fernando Moreno Cáceres)","fmoreno@auroracorp.es","KASAZ",3000],
+["Maider Mendizabal Azurmendi","reenfocandolavida@gmail.com","Green Data Chain",1000],
+["Manex Goenaga","manexgo@hotmail.com","CLAPS",1000],
+["Manex Goenaga Arsuaga","manexgo@hotmail.com","Cabify",null],
+["Manex Goenaga Arsuaga","manexgo@hotmail.com","FROGED",1000],
+["Manex Goenaga Arsuaga","manexgo@hotmail.com","Genially",null],
+["Manex Goenaga Arsuaga","manexgo@hotmail.com","Oncoheroes",null],
+["Manuel Gonzalez Valle","manuel.gonzalez.trabajo@gmail.com","LOBSTER III",2000],
+["Manuel Monedero Dugnol","mmonederod@hotmail.es","Genially",null],
+["Manuel Pomares Alfosea","manuel@pomaresabogados.com","LOBSTER III",5000],
+["Manuel Serna","manuelsernaigual@gmail.com","MyTripleA",1000],
+["Manuel Serna Igual","manuelsernaigual@gmail.com","OrbitalAds",null],
+["Manuel Vila Braña","manuelvilabrana@outlook.es","LOBSTER III",2500],
+["Marc Noguera Güell","mnoguera88@gmail.com","Cabify",null],
+["Marcel Aragonès Mas","aragonesmarcel1@gmail.com","Zapiens.ai",1000],
+["Marco Antonio Tabasco Ortiz","matabasco@gmail.com","Zapiens.ai",1500],
+["Marco Dominguez","huanco@gmail.com","MyTripleA",1000],
+["Marco Dominguez Bonini","huanco@gmail.com","Cabify",null],
+["Marco Dominguez Bonini","huanco@gmail.com","OrbitalAds",null],
+["Marco Dominguez Bonini","marco.dominguez@ikusi.com","Goin",null],
+["Marcos Fernández","marcosf@mockingbird.es","Cabify",null],
+["Marcos Fernández marcosf@mockingbird.es","marcosf@mockingbird.es","Cabify",null],
+["Maria Eugenia Ijurra Araña","eugenia.ijurra@gmail.com","Cabify",null],
+["Maria Eugenia Ijurra Araña eugenia.ijurra@gmail.com","eugenia.ijurra@gmail.com","Cabify",null],
+["Maria Goti","mgoti@elcorreo.com","Goin",null],
+["Mariano Juliá","mjuliaq@gmail.com","Bnext",1500],
+["Mariano Juliá","mjuliaq@gmail.com","WellbeingOS",null],
+["Mariano Juliá","mjuliaq@gmail.com","Zapiens.ai",5000],
+["Marino Sánchez-Cid","marino.sanchezcgt@gmail.com","MyTripleA",3000],
+["Marino Sánchez-Cid","marino.sanchezcgt@gmail.com","OrbitalAds",null],
+["Mario Cabezón Martinez","mariocabezonmartinez@gmail.com","KASAZ",1500],
+["Mario Cabezón Martínez","mariocabezonmartinez@gmail.com","Bnext",2500],
+["Mario Cabezón Martínez","mariocabezonmartinez@gmail.com","Green Data Chain",2000],
+["Marjorie Rojas","mar.joa@hotmail.com","CLAPS",1000],
+["Marjorie Rojas","mar.joa@hotmail.com","Zapiens.ai",1200],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","Genially",null],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","LOBSTER II",null],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","LUDA",null],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","Lobster",null],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","Zapiens.ai",1000],
+["Markel Sainz de la Maza Garrastachu","mazagarras@gmail.com","edit.org",null],
+["Marta Castellanos Ramos","marta.castellanos@gmail.com","Bnext",1500],
+["Martin Ferrin","martin_ferrin@yahoo.es","ACCURATE",2000],
+["Martin Ferrin Gomez","martin_ferrin@yahoo.es","Gomapi",2000],
+["María Beatriz Martinez Miranda","beatrizmartinezmiranda@gmail.com","Zapiens.ai",6000],
+["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","CLAPS",1000],
+["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","Oncoheroes",null],
+["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","Zapiens.ai",1000],
+["María Goti Ciprian","maria.ecd@gmail.com","LOBSTER II",null],
+["María Goti Ciprian","maria.ecd@gmail.com","Lobster",null],
+["María Pilar Matias Gurrea","matiasgurrea@gmail.com","Zapiens.ai",1500],
+["María Teresa (Mayte) Carreño Glaria","mcglaria@hotmail.com","KASAZ",3000],
+["Medcom 2006 S.L","francisco.oliver.guardiola@gmail.com","CLAPS",10000],
+["Medcom 2006 S.L Oliver Guardiola","francisco.oliver.guardiola@gmail.com","LUDA",null],
+["Medcom 2006 S.L. Francisco Oliver Guardiola","francisco.oliver.guardiola@gmail.com","Zapiens.ai",10000],
+["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","EVIL ZEPPELING",5000],
+["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","Genially",null],
+["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","LOBSTER III",10000],
+["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","ROAMS",5000],
+["Mercedes Royo Sanz","mercedesrs62@gmail.com","Green Data Chain",5000],
+["Mercury Consultores Tecnologicos SL Aitor Gaisán Montoya","aitorgaisan82@gmail.com","Zapiens.ai",1500],
+["Mercury Consultores Tecnologicos SL Gaisán Montoya","aitorgaisan82@gmail.com","LOBSTER II",null],
+["Mercury Consultores Tecnologicos SL Gaisán Montoya","aitorgaisan82@gmail.com","Lobster",null],
+["Merino Capital SLU","arapio@gmail.com","CLAPS",10000],
+["Miguel Angel Escudero Alonso","miguelangelescudero@hotmail.com","Bnext",1000],
+["Miguel Angel Gatón","miguel@abinternet.es","edit.org",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Bnext",2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","CLAPS",2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","EVIL ZEPPELING",2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Genially",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Green Data Chain",1000],
+["Miguel Angel Gatón García","miguel@abinternet.es","KASAZ",1000],
+["Miguel Angel Gatón García","miguel@abinternet.es","LOBSTER II",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","LOBSTER III",2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","LUDA",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Lobster",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","WellbeingOS",null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Zapiens.ai",2000],
+["Miguel Angel Rojas Gorrindo","ma.rojasgo@gmail.com","CLAPS",1500],
+["Miguel Angel Rojas Gorrindo","ma.rojasgo@gmail.com","Green Data Chain",1200],
+["Miguel Angel Rojas Gorrindo","ma.rojasgo@gmail.com","LOBSTER II",null],
+["Miguel Angel Rojas Gorrindo","ma.rojasgo@gmail.com","Lobster",null],
+["Miguel Angel Rojas Gorrindo","ma.rojasgo@gmail.com","Zapiens.ai",2140],
+["Miguel Angel Sola Freire","solafreire@hotmail.com","Bnext",3243],
+["Miguel Angel Sola Freire","solafreire@hotmail.com","LUDA",null],
+["Miguel Covas","miguel@crealink.com","Goin",null],
+["Miguel Fernández Herencias","miguel.fer.herencias@gmail.com","CLAPS",2000],
+["Miguel Gaton","miguel@abinternet.es","ACCURATE",2000],
+["Miguel Gaton","miguel@abinternet.es","Cabify",null],
+["Miguel Gaton","miguel@abinternet.es","Goin",null],
+["Miguel Gaton","miguel@abinternet.es","MyTripleA",2000],
+["Miguel Gaton García","miguel@abinternet.es","Gomapi",2000],
+["Miguel Gatón","miguel@abinternet.es","OrbitalAds",null],
+["Miguel Gatón García","miguel@abinternet.es","FROGED",2000],
+["Miguel Julián Miguel López","mikineator@gmail.com","Cabify",null],
+["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","CLAPS",3000],
+["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","Cabify",null],
+["Miguel Sotomayor Aparicio","msotomayor@haya.es","Goin",null],
+["Miguel Ángel Escudero Alonso","miguelangelescudero@hotmail.com","Oncoheroes",null],
+["Miguel Ángel Gatón García","miguel@abinternet.es","Oncoheroes",null],
+["Mikel Arrien Mandiola","mikel.arrien@gmail.com","WellbeingOS",null],
+["Mikel Gotzon Losa","3000@gmx.fr","LUDA",null],
+["Mikel Lopez de Torre","mikellpzdetorre@gmail.com","CLAPS",5000],
+["Mikel López de Torre Querejazu","mikellpzdetorre@gmail.com","Bnext",10000],
+["Mikel Sampedro","mikelsampedro@gmail.com","Cabify",null],
+["Mikel Sampedro","mikelsampedro@icloud.com","OrbitalAds",null],
+["Miki (Miguel Julián Miguel López)","mikineator@gmail.com","Cabify",null],
+["Miquel Mascort Reig","mmascort@ocasionia.com","WellbeingOS",null],
+["Mireia Carnicero","mireia.carnicero@gmail.com","LOBSTER III",1000],
+["Mireia Carnicero Marquez","mireia.carnicero@gmail.com","LUDA",null],
+["Monrealia Global, SL Monreal Descarrega","victor.monreal@monrealia.com","Genially",null],
+["Munther Odeh","muntherom@gmail.com","Goin",null],
+["MªJosé Díaz Bellón","mjdiazbellon@gmail.com","Bnext",2000],
+["Natalia Cecilia Zamora Bunker","nataliazamora@continuos.com","Zapiens.ai",3000],
+["Nerea Iglesias","Krypteiacapital@gmail.com","Cabify",null],
+["Nerea Iglesias","Krypteiacapital@gmail.com","OrbitalAds",null],
+["Nerea Iglesias","niglesias@krypteiavalue.com","Goin",null],
+["Nicolas Baldó Marcet","nicobalmar@gmail.com","Bnext",3000],
+["Nicolas Baldó Marcet","nicobalmar@gmail.com","FROGED",1000],
+["Nicolas Teleki","nicolas@teleki.name","MyTripleA",3000],
+["Nicolas Teleki","nicolas@teleki.name","OrbitalAds",null],
+["Nicolás Baldó Marcet","nicobalmar@gmail.com","Genially",null],
+["Nicolás Baldó Marcet","nicobalmar@gmail.com","LUDA",null],
+["Nicolás Baldó Marcet","nicobalmar@gmail.com","WellbeingOS",null],
+["Nicolás Baldó Marcet","nicobalmar@gmail.com","Zapiens.ai",2000],
+["Nicolás Teleki","nicolas@teleki.name","Gomapi",3000],
+["Noel Arias Ruiz","Ariasnoel9@gmail.com","LOBSTER II",null],
+["Noel Arias Ruiz","Ariasnoel9@gmail.com","Lobster",null],
+["OYMYAKON INVEST S.L. Salvadó Monreal","salvadox@gmail.com","LOBSTER II",null],
+["OYMYAKON INVEST S.L. Salvadó Monreal","salvadox@gmail.com","Lobster",null],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Zapiens.ai",8000],
+["Omar Pera","omar@reply.ai","Cabify",null],
+["Omar Pera Mira","campbell.sx@gmail.com","Genially",null],
+["Omar Pera Mira","omar@reply.ai","Bnext",5000],
+["Oriol Huesa Ripoll","oriolhuesa@gmail.com","Genially",null],
+["Oscar Del Pozo Menor","oscar.delpozo@watchguard.com","edit.org",null],
+["Oscar Del Río De Miguel","oscar.delrio@interacso.com","Bnext",1000],
+["Oscar Del Río De Miguel","oscar.delrio@interacso.com","LOBSTER II",null],
+["Oscar Del Río De Miguel","oscar.delrio@interacso.com","LUDA",null],
+["Oscar Del Río De Miguel","oscar.delrio@interacso.com","Lobster",null],
+["Oscar Iglesias Touceda","osc.iglesias@gmail.com","Cabify",null],
+["Oscar Rodríguez González","ribasaltas@gmail.com","CLAPS",2000],
+["Oscar Rodríguez González","ribasaltas@gmail.com","Green Data Chain",2000],
+["Oscar Rodríguez González","ribasaltas@gmail.com","LOBSTER III",1000],
+["Oscar Rodríguez González","ribasaltas@gmail.com","Zapiens.ai",1000],
+["Oscar del Río De Miguel","oscar.delrio@interacso.com","KASAZ",1000],
+["Oymyakon Invest S.L","salvadox@gmail.com","CLAPS",9000],
+["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","EVIL ZEPPELING",2000],
+["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","Genially",null],
+["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","Green Data Chain",2500],
+["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","LUDA",null],
+["Oymyakon Invest, SL","salvadox@gmail.com","edit.org",null],
+["Oymyakon Invest, SL (Javier Salvado)","salvadox@gmail.com","KASAZ",3000],
+["Pablo Abad","pabloam95@gmail.com","ACCURATE",1100],
+["Pablo Abad Martinez","pabloam95@gmail.com","CLAPS",1000],
+["Pablo Abad Martinez","pabloam95@gmail.com","Genially",null],
+["Pablo Abad Martinez","pabloam95@gmail.com","Gomapi",1200],
+["Pablo Abad Martínez","pabloam95@gmail.com","KASAZ",1100],
+["Pablo Alejandro Artacho Amichis","artacho@spotahome.com","Bnext",1500],
+["Pablo Alejandro Artacho Amichis","artacho@spotahome.com","Gomapi",10000],
+["Pablo Castano","pablocastano@yahoo.com","MyTripleA",1000],
+["Pablo Castano","pablocastano@yahoo.com","OrbitalAds",null],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","LOBSTER II",null],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","Lobster",null],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","WellbeingOS",null],
+["Pablo Cester Marquesán","pablocester@hotmail.com","EVIL ZEPPELING",1000],
+["Pablo López Gil-Albarellos","pablo.lopezgil@outlook.com","Bnext",2000],
+["Pablo Martin","pablom.sem@gmail.com","Genially",null],
+["Pablo Mielgo López","pablomielgo@hotmail.com","Green Data Chain",1500],
+["Pablo Naranjo Pelayo","pablonaranjop@gmail.com","edit.org",null],
+["Pablo Pardo Cáceres","pablo.pardocaceres@gmail.com","Oncoheroes",null],
+["Pablo Pardo Cáceres","pablo.pardocaceres@gmail.com","WellbeingOS",null],
+["Pablo Pera","pablo.sx@gmail.com","Cabify",null],
+["Pablo Pera Mira","pablo.sx@gmail.com","LOBSTER II",null],
+["Pablo Pera Mira","pablo.sx@gmail.com","Lobster",null],
+["Pablo Pera Mira","pablo@reply.ai","Bnext",5000],
+["Pablo Pera Mira","pablo@reply.ai","WellbeingOS",null],
+["Pablo Pera pablo.sx@gmail.com","pablo@reply.ai","Cabify",null],
+["Pablo Rafael Castano Paudade","pablocastano@yahoo.com","Gomapi",1000],
+["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","Genially",null],
+["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","LOBSTER III",1000],
+["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","LUDA",null],
+["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","Zapiens.ai",1000],
+["Pablo Roberto Herrero","pablo@rbhglobal.com","Bnext",1000],
+["Pablo Solano","pablosolano@gmail.com","ACCURATE",1000],
+["Pablo Solano","pablosolano@gmail.com","Goin",null],
+["Pablo Solano","pablosolano@gmail.com","LOBSTER II",null],
+["Pablo Solano","pablosolano@gmail.com","Lobster",null],
+["Pablo Solano","pablosolano@gmail.com","MyTripleA",1000],
+["Pablo Solano","pablosolano@gmail.com","Oncoheroes",null],
+["Pablo Solano","pablosolano@gmail.com","OrbitalAds",null],
+["Pablo Solano Barroso","pablosolano@gmail.com","CLAPS",1000],
+["Pablo Solano Barroso","pablosolano@gmail.com","EVIL ZEPPELING",1000],
+["Pablo Solano Barroso","pablosolano@gmail.com","Genially",null],
+["Pablo Solano Barroso","pablosolano@gmail.com","WellbeingOS",null],
+["Pablo Solano Barroso","pablosolano@gmail.com","Zapiens.ai",1000],
+["Paroquimu Investments SL Ibarra Cuenca","adolfo@parinve.com","LUDA",null],
+["Pedro Lanuza Pastor","txapila@gmail.com","LOBSTER II",null],
+["Pedro Lanuza Pastor","txapila@gmail.com","Lobster",null],
+["Pedro Roig Martínez","pedro@grupotrato.com","KASAZ",3000],
+["Pedro Roig Martínez","pedro@grupotrato.com","WellbeingOS",null],
+["Pilar Matias Gurrea","matiasgurrea@gmail.com","Green Data Chain",1500],
+["Rafa Bea Cano","rafa@rbcgrup.es","Genially",null],
+["Rafael Canca Repiso","rcanca@gmail.com","Bnext",1500],
+["Rafael Canca Repiso","rcanca@gmail.com","Genially",null],
+["Rafael Canca Repiso","rcanca@gmail.com","LUDA",null],
+["Rafael Díez Varela","rafa@korentia.com","Zapiens.ai",2000],
+["Rafael Rodriguez Julián","rafa.rodriguez@lazona.co","Genially",null],
+["Rafael Rodriguez Julián","rafa.rodriguez@lazona.co","WellbeingOS",null],
+["Ramón","rarotaeche@gmail.com","Zapiens.ai",null],
+["Ramón Rotaeche","rarotaeche@gmail.com","EVIL ZEPPELING",1000],
+["Ramón Rotaeche","rarotaeche@gmail.com","LOBSTER III",1000],
+["Ramón Rotaeche","rarotaeche@gmail.com","LUDA",null],
+["Raul Kripalani","raul.kripalani@gmail.com","Cabify",null],
+["Raul Onaindia","onaindiaraul@gmail.com","Genially",null],
+["Rearviewmirror Investments S.L. Von Schiller","ovonschiller@ecija.com","Genially",null],
+["Ricard Garriga","ri.garriga@gmail.com","ROAMS",1000],
+["Ricard Porta Valero","rportavalero@gmail.com","LOBSTER II",null],
+["Ricard Porta Valero","rportavalero@gmail.com","Lobster",null],
+["Ricardo Alvarez","darthricard@gmail.com","ACCURATE",1500],
+["Ricardo Alvarez","darthricard@gmail.com","Cabify",null],
+["Roberto Barrio","roberhood@gmail.com","Cabify",null],
+["Roberto Barrio","roberhood@gmail.com","OrbitalAds",null],
+["Roberto Martín Muñoz","robertomartin76@hotmail.com","CLAPS",1000],
+["Roberto Martín Muñoz","robertomartin76@hotmail.com","FROGED",1000],
+["Roberto Martín Muñoz","robertomartin76@hotmail.com","Genially",null],
+["Roberto Martín Muñoz","robertomartin76@hotmail.com","Oncoheroes",null],
+["Roberto Martín Muñoz","robertomartin76@hotmail.com","Zapiens.ai",1000],
+["Roberto&Herrero Inversiones S.L Roberto Flórez","luis@rbhglobal.com","LOBSTER III",null],
+["Rodolf Rius Expósito","rodolf_rius@hotmail.com","LOBSTER II",null],
+["Rodolf Rius Expósito","rodolf_rius@hotmail.com","Lobster",null],
+["Roger Martínez Terés","roger.runch@gmail.com","EVIL ZEPPELING",1000],
+["Roger Martínez Terés","roger.runch@gmail.com","LOBSTER III",1000],
+["Roger Martínez Terés","roger.runch@gmail.com","ROAMS",1000],
+["Roger Runch","roger.runch@gmail.com","Zapiens.ai",null],
+["Román Sanchez","Info.ignalber@gmail.com","WellbeingOS",null],
+["Rosa Bonafoux Amengual","administracion@grupotrato.com","WellbeingOS",null],
+["Rosa Jiménez Cano","rosajc@gmail.com","Cabify",null],
+["Rosa Jiménez Cano","rosajc@gmail.com","Goin",null],
+["Ruben Ferreiro","ruben.ferreiro@elogia.net","Cabify",null],
+["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Cabify",null],
+["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Goin",null],
+["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","MyTripleA",5000],
+["SEMANTICAE FORMACION S.L. Ana Aldea Alonso","ana@datasocial.es","Zapiens.ai",3000],
+["SEMANTICAE FORMACION S.L., Aldea Alonso","ana@datasocial.es","LOBSTER II",null],
+["SEMANTICAE FORMACION S.L., Aldea Alonso","ana@datasocial.es","Lobster",null],
+["Saioa De la Fuente Zugazaga","saioadelafuente@gmail.com","Zapiens.ai",2000],
+["Saioa Ojenbarrena","saioaojembarrena@gmail.com","LUDA",null],
+["Saioa de la Fuente","saioadelafuente@gmail.com","Cabify",null],
+["Saioa de la Fuente","saioadelafuente@gmail.com","Goin",null],
+["Salvador López Sanchez","slopez@andamur.com","Cabify",null],
+["Salvador López Sanchez slopez@andamur.com","slopez@andamur.com","Cabify",null],
+["Santi Casanellas","scasanellas@gmail.com","FROGED",1100],
+["Santi Casanellas Soler","scasanellas@gmail.com","WellbeingOS",null],
+["Santiago Casanellas Soler","scasanellas@gmail.com","CLAPS",1100],
+["Santiago Casanellas Soler","scasanellas@gmail.com","Genially",null],
+["Santiago Casanellas Soler","scasanellas@gmail.com","Zapiens.ai",1100],
+["Santiago Casanellas Soler","scasanellas@gmail.com","edit.org",null],
+["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","LUDA",null],
+["Santiago Sanchez-Lozano Turmo","santiago.sanchezlozano@gmail.com","LOBSTER II",null],
+["Santiago Sanchez-Lozano Turmo","santiago.sanchezlozano@gmail.com","Lobster",null],
+["Sara Diez Pelae","administracion@vestelingenieros.com","WellbeingOS",null],
+["Semeru Ventures, S.L. Garcia Roch","egr@gisons.com","LOBSTER III",21622],
+["Sergio Antonio Muñoz Pérez","sergio.munoz@pm.me","Bnext",1000],
+["Sergio Arraez Gallego","sergio@shootfy.com","LOBSTER II",null],
+["Sergio Arraez Gallego","sergio@shootfy.com","Lobster",null],
+["Sergio Fonfria Gonzalez","sergiocomunidad@protonmail.com","EVIL ZEPPELING",1000],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","Bnext",2000],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","CLAPS",2000],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","LOBSTER II",null],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","LOBSTER III",1000],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","Lobster",null],
+["Sergio Gonzalez Gaspar","sergio.gonzalezgaspar@gmail.com","WellbeingOS",null],
+["Sergio González Gaspar","sergio.gonzalezgaspar@gmail.com","Oncoheroes",null],
+["Sergio Martínez","sermapa86@gmail.com","Zapiens.ai",2000],
+["Sergio Morales Arruga","smoralea@gmail.com","CLAPS",2000],
+["Sergio Morales Arruga","smoralea@gmail.com","Zapiens.ai",5000],
+["Sergio Rodrigues","sergio_rv619@hotmail.com","EVIL ZEPPELING",1000],
+["Shadenn Zarur","szarur@tonalli.cl","MyTripleA",1000],
+["Shadenn Zarur Guzman","szarur@tonalli.cl","CLAPS",2000],
+["Shadenn Zarur Guzman","szarur@tonalli.cl","Goin",null],
+["Shadenn Zarur Guzman","szarur@tonalli.cl","LUDA",null],
+["Shadenn Zarur Guzman","szarur@tonalli.cl","WellbeingOS",null],
+["Sheila Rodriguez Sanchez","sheilars29@gmail.com","LOBSTER III",1200],
+["Silvia","simarque@trabajaportucuenta.com","Zapiens.ai",null],
+["Silvia Marquez Rodriguez","simarque@trabajaportucuenta.com","Green Data Chain",1000],
+["Smile and Think SLU","benjicoll@gmail.com","CLAPS",2000],
+["Smile and Think SLU Benji Coll","benjicoll@gmail.com","Zapiens.ai",5000],
+["Smile and Think SLU Coll","benjicoll@gmail.com","EVIL ZEPPELING",3000],
+["Smile and Think SLU Coll","benjicoll@gmail.com","Genially",null],
+["Smile and Think SLU Coll","benjicoll@gmail.com","Green Data Chain",3000],
+["Smile and Think SLU Coll","benjicoll@gmail.com","LOBSTER III",3000],
+["Smile and Think SLU Coll","benjicoll@gmail.com","LUDA",null],
+["Stephan Rolf Richter","stephan@richtersolution.com","Cabify",null],
+["Stephan Rolf Richter","stephan@richtersolution.com","Cabify",null],
+["TRIBOULIETX XXI S.L. Mascort Reig","mmascort@ocasionia.com","LOBSTER II",null],
+["TRIBOULIETX XXI S.L. Mascort Reig","mmascort@ocasionia.com","Lobster",null],
+["Thomas Emile Petit","thomasbcna@gmail.com","KASAZ",1000],
+["Tomas Sebastian Richter","stephan@richtersolution.com","Cabify",null],
+["Tomas Sebastian Richter stephan@richtersolution.com","tomasrich@gmail.com","Cabify",null],
+["Tomeu","trosselloservera@gmail.com","Zapiens.ai",null],
+["Triboulietx XXI S.L (Miquel Mascort)","mr1410@hotmail.com","KASAZ",2500],
+["Triboulietx XXI S.L. Miquel Mascort Reig","mmascort@ocasionia.com","Zapiens.ai",2500],
+["Txomin Gallastegi","gallastegi.ego@gmail.com","Cabify",null],
+["Universosm Soluciones Digitales SLU","javier@universosm.es","edit.org",null],
+["Urko Jauregi","urkojauregi@gmail.com","MyTripleA",1000],
+["Urko Jauregi","urkojauregi@gmail.com","OrbitalAds",null],
+["Urko Jauregi Llona","urkojauregi@gmail.com","Bnext",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","CLAPS",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","EVIL ZEPPELING",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","FROGED",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","Genially",null],
+["Urko Jauregi Llona","urkojauregi@gmail.com","Green Data Chain",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","LUDA",null],
+["Urko Jauregi Llona","urkojauregi@gmail.com","ROAMS",1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","WellbeingOS",null],
+["Urko Jauregui Llona","urkojauregi@gmail.com","Gomapi",1000],
+["VPozzi Inversiones, SL","marco.pozzi.bcn@gmail.com","CLAPS",3500],
+["Valdric Vidal Forcada","info@lespicardes.com","WellbeingOS",null],
+["Valmiro Lopes","vlopestey@hotmail.com","Goin",null],
+["Valmiro Lopes","vlopestey@hotmail.com","OrbitalAds",null],
+["Vestel Ingenieros de Levante, S.L Sara Diez Pelaez","administracion@vestelingenieros.com","Zapiens.ai",25000],
+["Vestel Ingenieros de Levante, S.L. Diez Pelae","administracion@vestelingenieros.com","LOBSTER II",null],
+["Vestel Ingenieros de Levante, S.L. Diez Pelae","administracion@vestelingenieros.com","LUDA",null],
+["Vestel Ingenieros de Levante, S.L. Diez Pelae","administracion@vestelingenieros.com","Lobster",null],
+["Vicente","vicenteliebe62@hotmail.es","Zapiens.ai",null],
+["Vicente Javier Navarro Pastor","vicentxnavarro@gmail.com","EVIL ZEPPELING",1000],
+["Vicente Javier Navarro Pastor","vicentxnavarro@gmail.com","Green Data Chain",1000],
+["Vicente Javier Navarro Pastor","vicentxnavarro@gmail.com","LOBSTER III",1000],
+["Vicente Javier Navarro Pastor","vicentxnavarro@gmail.com","LUDA",null],
+["Vicente Jiménez Montero","vicenteliebe62@hotmail.es","Green Data Chain",2000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","CLAPS",2000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","EVIL ZEPPELING",1000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","FROGED",1000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Genially",null],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","LOBSTER II",null],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","LOBSTER III",1000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","LUDA",null],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Lobster",null],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","WellbeingOS",null],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Zapiens.ai",1000],
+["Victor Diaz de Arcaya Fernández","vdarcaya@hotmail.com","Bnext",1500],
+["Virginia Fernández Concostrina","fdezconcostrina.virginia@gmail.com","Cabify",null],
+["Virginia Fernández Concostrina","fdezconcostrina.virginia@gmail.com","Cabify",null],
+["Víctor Díaz","vdarcaya@hotmail.com","MyTripleA",2500],
+["Víctor Díaz de Arcaya","vdarcaya@hotmail.com","ACCURATE",2000],
+["Víctor Díaz de Arcaya","vdarcaya@hotmail.com","OrbitalAds",null],
+["Víctor Díaz de Arcaya Fernandez","vdarcaya@hotmail.com","Gomapi",1000],
+["Víctor Díaz de Arcaya Fernández","vdarcaya@hotmail.com","KASAZ",2000],
+["Víctor Díaz de Arcaya Fernández","vdarcaya@hotmail.com","Oncoheroes",null],
+["Wolfgang Haselwander","wolfhas2@gmail.com","LOBSTER II",null],
+["Wolfgang Haselwander","wolfhas2@gmail.com","Lobster",null],
+["Xabier Prada","x_prada@yahoo.com","Gomapi",2000],
+["Xabier Prada Benito","x_prada@yahoo.com","Cabify",null],
+["Xavier Marín López","xavvi8@hotmail.com","EVIL ZEPPELING",5000],
+["Xavier Marín López","xavvi8@hotmail.com","LUDA",null],
+["Xavier Salvado","salvadox@gmail.com","MyTripleA",3000],
+["Xavier Salvadó","salvadox@gmail.com","Cabify",null],
+["Xavier Salvadó","salvadox@gmail.com","Goin",null],
+["Xavier Salvadó","salvadox@gmail.com","OrbitalAds",null],
+["Xavier Salvadó MOnreal","salvadox@gmail.com","Gomapi",7000],
+["Xavier Salvadó Monreal","salvadox@gmail.com","Bnext",12000],
+["Ynamis Capital SLU","fernando.aguadog@iese.net","CLAPS",2000],
+["Ynamis Capital SLU Aguado García","fernando.aguadog@iese.net","LUDA",null],
+["Ynamis Capital SLU Aguado García","fernando.aguadog@iese.net","ROAMS",2000],
+["Ynamis Capital SLU Fernando Aguado García","fernando.aguadog@iese.net","Zapiens.ai",2000],
+["Ynamis capital SLU","aguado_fernando@hotmail.com","edit.org",null],
+["Yolanda García Conde","yoli.garcia@gmail.com","Green Data Chain",2000],
+["Yolanda Muñoz","y.munoz.1974@gmail.com","Cabify",null],
+["Yolanda Muñoz","y.munoz.1974@gmail.com","OrbitalAds",null],
+["mikelsampedro@icloud.com","mikelsampedro@gmail.com","Cabify",null],
+["msotomayor@haya.es","miguel_sotomayor@hotmail.com","Cabify",null],
+["niglesias@krypteiavalue.com","Krypteiacapital@gmail.com","Cabify",null],
+["raul@evosent.com","raul.kripalani@gmail.com","Cabify",null],
+["xabier prada benito","x_prada@yahoo.com","Goin",null],
+["Álvaro Cabezón Martinez","alvarocabezonmartinez@gmail.com","KASAZ",1500],
+["Álvaro Cabezón Martínez","alvarocabezonmartinez@gmail.com","Bnext",2500],
+["Álvaro Gutiérrez Camisón","algucasa@hotmail.com","Bnext",1000],
+["Álvaro Gutiérrez Camisón","algucasa@hotmail.com","Oncoheroes",null],
+["Álvaro Pérez García","alvaro.perez.garcia@outlook.com","CLAPS",1000],
+["Álvaro Pérez García","alvaro.perez.garcia@outlook.com","Genially",null],
+["Álvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","CLAPS",2000],
+["Íñigo Gutierrez Febles","febles@pm.me","Bnext",5000],
+["Íñigo Gutiérrez Febles","febles@pm.me","LUDA",null]
 ];
 
-const total = investments.reduce((s,i) => s+i.capital, 0);
+// ═══════════════════════════════════════════════════════════════
+// BUILD INVESTOR INDEX (by email → list of investments)
+// ═══════════════════════════════════════════════════════════════
+let currentInvestor = null;
+const INVESTOR_DB = {}; // key: email_lower => { names:Set, investments:Map<startupKey, amount> }
+RAW_INVESTORS.forEach(([name, email, startup, amount]) => {
+  if (!email || !name) return;
+  const emailKey = email.trim().toLowerCase();
+  const startupKey = normalizeStartup(startup);
+  if (!INVESTOR_DB[emailKey]) INVESTOR_DB[emailKey] = { names: new Set(), investments: new Map() };
+  INVESTOR_DB[emailKey].names.add(name.trim());
+  // If same startup appears multiple times (different rounds), sum amounts
+  const prev = INVESTOR_DB[emailKey].investments.get(startupKey) || 0;
+  INVESTOR_DB[emailKey].investments.set(startupKey, prev + (amount || 0));
+});
 
-// Date
-const d = new Date();
-document.getElementById('today-date').textContent =
-  d.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+// ═══════════════════════════════════════════════════════════════
+// LOGIN MODE TOGGLE
+// ═══════════════════════════════════════════════════════════════
+let loginMode = 'investor';
+
+function setLoginMode(mode) {
+  loginMode = mode;
+  const isAdmin = mode === 'admin';
+  document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
+  document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
+  document.getElementById('login-title').textContent = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor';
+  document.getElementById('login-sub').textContent   = isAdmin
+    ? 'Acceso exclusivo para el equipo de AngelClub'
+    : 'Accede con tu nombre completo y correo electrónico tal como figuran en tu ficha de inversor';
+  document.getElementById('login-btn-text').textContent = isAdmin ? 'Entrar como Admin' : 'Acceder al Portal';
+  document.getElementById('login-hint').style.display = isAdmin ? 'none' : 'block';
+  document.getElementById('login-error').style.display = 'none';
+
+  const tabInv = document.getElementById('tab-investor');
+  const tabAdm = document.getElementById('tab-admin');
+  if (isAdmin) {
+    tabAdm.style.background = 'linear-gradient(135deg,#E6A817,#F9C846)';
+    tabAdm.style.color = 'white';
+    tabAdm.style.boxShadow = '0 2px 8px rgba(230,168,23,0.30)';
+    tabInv.style.background = 'transparent';
+    tabInv.style.color = 'var(--muted)';
+    tabInv.style.boxShadow = 'none';
+  } else {
+    tabInv.style.background = 'linear-gradient(135deg,var(--blue),var(--blue-bright))';
+    tabInv.style.color = 'white';
+    tabInv.style.boxShadow = '0 2px 8px rgba(21,101,192,0.20)';
+    tabAdm.style.background = 'transparent';
+    tabAdm.style.color = 'var(--muted)';
+    tabAdm.style.boxShadow = 'none';
+  }
+}
+
+function togglePass() {
+  const inp = document.getElementById('admin-pass');
+  const eye = document.getElementById('pass-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+}
+
+// Allow Enter key
+document.getElementById('login-name').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-email').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('admin-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('admin-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN CREDENTIALS
+// ═══════════════════════════════════════════════════════════════
+const ADMIN_USER = 'equipo@angelclub.es';
+const ADMIN_PASS = 'soytuangel2026';
+
+function normalize(s) {
+  return s.trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ');
+}
+
+function doLogin() {
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (loginMode === 'admin') {
+    const user = document.getElementById('admin-user').value.trim().toLowerCase();
+    const pass = document.getElementById('admin-pass').value;
+    if (!user || !pass) {
+      errEl.textContent = '⚠️ Por favor, introduce usuario y contraseña.';
+      errEl.style.display = 'block'; return;
+    }
+    if (user !== ADMIN_USER || pass !== ADMIN_PASS) {
+      errEl.textContent = '❌ Credenciales incorrectas. Acceso denegado.';
+      errEl.style.display = 'block'; return;
+    }
+    currentInvestor = { role: 'admin', name: 'Administrador', email: ADMIN_USER };
+    showAdminDashboard();
+    return;
+  }
+
+  // INVESTOR LOGIN
+  const nameInput  = document.getElementById('login-name').value.trim();
+  const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+
+  if (!nameInput || !emailInput) {
+    errEl.textContent = '⚠️ Por favor, introduce tu nombre y correo electrónico.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const record = INVESTOR_DB[emailInput];
+  if (!record) {
+    errEl.textContent = '❌ Datos no encontrados. Comprueba tu nombre y email exactamente como figuran en tu ficha de inversor.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const normInput = normalize(nameInput);
+  let matched = false;
+  record.names.forEach(n => {
+    if (normalize(n) === normInput) matched = true;
+    if (normalize(n).includes(normInput) || normInput.includes(normalize(n).split(' ')[0])) matched = true;
+  });
+
+  if (!matched) {
+    errEl.textContent = '❌ Datos no encontrados. Comprueba tu nombre y email exactamente como figuran en tu ficha de inversor.';
+    errEl.style.display = 'block'; return;
+  }
+
+  errEl.style.display = 'none';
+  const displayName = [...record.names].sort((a,b)=>b.length-a.length)[0];
+  currentInvestor = { role: 'investor', name: displayName, email: emailInput, investments: record.investments };
+  showDashboard();
+}
+
+function doLogout() {
+  currentInvestor = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('admin-section').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-name').value = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('admin-user').value = '';
+  document.getElementById('admin-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  setLoginMode('investor');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD RENDERING
+// ═══════════════════════════════════════════════════════════════
+const COLORS = ['#1976D2','#2196F3','#42A5F5','#64B5F6','#1565C0','#0D47A1','#00BCD4','#0097A7','#006064','#01579B','#00838F','#00ACC1'];
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('admin-section').style.display = 'none';
+
+  // Topbar
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('admin-badge').style.display = 'none';
+  document.getElementById('topbar-subtitle').textContent = 'Portal Inversor';
+  document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
+
+  const inv = currentInvestor;
+  const initials = inv.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('inv-avatar').textContent = initials;
+  document.getElementById('inv-name-display').textContent = inv.name;
+  document.getElementById('inv-email-display').textContent = inv.email;
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+
+  // KPI labels — investor mode
+  document.getElementById('kpi-total-label').textContent = 'Mi Capital Invertido';
+  document.getElementById('kpi2-label').textContent = 'Inversiones Activas';
+  document.getElementById('kpi3-label').textContent = 'Exits Exitosos';
+  document.getElementById('kpi4-label').textContent = 'Mejor TIR';
+  document.getElementById('table-panel-title').innerHTML = '📋 Mis Inversiones';
+  document.getElementById('top-panel-title').innerHTML = '🔝 Top Inversiones Propias';
+
+  // Build portfolio
+  const portfolio = [];
+  inv.investments.forEach((investorAmount, key) => {
+    const s = STARTUPS[key];
+    if (s) portfolio.push({ ...s, key, investorAmount });
+  });
+  portfolio.sort((a,b) => (b.investorAmount||0) - (a.investorAmount||0));
+
+  const totalInvestorCapital = portfolio.reduce((s,p) => s+(p.investorAmount||0), 0);
+  const totalClubCapital = portfolio.reduce((s,p) => s+p.capital, 0);
+  const activeCount = portfolio.filter(p=>p.status==='active').length;
+  const exitCount   = portfolio.filter(p=>p.status==='exit').length;
+  const failCount   = portfolio.filter(p=>p.status==='fail').length;
+  const bestTir     = portfolio.filter(p=>p.tir).sort((a,b)=>b.tir-a.tir)[0];
+
+  animateCounter(document.getElementById('kpi-total'), totalInvestorCapital);
+  document.getElementById('kpi-total-sub').textContent = `En ${portfolio.length} startups`;
+  document.getElementById('kpi-active').textContent = activeCount;
+  document.getElementById('kpi-active-sub').textContent = `${Math.round(activeCount/Math.max(portfolio.length,1)*100)}% del portfolio`;
+  document.getElementById('kpi-exits').textContent = exitCount;
+  document.getElementById('kpi-exits-sub').textContent = exitCount > 0 ? `${exitCount} desinversión${exitCount>1?'es':''}` : 'Sin exits aún';
+  document.getElementById('kpi-tir').textContent = bestTir ? `+${bestTir.tir}%` : '—';
+  document.getElementById('kpi-tir-sub').textContent = bestTir ? bestTir.name : 'Sin TIR disponible';
+
+  // TABLE
+  const tbody = document.getElementById('inv-table-body');
+  tbody.innerHTML = '';
+  const maxCap = Math.max(...portfolio.map(p=>p.capital), 1);
+  portfolio.forEach((p, idx) => {
+    const barW = (p.capital/maxCap*100).toFixed(0);
+    const pct = totalClubCapital > 0 ? (p.capital/totalClubCapital*100).toFixed(1) : 0;
+    const statusLabel = p.status==='exit' ? '✅ EXIT' : p.status==='fail' ? '❌ FAIL' : '● ACTIVA';
+    const statusClass = p.status==='exit' ? 'status-exit' : p.status==='fail' ? 'status-fail' : 'status-active';
+    const nameEl = p.web
+      ? `<a href="${p.web}" target="_blank" class="startup-name">${p.name} <span class="link-icon">↗</span></a>`
+      : `<span class="startup-name" style="cursor:default;">${p.name}</span>`;
+    const tirEl = p.tir ? `<span class="tir-value">+${p.tir}%</span>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    const webEl = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗ Web</a>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    const myAmountEl = p.investorAmount > 0
+      ? `<span style="color:var(--gold);font-family:'Syne',sans-serif;font-weight:700;">€${p.investorAmount.toLocaleString('es-ES')}</span>`
+      : `<span style="color:var(--muted);font-size:10px;">Part.</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${nameEl}</td>
+      <td><span class="amount-cell">€${p.capital.toLocaleString('es-ES')}</span>
+        <div class="bar-mini"><div class="bar-mini-fill" style="width:${barW}%;animation-delay:${idx*0.04+0.3}s"></div></div>
+        <div class="investor-amount">${pct}% del club</div></td>
+      <td>${myAmountEl}</td>
+      <td><span class="equity-tag">${p.equity}</span></td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td>${tirEl}</td>
+      <td>${webEl}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  renderDonut(portfolio, totalInvestorCapital);
+  renderStats(portfolio, activeCount, exitCount, failCount);
+  renderTop(portfolio);
+
+  document.getElementById('cf-name').value = inv.name;
+  document.getElementById('cf-email').value = inv.email;
+  const cfSelect = document.getElementById('cf-project');
+  cfSelect.innerHTML = '<option value="">— Selecciona un proyecto —</option>';
+  portfolio.forEach(p => { const opt=document.createElement('option'); opt.value=p.name; opt.textContent=p.name; cfSelect.appendChild(opt); });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function showAdminDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('admin-section').style.display = 'block';
+
+  // Topbar — admin mode
+  document.getElementById('user-badge').style.display = 'none';
+  const adminBadge = document.getElementById('admin-badge');
+  adminBadge.style.display = 'flex';
+  document.getElementById('topbar-subtitle').textContent = 'Panel Administrador';
+  document.getElementById('topbar-view-label').textContent = 'Vista Global';
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+
+  // KPI labels — admin mode
+  document.getElementById('kpi-total-label').textContent = 'Capital Total Club';
+  document.getElementById('kpi2-icon').textContent = '🏢';
+  document.getElementById('kpi2-label').textContent = 'Startups en Portfolio';
+  document.getElementById('kpi3-label').textContent = 'Startups con Exit';
+  document.getElementById('kpi4-label').textContent = 'Mejor TIR';
+  document.getElementById('table-panel-title').innerHTML = '📋 Portfolio Completo <span class="admin-badge-pill">⚙️ ADMIN</span>';
+  document.getElementById('top-panel-title').innerHTML = '🔝 Top Startups por Capital <span class="admin-badge-pill">⚙️ ADMIN</span>';
+
+  // All startups as portfolio
+  const allStartups = Object.entries(STARTUPS).map(([key, s]) => ({ ...s, key, investorAmount: s.capital }));
+  allStartups.sort((a,b) => b.capital - a.capital);
+
+  const totalCapital = allStartups.reduce((s,p) => s+p.capital, 0);
+  const activeCount  = allStartups.filter(p=>p.status==='active').length;
+  const exitCount    = allStartups.filter(p=>p.status==='exit').length;
+  const failCount    = allStartups.filter(p=>p.status==='fail').length;
+  const bestTir      = allStartups.filter(p=>p.tir).sort((a,b)=>b.tir-a.tir)[0];
+
+  animateCounter(document.getElementById('kpi-total'), totalCapital);
+  document.getElementById('kpi-total-sub').textContent = `En ${allStartups.length} startups`;
+  document.getElementById('kpi-active').textContent = activeCount;
+  document.getElementById('kpi-active-sub').textContent = `${Math.round(activeCount/allStartups.length*100)}% del portfolio`;
+  document.getElementById('kpi-exits').textContent = exitCount;
+  document.getElementById('kpi-exits-sub').textContent = `${exitCount} desinversión${exitCount>1?'es':''}`;
+  document.getElementById('kpi-tir').textContent = bestTir ? `+${bestTir.tir}%` : '—';
+  document.getElementById('kpi-tir-sub').textContent = bestTir ? bestTir.name : 'Sin TIR disponible';
+
+  // Main table (all startups, investor amount = club total)
+  const tbody = document.getElementById('inv-table-body');
+  tbody.innerHTML = '';
+  const maxCap = allStartups[0].capital;
+  allStartups.forEach((p, idx) => {
+    const barW = (p.capital/maxCap*100).toFixed(0);
+    const pct  = (p.capital/totalCapital*100).toFixed(1);
+    const statusLabel = p.status==='exit' ? '✅ EXIT' : p.status==='fail' ? '❌ FAIL' : '● ACTIVA';
+    const statusClass = p.status==='exit' ? 'status-exit' : p.status==='fail' ? 'status-fail' : 'status-active';
+    const nameEl = p.web ? `<a href="${p.web}" target="_blank" class="startup-name">${p.name} <span class="link-icon">↗</span></a>` : `<span class="startup-name" style="cursor:default;">${p.name}</span>`;
+    const tirEl  = p.tir ? `<span class="tir-value">+${p.tir}%</span>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    const webEl  = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗ Web</a>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${nameEl}</td>
+      <td><span class="amount-cell">€${p.capital.toLocaleString('es-ES')}</span>
+        <div class="bar-mini"><div class="bar-mini-fill" style="width:${barW}%;animation-delay:${idx*0.03+0.3}s"></div></div>
+        <div class="investor-amount">${pct}% del portfolio</div></td>
+      <td>—</td>
+      <td><span class="equity-tag">${p.equity}</span></td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td>${tirEl}</td>
+      <td>${webEl}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  renderDonut(allStartups, totalCapital);
+  renderStats(allStartups, activeCount, exitCount, failCount);
+
+  // Top by capital (main toplist)
+  const topList = document.getElementById('top-list');
+  topList.innerHTML = '';
+  allStartups.slice(0,5).forEach((p, i) => {
+    const pct = (p.capital/maxCap*100).toFixed(0);
+    const nameEl = p.web
+      ? `<a href="${p.web}" target="_blank" style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);text-decoration:none;" onmouseover="this.style.color='var(--blue-bright)'" onmouseout="this.style.color='var(--text)'">${p.name} ↗</a>`
+      : `<span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);">${p.name}</span>`;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:12px;';
+    div.innerHTML = `
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:rgba(30,136,229,0.25);width:30px;flex-shrink:0;">${String(i+1).padStart(2,'0')}</div>
+      <div style="flex:1;">${nameEl}<div style="font-size:11px;color:var(--muted);margin-top:2px;">€${p.capital.toLocaleString('es-ES')} · ${p.equity}</div></div>
+      <div style="width:80px;"><div style="height:4px;background:rgba(30,136,229,0.10);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--blue-bright));width:${pct}%;animation:growBar 1.2s ease both;animation-delay:${i*0.1+0.5}s"></div></div></div>`;
+    topList.appendChild(div);
+  });
+
+  // Contact form — all startups
+  document.getElementById('cf-name').value = 'Equipo AngelClub';
+  document.getElementById('cf-email').value = ADMIN_USER;
+  const cfSelect = document.getElementById('cf-project');
+  cfSelect.innerHTML = '<option value="">— Selecciona un proyecto —</option>';
+  allStartups.forEach(p => { const opt=document.createElement('option'); opt.value=p.name; opt.textContent=p.name; cfSelect.appendChild(opt); });
+
+  // ── ADMIN EXTRA PANELS ──
+  renderAdminExtras(allStartups, totalCapital);
+}
+
+function renderAdminExtras(allStartups, totalCapital) {
+  // Build investor summary from INVESTOR_DB
+  const investorSummary = []; // { name, email, totalAmount, startupCount, startups[] }
+  Object.entries(INVESTOR_DB).forEach(([email, rec]) => {
+    let total = 0;
+    const startupNames = [];
+    rec.investments.forEach((amt, key) => {
+      total += amt || 0;
+      const s = STARTUPS[key];
+      if (s) startupNames.push(s.name);
+    });
+    const name = [...rec.names].sort((a,b)=>b.length-a.length)[0];
+    investorSummary.push({ name, email, totalAmount: total, startupCount: rec.investments.size, startups: startupNames });
+  });
+  investorSummary.sort((a,b) => b.totalAmount - a.totalAmount);
+
+  // Admin KPIs extra
+  const totalInvestorsWithCapital = investorSummary.filter(i=>i.totalAmount>0).length;
+  const totalInvestorCapital = investorSummary.reduce((s,i)=>s+i.totalAmount,0);
+  const avgPerInvestor = totalInvestorsWithCapital > 0 ? Math.round(totalInvestorCapital/totalInvestorsWithCapital) : 0;
+
+  // Top startup by investor count
+  const startupInvestorCount = {};
+  RAW_INVESTORS.forEach(([name,email,startup]) => {
+    const key = normalizeStartup(startup);
+    startupInvestorCount[key] = (startupInvestorCount[key]||0) + 1;
+  });
+  const topByCount = Object.entries(startupInvestorCount).sort((a,b)=>b[1]-a[1])[0];
+  const topCountStartup = topByCount ? (STARTUPS[topByCount[0]]?.name || topByCount[0]) : '—';
+
+  document.getElementById('adm-investors').textContent = totalInvestorsWithCapital;
+  animateCounter(document.getElementById('adm-avg'), avgPerInvestor);
+  document.getElementById('adm-top-startup').textContent = topCountStartup;
+  document.getElementById('adm-top-startup-sub').textContent = topByCount ? `${topByCount[1]} inversores` : '—';
+  animateCounter(document.getElementById('adm-total-capital'), totalCapital);
+
+  // Admin Startup Table
+  const admStartupTbody = document.getElementById('admin-startup-tbody');
+  admStartupTbody.innerHTML = '';
+  allStartups.forEach((p, idx) => {
+    const investorCount = startupInvestorCount[p.key] || 0;
+    const statusLabel = p.status==='exit' ? '✅ EXIT' : p.status==='fail' ? '❌ FAIL' : '● ACTIVA';
+    const statusClass = p.status==='exit' ? 'status-exit' : p.status==='fail' ? 'status-fail' : 'status-active';
+    const nameEl = p.web ? `<a href="${p.web}" target="_blank" class="startup-name">${p.name} <span class="link-icon">↗</span></a>` : `<span class="startup-name" style="cursor:default;">${p.name}</span>`;
+    const tirEl  = p.tir ? `<span class="tir-value">+${p.tir}%</span>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    const webEl  = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗</a>` : `<span style="color:var(--muted);">—</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-size:11px;">${idx+1}</td>
+      <td>${nameEl}</td>
+      <td><span class="amount-cell">€${p.capital.toLocaleString('es-ES')}</span></td>
+      <td><span class="equity-tag">${p.equity}</span></td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td>${tirEl}</td>
+      <td><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--blue-bright);">${investorCount}</span></td>
+      <td>${webEl}</td>`;
+    admStartupTbody.appendChild(tr);
+  });
+
+  // Investor ranking
+  const rankEl = document.getElementById('adm-investor-ranking');
+  rankEl.innerHTML = '';
+  const maxAmt = investorSummary.length > 0 ? investorSummary[0].totalAmount : 1;
+  investorSummary.slice(0,20).forEach((inv, i) => {
+    const pct = maxAmt > 0 ? (inv.totalAmount/maxAmt*100).toFixed(0) : 0;
+    const medalEl = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : String(i+1).padStart(2,'0');
+    const div = document.createElement('div');
+    div.className = 'adm-rank-item';
+    div.innerHTML = `
+      <div class="adm-rank-num">${medalEl}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="adm-rank-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${inv.name}</div>
+        <div class="adm-rank-email">${inv.email}</div>
+        <div class="adm-rank-startups">${inv.startupCount} startup${inv.startupCount!==1?'s':''}: ${inv.startups.slice(0,3).join(', ')}${inv.startups.length>3?' …':''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="adm-rank-amt">${inv.totalAmount>0?'€'+inv.totalAmount.toLocaleString('es-ES'):'Part.'}</div>
+        <div style="width:70px;height:3px;background:rgba(30,136,229,0.10);border-radius:3px;overflow:hidden;margin-top:5px;margin-left:auto;">
+          <div style="height:100%;background:linear-gradient(90deg,var(--gold),#F9C846);width:${pct}%;border-radius:3px;"></div>
+        </div>
+      </div>`;
+    rankEl.appendChild(div);
+  });
+
+  // Admin donut (top 10 by capital)
+  const top10 = allStartups.slice(0,10);
+  const top10Total = top10.reduce((s,p)=>s+p.capital,0);
+  const svgG = document.getElementById('admin-donut-segments');
+  const legend = document.getElementById('admin-donut-legend');
+  svgG.innerHTML = ''; legend.innerHTML = '';
+  document.getElementById('admin-donut-center-val').textContent = '€'+Math.round(totalCapital/1000)+'K';
+  const r=72,cx=100,cy=100,circ=2*Math.PI*r;
+  let ang=-90;
+  top10.forEach((p,i) => {
+    const share = p.capital/Math.max(top10Total,1);
+    const dashLen = share*circ;
+    const offset = (ang/360)*circ;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r);
+    c.setAttribute('stroke',COLORS[i%COLORS.length]);
+    c.setAttribute('stroke-dasharray',`${dashLen} ${circ-dashLen}`);
+    c.setAttribute('stroke-dashoffset',-offset);
+    c.style.strokeWidth='18'; c.style.fill='none'; c.style.transition='stroke-width 0.3s';c.style.cursor='pointer';
+    c.addEventListener('mouseenter',()=>c.style.strokeWidth='22');
+    c.addEventListener('mouseleave',()=>c.style.strokeWidth='18');
+    svgG.appendChild(c);
+    const li=document.createElement('div'); li.className='legend-item';
+    li.innerHTML=`<div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div><span class="legend-label">${p.name}</span><span class="legend-pct">${(share*100).toFixed(1)}%</span>`;
+    legend.appendChild(li);
+    ang += share*360;
+  });
+
+  // Investor detail table with filter
+  window._admInvestorRows = [];
+  RAW_INVESTORS.forEach(([name,email,startup,amount]) => {
+    if (!name || !email) return;
+    const key = normalizeStartup(startup);
+    const s = STARTUPS[key];
+    const statusLabel = s ? (s.status==='exit'?'✅ EXIT':s.status==='fail'?'❌ FAIL':'● ACTIVA') : '—';
+    const statusClass = s ? (s.status==='exit'?'status-exit':s.status==='fail'?'status-fail':'status-active') : '';
+    window._admInvestorRows.push({ name, email, startup: s?.name||startup, amount: amount||0, statusLabel, statusClass });
+  });
+  window._admInvestorRows.sort((a,b) => b.amount - a.amount);
+
+  // Populate startup filter
+  const admFilterStartup = document.getElementById('adm-filter-startup');
+  admFilterStartup.innerHTML = '<option value="">Todas las startups</option>';
+  allStartups.forEach(p => { const opt=document.createElement('option'); opt.value=p.name; opt.textContent=p.name; admFilterStartup.appendChild(opt); });
+
+  document.getElementById('adm-investor-count-label').textContent = `${window._admInvestorRows.length} registros`;
+  renderAdminInvestorTable(window._admInvestorRows);
+}
+
+function filterAdminTable() {
+  const q = document.getElementById('adm-search').value.toLowerCase();
+  const sf = document.getElementById('adm-filter-startup').value.toLowerCase();
+  const filtered = window._admInvestorRows.filter(r => {
+    const matchQ = !q || r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || r.startup.toLowerCase().includes(q);
+    const matchS = !sf || r.startup.toLowerCase() === sf;
+    return matchQ && matchS;
+  });
+  document.getElementById('adm-investor-count-label').textContent = `${filtered.length} / ${window._admInvestorRows.length} registros`;
+  renderAdminInvestorTable(filtered);
+}
+
+function renderAdminInvestorTable(rows) {
+  const tbody = document.getElementById('adm-investors-tbody');
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const amtEl = r.amount > 0
+      ? `<span style="color:var(--gold);font-family:'Syne',sans-serif;font-weight:700;">€${r.amount.toLocaleString('es-ES')}</span>`
+      : `<span style="color:var(--muted);font-size:10px;">Sin importe</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-size:11px;">${i+1}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">${r.name}</td>
+      <td style="font-size:11px;color:var(--muted);">${r.email}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:600;font-size:12px;">${r.startup}</td>
+      <td>${amtEl}</td>
+      <td><span class="status-badge ${r.statusClass}">${r.statusLabel}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDonut(portfolio, total) {
+  const svgG = document.getElementById('donut-segments');
+  const legend = document.getElementById('donut-legend');
+  svgG.innerHTML = ''; legend.innerHTML = '';
+
+  document.getElementById('donut-center-val').textContent = total > 0 ? '€'+Math.round(total/1000)+'K' : '€0';
+
+  const r = 72, cx = 100, cy = 100;
+  const circ = 2 * Math.PI * r;
+  let currentAngle = -90;
+
+  // Show top 8 by capital
+  const top8 = portfolio.slice(0,8);
+  const top8Total = top8.reduce((s,p) => s+p.capital, 0);
+
+  top8.forEach((p, i) => {
+    const share = p.capital / Math.max(top8Total, 1);
+    const dashLen = share * circ;
+    const offset = (currentAngle/360)*circ;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',cx); circle.setAttribute('cy',cy); circle.setAttribute('r',r);
+    circle.setAttribute('stroke', COLORS[i%COLORS.length]);
+    circle.setAttribute('stroke-dasharray',`${dashLen} ${circ-dashLen}`);
+    circle.setAttribute('stroke-dashoffset',-offset);
+    circle.style.transition = 'stroke-width 0.3s ease'; circle.style.cursor = 'pointer';
+    circle.addEventListener('mouseenter',()=>circle.setAttribute('stroke-width','22'));
+    circle.addEventListener('mouseleave',()=>circle.setAttribute('stroke-width','18'));
+    svgG.appendChild(circle);
+
+    const li = document.createElement('div');
+    li.className = 'legend-item';
+    li.innerHTML = `<div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+      <span class="legend-label">${p.name}</span>
+      <span class="legend-pct">${(share*100).toFixed(1)}%</span>`;
+    legend.appendChild(li);
+
+    currentAngle += share * 360;
+  });
+}
+
+function renderStats(portfolio, active, exits, fails) {
+  const statRow = document.getElementById('stat-row');
+  statRow.innerHTML = `
+    <div class="stat-item"><div class="stat-num" style="color:var(--blue-bright);">${active}</div><div class="stat-lbl">Activas</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--green);">${exits}</div><div class="stat-lbl">Exit</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--red);">${fails}</div><div class="stat-lbl">Fail</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--gold);">${portfolio.length}</div><div class="stat-lbl">Total</div></div>
+  `;
+  const total = portfolio.length || 1;
+  const ap = (active/total*100).toFixed(0);
+  const ep = (exits/total*100).toFixed(0);
+  const fp = (fails/total*100).toFixed(0);
+  document.getElementById('bar-active').setAttribute('width', ap+'%');
+  document.getElementById('bar-exit').setAttribute('x', ap+'%');
+  document.getElementById('bar-exit').setAttribute('width', ep+'%');
+  document.getElementById('bar-fail').setAttribute('x', (Number(ap)+Number(ep))+'%');
+  document.getElementById('bar-fail').setAttribute('width', fp+'%');
+  document.getElementById('bar-legend').innerHTML = `<span>Activas ${ap}%</span><span>Exit ${ep}%</span><span>Fail ${fp}%</span>`;
+}
+
+function renderTop(portfolio) {
+  const top = portfolio.filter(p=>p.investorAmount>0).sort((a,b)=>b.investorAmount-a.investorAmount).slice(0,5);
+  const topList = document.getElementById('top-list');
+  topList.innerHTML = '';
+  const maxAmt = top.length > 0 ? top[0].investorAmount : 1;
+  top.forEach((p, i) => {
+    const pct = (p.investorAmount/maxAmt*100).toFixed(0);
+    const nameEl = p.web
+      ? `<a href="${p.web}" target="_blank" style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);text-decoration:none;" onmouseover="this.style.color='var(--blue-bright)'" onmouseout="this.style.color='var(--text)'">${p.name} ↗</a>`
+      : `<span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);">${p.name}</span>`;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:12px;';
+    div.innerHTML = `
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:rgba(30,136,229,0.25);width:30px;flex-shrink:0;">${String(i+1).padStart(2,'0')}</div>
+      <div style="flex:1;">
+        ${nameEl}
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">€${p.investorAmount.toLocaleString('es-ES')} · ${p.equity}</div>
+      </div>
+      <div style="width:80px;">
+        <div style="height:4px;background:rgba(30,136,229,0.10);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--blue-bright));width:${pct}%;animation:growBar 1.2s ease both;animation-delay:${i*0.1+0.5}s"></div>
+        </div>
+      </div>
+    `;
+    topList.appendChild(div);
+  });
+  if (top.length === 0) {
+    topList.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">No hay importes registrados</div>';
+  }
+}
 
 // Counter animation
-function animateCounter(el, target, prefix, suffix, duration=1500) {
+function animateCounter(el, target, duration=1200) {
   const start = Date.now();
   const tick = () => {
-    const t = Math.min(1, (Date.now()-start)/duration);
-    const ease = 1 - Math.pow(1-t,3);
-    const val = Math.round(ease * target);
-    el.textContent = prefix + val.toLocaleString('es-ES') + suffix;
-    if (t < 1) requestAnimationFrame(tick);
+    const t = Math.min(1,(Date.now()-start)/duration);
+    const ease = 1-Math.pow(1-t,3);
+    el.textContent = '€'+Math.round(ease*target).toLocaleString('es-ES');
+    if (t<1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
-animateCounter(document.getElementById('counter-total'), total, '€', '');
 
-// TABLE
-const tbody = document.getElementById('table-body');
-const maxCap = Math.max(...investments.map(i=>i.capital));
-
-investments.forEach((inv, idx) => {
-  const pct = (inv.capital/total*100).toFixed(1);
-  const barWidth = (inv.capital/maxCap*100).toFixed(0);
-  const statusLabel = inv.status === 'exit' ? '✅ EXIT' : inv.status === 'fail' ? '❌ FAIL' : '● ACTIVA';
-  const statusClass = inv.status === 'exit' ? 'status-exit' : inv.status === 'fail' ? 'status-fail' : 'status-active';
-
-  const nameCell = inv.web
-    ? `<a href="${inv.web}" target="_blank" class="startup-name">${inv.startup} <span class="link-icon">↗</span></a>`
-    : `<span class="startup-name" style="cursor:default;">${inv.startup}</span>`;
-
-  const tirCell = inv.tir
-    ? `<span class="tir-value">+${inv.tir}%</span>`
-    : `<span style="color:var(--muted);font-size:10px;">—</span>`;
-
-  const tr = document.createElement('tr');
-  tr.style.animationDelay = `${idx*0.04}s`;
-  tr.innerHTML = `
-    <td><span class="year-tag">${inv.date}</span></td>
-    <td>${nameCell}</td>
-    <td><span class="amount">€${inv.capital.toLocaleString('es-ES')}</span></td>
-    <td><span class="equity">${inv.equity}</span></td>
-    <td class="bar-cell">
-      <div class="bar-wrapper">
-        <div class="bar-fill" style="width:${barWidth}%;animation-delay:${idx*0.04+0.3}s"></div>
-      </div>
-      <span style="font-size:9px;color:var(--muted);margin-top:2px;display:block;">${pct}%</span>
-    </td>
-    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-    <td>${tirCell}</td>
-  `;
-  tbody.appendChild(tr);
-});
-
-// DONUT CHART
-const colors = ['#1976D2','#2196F3','#42A5F5','#64B5F6','#90CAF9','#00E5FF','#00BCD4','#0097A7','#006064','#1565C0','#0D47A1','#01579B'];
-const donutData = investments.slice().sort((a,b)=>b.capital-a.capital).slice(0,10);
-const donutTotal = donutData.reduce((s,i)=>s+i.capital,0);
-
-const svgG = document.getElementById('donut-segments');
-const legend = document.getElementById('donut-legend');
-
-let currentAngle = -90;
-const r = 72, cx=100, cy=100;
-const circ = 2 * Math.PI * r;
-
-donutData.forEach((inv, i) => {
-  const share = inv.capital / total;
-  const dashLen = share * circ;
-  const offset = (currentAngle/360) * circ;
-
-  const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  circle.setAttribute('cx', cx);
-  circle.setAttribute('cy', cy);
-  circle.setAttribute('r', r);
-  circle.setAttribute('stroke', colors[i % colors.length]);
-  circle.setAttribute('stroke-dasharray', `${dashLen} ${circ - dashLen}`);
-  circle.setAttribute('stroke-dashoffset', -offset);
-  circle.setAttribute('transform', `rotate(0, ${cx}, ${cy})`);
-  circle.style.transition = 'stroke-width 0.3s ease';
-  circle.style.cursor = 'pointer';
-
-  // Tooltip
-  circle.addEventListener('mouseenter', () => { circle.setAttribute('stroke-width','22'); });
-  circle.addEventListener('mouseleave', () => { circle.setAttribute('stroke-width','18'); });
-
-  svgG.appendChild(circle);
-
-  // Legend
-  const pct = (share*100).toFixed(1);
-  const li = document.createElement('div');
-  li.className = 'legend-item';
-  li.innerHTML = `
-    <div class="legend-dot" style="background:${colors[i%colors.length]}"></div>
-    <span class="legend-label">${inv.startup}</span>
-    <span class="legend-pct">${pct}%</span>
-  `;
-  legend.appendChild(li);
-
-  currentAngle += share * 360;
-});
-
-// TIMELINE
-const byYear = {};
-investments.forEach(inv => {
-  byYear[inv.date] = (byYear[inv.date]||0) + inv.capital;
-});
-
-const years = Object.keys(byYear).sort();
-const maxYear = Math.max(...Object.values(byYear));
-const timeline = document.getElementById('timeline');
-
-years.forEach((y, i) => {
-  const h = Math.round((byYear[y]/maxYear)*110);
-  const group = document.createElement('div');
-  group.className = 'timeline-bar-group';
-
-  const bar = document.createElement('div');
-  bar.className = 'timeline-bar';
-  bar.style.height = h + 'px';
-  bar.style.animationDelay = `${i*0.15+0.5}s`;
-  bar.setAttribute('data-amount', '€'+byYear[y].toLocaleString('es-ES'));
-
-  // Count
-  const count = investments.filter(inv=>inv.date===y).length;
-  const label = document.createElement('div');
-  label.style.cssText = 'font-size:9px;color:var(--muted);margin-top:4px;text-align:center;';
-  label.textContent = `${count} inv.`;
-
-  const barAmt = document.createElement('div');
-  barAmt.style.cssText = 'font-size:9px;color:var(--blue-bright);margin-bottom:4px;font-family:Syne,sans-serif;font-weight:700;text-align:center;';
-  barAmt.textContent = '€'+Math.round(byYear[y]/1000)+'K';
-
-  const yearLabel = document.createElement('div');
-  yearLabel.className = 'timeline-label';
-  yearLabel.textContent = y;
-  yearLabel.style.cssText = 'position:static;font-size:11px;color:var(--text);font-family:Syne,sans-serif;font-weight:700;text-align:center;margin-top:4px;';
-
-  group.appendChild(barAmt);
-  group.appendChild(bar);
-  group.appendChild(label);
-  group.appendChild(yearLabel);
-  timeline.appendChild(group);
-});
-
-// TOP LIST
-const topList = document.getElementById('top-list');
-const sorted = investments.slice().sort((a,b)=>b.capital-a.capital).slice(0,5);
-const maxTop = sorted[0].capital;
-
-sorted.forEach((inv, i) => {
-  const pct = (inv.capital/maxTop*100).toFixed(0);
-  const nameEl = inv.web
-    ? `<a href="${inv.web}" target="_blank" class="top-name">${inv.startup}</a>`
-    : `<span class="top-name" style="cursor:default;">${inv.startup}</span>`;
-
-  const div = document.createElement('div');
-  div.className = 'top-item';
-  div.innerHTML = `
-    <div class="top-rank">${String(i+1).padStart(2,'0')}</div>
-    <div class="top-info">
-      ${nameEl}
-      <div class="top-amount">€${inv.capital.toLocaleString('es-ES')} · ${inv.equity}</div>
-    </div>
-    <div class="top-bar-wrap">
-      <div class="top-bar">
-        <div class="top-bar-fill" style="width:${pct}%;animation-delay:${i*0.1+0.5}s"></div>
-      </div>
-    </div>
-  `;
-  topList.appendChild(div);
-});
-
-// CONTACT FORM — populate project selector
-const cfSelect = document.getElementById('cf-project');
-investments.slice().sort((a,b)=>a.startup.localeCompare(b.startup)).forEach(inv => {
-  const opt = document.createElement('option');
-  opt.value = inv.startup;
-  opt.textContent = inv.startup + (inv.date && inv.date !== '—' ? ` (${inv.date})` : '');
-  cfSelect.appendChild(opt);
-});
-
+// Contact form
 function sendContactForm() {
   const name    = document.getElementById('cf-name').value.trim();
   const email   = document.getElementById('cf-email').value.trim();
@@ -1325,49 +2460,20 @@ function sendContactForm() {
   const type    = document.getElementById('cf-type').value;
   const message = document.getElementById('cf-message').value.trim();
   const feedback = document.getElementById('cf-feedback');
-  const btn      = document.getElementById('cf-send');
+  const btn = document.getElementById('cf-send');
 
-  // Validation
   if (!name || !email || !project || !message) {
-    feedback.className = 'cf-feedback error';
-    feedback.textContent = '⚠️ Por favor, completa todos los campos antes de enviar.';
-    feedback.style.display = 'block';
-    return;
+    feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    feedback.className = 'cf-feedback error';
-    feedback.textContent = '⚠️ Por favor, introduce un email válido.';
-    feedback.style.display = 'block';
-    return;
-  }
-
-  // Build mailto
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(
-    `Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nTipo de consulta: ${type}\n\nMensaje:\n${message}\n\n---\nEnviado desde el Portfolio Dashboard de AngelClub`
-  );
-  const mailto = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
-
-  // Open mail client
-  window.location.href = mailto;
-
-  // UI feedback
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub`);
+  window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
-  document.getElementById('cf-btn-text').textContent = '✓ Abriendo cliente de correo…';
+  document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
   feedback.className = 'cf-feedback success';
   feedback.textContent = '✅ Se ha abierto tu cliente de correo con el mensaje listo para enviar a equipo@angelclub.es';
   feedback.style.display = 'block';
-
-  // Reset after 5s
-  setTimeout(() => {
-    btn.disabled = false;
-    document.getElementById('cf-btn-text').textContent = 'Enviar solicitud';
-    document.getElementById('cf-name').value = '';
-    document.getElementById('cf-email').value = '';
-    document.getElementById('cf-project').value = '';
-    document.getElementById('cf-message').value = '';
-    feedback.style.display = 'none';
-  }, 5000);
+  setTimeout(()=>{ btn.disabled=false; document.getElementById('cf-btn-text').textContent='Enviar solicitud'; document.getElementById('cf-message').value=''; feedback.style.display='none'; }, 5000);
 }
 </script>
 </body>
