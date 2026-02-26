@@ -700,7 +700,7 @@
             <div class="card">
               <div class="card-header"><div class="card-title">👁 Vista Previa</div></div>
               <div class="email-preview" id="email-preview-box">
-                <div class="email-from">De: tu@empresa.com | Para: <span id="preview-to">—</span></div>
+                <div class="email-from">De: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="14606154717964667167753a777b79">[email&#160;protected]</a> | Para: <span id="preview-to">—</span></div>
                 <div class="email-subject" id="preview-subject">Asunto aparecerá aquí</div>
                 <div class="email-body" id="preview-body">El cuerpo del mensaje aparecerá aquí…</div>
               </div>
@@ -825,16 +825,7 @@
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">📋 Historial de Importaciones</div></div>
-          <div id="import-history">
-            <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:1.3rem">📥</span>
-              <div style="flex:1">
-                <div style="font-size:.87rem;font-weight:600">crypto_web3_investors_contacts.csv</div>
-                <div class="text-muted">4 inversores · Hoy · Importación inicial</div>
-              </div>
-              <span class="tag tag-green">✓ Completado</span>
-            </div>
-          </div>
+          <div id="import-history"></div>
         </div>
       </div>
 
@@ -861,30 +852,35 @@
               <button class="btn btn-primary" onclick="saveSettings()">Guardar Configuración</button>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">🎨 Preferencias CRM</div></div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Moneda por defecto</label>
-                <select><option>€ EUR</option><option>$ USD</option><option>₿ BTC</option></select>
-              </div>
-              <div class="form-group">
-                <label>Zona horaria</label>
-                <select><option>Europe/Madrid</option><option>Europe/London</option><option>America/New_York</option></select>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label>Nombre de tu empresa / proyecto</label>
-                <input type="text" placeholder="Ej: DeFi Protocol XYZ" id="config-project">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label>Descripción corta del proyecto</label>
-                <textarea rows="3" placeholder="Ej: Protocolo DeFi Layer 2 para pagos cross-chain" id="config-desc"></textarea>
-              </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎨 Preferencias CRM</div></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Moneda por defecto</label>
+              <select><option>€ EUR</option><option>$ USD</option><option>₿ BTC</option></select>
             </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" onclick="saveSettings()">Guardar</button>
+            <div class="form-group">
+              <label>Zona horaria</label>
+              <select><option>Europe/Madrid</option><option>Europe/London</option><option>America/New_York</option></select>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>Nombre de tu empresa / proyecto</label>
+              <input type="text" placeholder="Ej: DeFi Protocol XYZ" id="config-project">
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>Descripción corta del proyecto</label>
+              <textarea rows="3" placeholder="Ej: Protocolo DeFi Layer 2 para pagos cross-chain" id="config-desc"></textarea>
             </div>
           </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="saveSettings()">Guardar</button>
+          </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+            <h4 style="font-family:'Syne',sans-serif;font-size:.9rem;margin-bottom:6px;color:var(--accent4)">⚠️ Zona de peligro</h4>
+            <p class="text-muted" style="margin-bottom:12px">Resetea la base de datos a los 4 inversores originales del CSV inicial. Se borrarán todos los cambios, importaciones, notas y comunicaciones guardadas.</p>
+            <button class="btn btn-danger" onclick="resetAllData()">🗑 Resetear base de datos</button>
+          </div>
+        </div>
         </div>
       </div>
 
@@ -1005,7 +1001,7 @@
 .seq-arrow { color:var(--text3); padding:0 6px; font-weight:700; }
 </style>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════
 //  DATA STORE
 // ══════════════════════════════════════════
@@ -1016,21 +1012,47 @@ const STATUS_COLORS = {
   'Negociación':'tag-orange','Deal Cerrado':'tag-green','Descartado':'tag-pink'
 };
 const FUNNEL_COLORS = ['#8fa0c0','#3b7bff','#ffb347','#7c5cfc','#3b7bff','#ffb347','#00c9a7','#ff6b8a'];
+const LS = 'w3crm_'; // localStorage key prefix
 
-let investors = [
+// Datos semilla originales (siempre disponibles para reset)
+const SEED_INVESTORS = [
   { id:1, name:'Mathew McDermott', role:'Global Head of Digital Assets', company:'Goldman Sachs', linkedin:'https://www.linkedin.com/in/mathew-mcdermott', investment:'Participación en ronda Series B de Fnality y actividad en activos digitales', contact:'Contacto institucional vía https://www.goldmansachs.com', notes:'Goldman Sachs reforzando exposición a infraestructura blockchain y activos digitales', status:'Calificado', priority:'Alta 🔴', tags:['Institucional','DeFi'] },
   { id:2, name:'Equipo Directivo Bit2Me', role:'Equipo Ejecutivo', company:'Bit2Me', linkedin:'https://www.linkedin.com/company/bit2me/', investment:'Entrada de Bankinter en ronda de €30M', contact:'https://bit2me.com | info@bit2me.com', notes:'Expansión tras licencia MiCA y crecimiento en UE', status:'Contactado', priority:'Alta 🔴', tags:['Exchange','MiCA'] },
   { id:3, name:'Blockchain Founders Fund Team', role:'Venture Capital Web3', company:'Blockchain Founders Fund', linkedin:'https://www.linkedin.com/company/blockchainfoundersfund/', investment:'Inversiones en startups blockchain early-stage', contact:'https://www.blockchainff.com', notes:'Fondo activo en rondas Seed y Series A Web3', status:'Prospecto', priority:'Media 🟡', tags:['VC','Seed','Series A'] },
   { id:4, name:'Wise3 Ventures Team', role:'Web3 Venture Fund', company:'Wise3 Ventures', linkedin:'https://www.linkedin.com/company/wise3-ventures/', investment:'Participación en proyectos Web3 y blockchain', contact:'Perfil LinkedIn corporativo', notes:'Actividad en ecosistema Web3 y eventos de inversión', status:'Prospecto', priority:'Media 🟡', tags:['VC','Web3'] }
 ];
 
-let communications = [];
-let tasks = [];
-let notes_store = {};
-let sentEmails = [];
-let customTemplates = [];
+// ── Carga persistente: si no hay nada guardado usa los datos semilla ──
+function lsGet(key, fallback) {
+  try { const v = localStorage.getItem(LS + key); return v !== null ? JSON.parse(v) : fallback; }
+  catch(e) { return fallback; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(LS + key, JSON.stringify(val)); } catch(e) {}
+}
+
+let investors      = lsGet('investors',      JSON.parse(JSON.stringify(SEED_INVESTORS)));
+let communications = lsGet('communications', []);
+let tasks          = lsGet('tasks',          []);
+let notes_store    = lsGet('notes_store',    {});
+let sentEmails     = lsGet('sentEmails',     []);
+let customTemplates= lsGet('customTemplates',[]);
+let importHistory  = lsGet('importHistory',  [{ file:'crypto_web3_investors_contacts.csv', added:4, date: new Date().toLocaleDateString('es-ES'), note:'Importación inicial' }]);
+let nextId         = lsGet('nextId',         5);
+
+// ── Persiste TODOS los datos mutables en un solo ciclo ──
+function persist() {
+  lsSet('investors',       investors);
+  lsSet('communications',  communications);
+  lsSet('tasks',           tasks);
+  lsSet('notes_store',     notes_store);
+  lsSet('sentEmails',      sentEmails);
+  lsSet('customTemplates', customTemplates);
+  lsSet('importHistory',   importHistory);
+  lsSet('nextId',          nextId);
+}
+
 let importBuffer = [];
-let nextId = 5;
 
 const EMAIL_TEMPLATES = {
   outreach: {
@@ -1125,6 +1147,23 @@ Por favor revisa los documentos y avísame si necesitas algo.
 //  INIT
 // ══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Restaurar historial de importaciones en el DOM
+  renderImportHistory();
+  // Restaurar emails enviados y plantillas personalizadas
+  renderSentEmails();
+  // Actualizar contador de emails en stats
+  document.getElementById('stat-emails').textContent = sentEmails.length;
+  // Restaurar plantillas custom en el <select>
+  customTemplates.forEach(t => {
+    const sel = document.getElementById('email-template-select');
+    if(sel && !sel.querySelector(`option[value="${t.key}"]`))
+      sel.innerHTML += `<option value="${t.key}">${t.name}</option>`;
+  });
+  // Restaurar comunicaciones y tareas
+  renderCommHistory();
+  renderTasks();
+  renderNotes();
+  // Render principal
   renderInvestorsTable();
   renderFunnel();
   renderDashFunnel();
@@ -1223,6 +1262,7 @@ function addInvestor() {
     priority: document.getElementById('new-priority').value,
     tags: []
   });
+  persist();
   closeModal('add-investor-modal');
   renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
   ['new-name','new-role','new-company','new-linkedin','new-investment','new-contact','new-notes'].forEach(id => document.getElementById(id).value='');
@@ -1258,6 +1298,7 @@ function saveEditInvestor() {
     priority: document.getElementById('edit-priority').value
   };
   closeModal('edit-investor-modal');
+  persist();
   renderInvestorsTable(); renderFunnel(); renderDashFunnel(); populateAllSelects();
   showToast('✅ Inversor actualizado');
 }
@@ -1265,6 +1306,7 @@ function saveEditInvestor() {
 function deleteInvestor(idx) {
   if(!confirm(`¿Eliminar a ${investors[idx].name}?`)) return;
   investors.splice(idx, 1);
+  persist();
   renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
   showToast('🗑 Inversor eliminado');
 }
@@ -1353,8 +1395,9 @@ function moveInvestorStage() {
   const note = document.getElementById('funnel-note').value;
   investors[idx].status = stage;
   if(note) {
-    communications.push({ inv: investors[idx].name, type:'Nota interna', date: new Date().toISOString(), notes: `Movido a "${stage}": ${note}`, result:'Neutral' });
+    communications.push({ inv: investors[idx].name, company: investors[idx].company, type:'Nota interna', date: new Date().toISOString(), notes: `Movido a "${stage}": ${note}`, result:'Neutral' });
   }
+  persist();
   renderFunnel(); renderDashFunnel(); renderInvestorsTable(); renderDashQuickTable();
   document.getElementById('funnel-note').value = '';
   showToast(`✅ ${investors[idx].name} → ${stage}`);
@@ -1384,6 +1427,7 @@ function logCommunication() {
     notes: document.getElementById('comm-notes').value
   };
   communications.unshift(comm);
+  persist();
   renderCommHistory();
   document.getElementById('comm-notes').value = '';
   showToast('✅ Comunicación registrada');
@@ -1413,6 +1457,7 @@ function saveNote() {
   if(!notes_store[id]) notes_store[id] = [];
   notes_store[id].unshift(`<strong>${new Date().toLocaleDateString('es-ES')}</strong> — ${text}`);
   document.getElementById('note-text').value = '';
+  persist();
   renderNotes();
   showToast('📌 Nota guardada');
 }
@@ -1439,6 +1484,7 @@ function addTask() {
   });
   renderTasks();
   document.getElementById('task-desc').value = '';
+  persist();
   showToast('✅ Tarea creada');
 }
 
@@ -1460,6 +1506,7 @@ function renderTasks() {
 
 function doneTask(i) {
   tasks.filter(t => !t.done)[i].done = true;
+  persist();
   renderTasks();
   showToast('✅ Tarea completada');
 }
@@ -1523,6 +1570,7 @@ function sendEmail() {
     communications.push({ inv: inv.name, company: inv.company, type:'Email enviado', date: new Date().toISOString(), result:'Pendiente respuesta', notes: `Asunto: ${subject}` });
   });
   renderSentEmails(); renderCommHistory();
+  persist();
   document.getElementById('stat-emails').textContent = sentEmails.length;
   showToast(`📤 Email enviado a ${recipIdxs.length} destinatario${recipIdxs.length>1?'s':''}`);
 }
@@ -1564,8 +1612,10 @@ function saveTemplate() {
   if(!name) return;
   const key = 'custom_' + Date.now();
   customTemplates.push({ key, name, subject: document.getElementById('tmpl-subject').value, body: document.getElementById('tmpl-body').value });
+  persist();
   const sel = document.getElementById('email-template-select');
-  sel.innerHTML += `<option value="${key}">${name}</option>`;
+  if(sel && !sel.querySelector(`option[value="${key}"]`))
+    sel.innerHTML += `<option value="${key}">${name}</option>`;
   closeModal('add-template-modal');
   renderTemplates();
   showToast('✅ Plantilla guardada');
@@ -1632,22 +1682,48 @@ function confirmImport() {
     if(!exists) { investors.push({...r, id: nextId++}); added++; }
   });
   const filename = document.getElementById('csv-file')?.files[0]?.name || 'archivo.csv';
-  const histEl = document.getElementById('import-history');
-  histEl.innerHTML = `<div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
-    <span style="font-size:1.3rem">📥</span>
-    <div style="flex:1"><div style="font-size:.87rem;font-weight:600">${filename}</div>
-    <div class="text-muted">${added} inversores nuevos · ${new Date().toLocaleDateString('es-ES')}</div></div>
-    <span class="tag tag-green">✓ Completado</span>
-  </div>` + histEl.innerHTML;
+  importHistory.unshift({ file: filename, added, date: new Date().toLocaleDateString('es-ES'), note: `${importBuffer.length} registros procesados` });
+  persist();
+  renderImportHistory();
   cancelImport();
   renderInvestorsTable(); renderFunnel(); renderDashFunnel(); renderDashQuickTable(); populateAllSelects(); renderEmailRecipients();
   showToast(`✅ ${added} inversores importados`);
 }
 
+function renderImportHistory() {
+  const histEl = document.getElementById('import-history');
+  if(!histEl) return;
+  if(!importHistory.length) { histEl.innerHTML = '<p class="text-muted">Sin importaciones previas.</p>'; return; }
+  histEl.innerHTML = importHistory.map(h => `
+    <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.3rem">📥</span>
+      <div style="flex:1">
+        <div style="font-size:.87rem;font-weight:600">${h.file}</div>
+        <div class="text-muted">${h.added} inversores nuevos · ${h.date}${h.note?' · '+h.note:''}</div>
+      </div>
+      <span class="tag tag-green">✓ Completado</span>
+    </div>`).join('');
+}
+
 // ══════════════════════════════════════════
 //  SETTINGS
 // ══════════════════════════════════════════
-function saveSettings() { showToast('✅ Configuración guardada'); }
+function saveSettings() {
+  lsSet('config_email',     document.getElementById('config-email')?.value || '');
+  lsSet('config_name',      document.getElementById('config-name')?.value  || '');
+  lsSet('config_signature', document.getElementById('config-signature')?.value || '');
+  lsSet('config_project',   document.getElementById('config-project')?.value || '');
+  lsSet('config_desc',      document.getElementById('config-desc')?.value  || '');
+  showToast('✅ Configuración guardada');
+}
+
+function resetAllData() {
+  if(!confirm('⚠️ ¿Resetear TODA la base de datos a los 4 inversores originales?\n\nSe borrarán todos los inversores importados, comunicaciones, notas y tareas. Esta acción no se puede deshacer.')) return;
+  // Limpiar todo localStorage del CRM
+  Object.keys(localStorage).filter(k => k.startsWith(LS)).forEach(k => localStorage.removeItem(k));
+  // Restaurar semilla y recargar
+  location.reload();
+}
 
 // ══════════════════════════════════════════
 //  SEARCH
@@ -1686,13 +1762,4 @@ document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('cli
 //  TOAST
 // ══════════════════════════════════════════
 let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-</script>
-</body>
-</html>
+function showToast(m
