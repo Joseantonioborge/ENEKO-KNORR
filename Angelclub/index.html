@@ -424,7 +424,7 @@
     <div class="login-error" id="login-error"></div>
     <div class="login-hint" id="login-hint">
       ¿Problemas de acceso? Contacta con nosotros en<br>
-      <a href="/cdn-cgi/l/email-protection#bdd8ccc8d4cdd2fddcd3dad8d1ded1c8df93d8ce" style="color:var(--blue-bright);text-decoration:none;"><span class="__cf_email__" data-cfemail="d7b2a6a2bea7b897b6b9b0b2bbb4bba2b5f9b2a4">[email&#160;protected]</span></a>
+      <a id="hint-email-link" href="#" style="color:var(--blue-bright);text-decoration:none;"><span id="hint-email-text"></span></a>
     </div>
   </div>
 </div>
@@ -457,7 +457,7 @@
         <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#E6A817,#F9C846);display:flex;align-items:center;justify-content:center;font-size:15px;">⚙️</div>
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Administrador</div>
-          <div style="font-size:10px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0a6f7b7f637a654a6b646d6f6669667f68246f79">[email&#160;protected]</a></div>
+          <div style="font-size:10px;color:var(--muted);"><span id="admin-badge-email"></span></div>
         </div>
       </div>
       <div class="topbar-date">
@@ -589,7 +589,7 @@
       <textarea class="field-input field-textarea" id="cf-message" placeholder="Escribe tu consulta sobre el proyecto…"></textarea>
     </div>
     <div class="contact-actions">
-      <div class="contact-hint">📬 El mensaje se enviará a <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e78296928e9788a7868980828b848b9285c98294">[email&#160;protected]</a></strong></div>
+      <div class="contact-hint">📬 El mensaje se enviará a <strong><span id="contact-hint-email"></span></strong></div>
       <button class="send-btn" id="cf-send" onclick="sendContactForm()">
         <span id="cf-btn-text">Enviar solicitud</span>
         <span class="btn-arrow">→</span>
@@ -2204,6 +2204,32 @@ document.getElementById('admin-pass').addEventListener('keydown', e => { if(e.ke
 // ═══════════════════════════════════════════════════════════════
 const ADMIN_USER = 'equipo@angelclub.es';
 const ADMIN_PASS = 'soytuangel2026';
+
+// ── Inyección anti-ofuscación Cloudflare ──────────────────────
+// El email se construye en JS para que Cloudflare no lo detecte en el HTML
+(function() {
+  const u = 'equipo';
+  const d = 'angelclub.es';
+  const em = u + '\u0040' + d;
+  const mailto = 'mailto:' + em;
+  // Login hint
+  const hintLink = document.getElementById('hint-email-link');
+  const hintText = document.getElementById('hint-email-text');
+  if (hintLink) hintLink.href = mailto;
+  if (hintText) hintText.textContent = em;
+  // Admin badge
+  const badgeEmail = document.getElementById('admin-badge-email');
+  if (badgeEmail) badgeEmail.textContent = em;
+  // Contact hint
+  const contactHint = document.getElementById('contact-hint-email');
+  if (contactHint) {
+    const a = document.createElement('a');
+    a.href = mailto;
+    a.style.color = 'inherit';
+    a.textContent = em;
+    contactHint.appendChild(a);
+  }
+})();
 
 function normalize(s) {
   return s.trim().toLowerCase()
