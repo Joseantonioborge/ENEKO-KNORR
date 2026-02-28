@@ -337,6 +337,166 @@
   ::-webkit-scrollbar-thumb { background: rgba(30,136,229,0.25); border-radius: 3px; }
   .table-scroll { max-height: 480px; overflow-y: auto; }
 
+  /* ── UPDATE BUTTON ── */
+  .update-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: white; border: none; border-radius: 8px;
+    padding: 5px 11px; font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    box-shadow: 0 2px 10px rgba(124,58,237,0.35);
+    white-space: nowrap;
+  }
+  .update-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(124,58,237,0.50); }
+  .update-btn.no-update {
+    background: rgba(90,122,159,0.12); color: var(--muted);
+    box-shadow: none; cursor: default; font-weight: 600;
+  }
+  .update-btn.no-update:hover { transform: none; box-shadow: none; }
+
+  /* ── UPDATE MODAL ── */
+  #update-modal {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(20,35,70,0.55); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; animation: fadeIn 0.2s ease both;
+  }
+  .update-modal-card {
+    background: rgba(255,255,255,0.97); border-radius: 20px;
+    padding: 36px 40px; max-width: 680px; width: 100%;
+    box-shadow: 0 24px 80px rgba(21,101,192,0.22);
+    position: relative; animation: fadeUp 0.25s ease both;
+  }
+  .update-modal-close {
+    position: absolute; top: 18px; right: 20px;
+    background: none; border: none; font-size: 22px;
+    cursor: pointer; color: var(--muted); line-height: 1;
+    transition: color 0.15s;
+  }
+  .update-modal-close:hover { color: var(--text); }
+  .update-modal-startup {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px;
+    color: var(--blue); margin-bottom: 6px;
+  }
+  .update-modal-subtitle {
+    font-size: 11px; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.05em;
+  }
+  .update-embed-wrap {
+    width: 100%; border-radius: 14px; overflow: hidden;
+    background: rgba(30,136,229,0.04); border: 1px solid var(--border);
+    min-height: 320px; display: flex; align-items: center; justify-content: center;
+  }
+  .update-embed-wrap iframe { width: 100%; height: 400px; border: none; }
+  .update-embed-wrap .update-embed-link {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 40px; text-align: center;
+  }
+  .update-embed-link-icon { font-size: 40px; }
+  .update-embed-link a {
+    color: var(--blue-bright); font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 12px;
+    background: linear-gradient(135deg,var(--blue),var(--blue-bright));
+    color: white; box-shadow: 0 4px 16px rgba(21,101,192,0.25);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .update-embed-link a:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,0.35); }
+  .update-embed-link p { font-size: 11px; color: var(--muted); }
+
+  /* ── ADMIN UPDATE PANEL ── */
+  .upd-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px; margin-top: 4px;
+  }
+  .upd-card {
+    background: rgba(30,136,229,0.04); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .upd-card:hover { border-color: rgba(124,58,237,0.30); box-shadow: 0 4px 16px rgba(124,58,237,0.08); }
+  .upd-card-name {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--text); margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .upd-has-link { color: #7C3AED; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; }
+  .upd-input {
+    width: 100%; background: rgba(255,255,255,0.80); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--text); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 10px;
+  }
+  .upd-input:focus { border-color: #A855F7; box-shadow: 0 0 0 3px rgba(168,85,247,0.12); }
+  .upd-save-btn {
+    width: 100%; background: linear-gradient(135deg,#7C3AED,#A855F7);
+    color: white; border: none; border-radius: 10px; padding: 9px 0;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px;
+    letter-spacing: 0.06em; cursor: pointer; text-transform: uppercase;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 10px rgba(124,58,237,0.30);
+  }
+  .upd-save-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,58,237,0.40); }
+  .upd-save-btn:active { transform: none; }
+  .upd-saved-msg { font-size: 10px; color: var(--green); margin-top: 6px; text-align: center; display: none; }
+
+  /* ── EQUITY ADMIN PANEL ── */
+  .eq-card {
+    background: rgba(30,136,229,0.04); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .eq-card:hover { border-color: rgba(46,125,50,0.35); box-shadow: 0 4px 16px rgba(46,125,50,0.08); }
+  .eq-card-name {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--text); margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .eq-current {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+    color: var(--green); font-family: 'DM Mono', monospace;
+  }
+  .eq-hint {
+    font-size: 10px; color: var(--muted); margin-bottom: 10px; line-height: 1.5;
+  }
+  .eq-input-wrap {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .eq-input {
+    flex: 1; background: rgba(255,255,255,0.80); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; font-family: 'DM Mono', monospace;
+    font-size: 13px; color: var(--text); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .eq-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,125,50,0.12); }
+  .eq-pct-label {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px;
+    color: var(--green); flex-shrink: 0;
+  }
+  .eq-save-btn {
+    width: 100%; background: linear-gradient(135deg, #1B5E20, #2E7D32);
+    color: white; border: none; border-radius: 10px; padding: 9px 0;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px;
+    letter-spacing: 0.06em; cursor: pointer; text-transform: uppercase;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 10px rgba(46,125,50,0.30);
+  }
+  .eq-save-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(46,125,50,0.40); }
+  .eq-save-btn:active { transform: none; }
+  .eq-saved-msg { font-size: 10px; color: var(--green); margin-top: 6px; text-align: center; display: none; }
+
+  /* ── INVESTOR EQUITY DISPLAY ── */
+  .eq-investor-tag {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--green);
+  }
+  .eq-investor-sub {
+    font-size: 10px; color: var(--muted); margin-top: 2px;
+  }
+
   /* ANIMATIONS */
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -430,6 +590,20 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
+     UPDATE MODAL (investor view)
+═══════════════════════════════════════════════════ -->
+<div id="update-modal" style="display:none;">
+  <div class="update-modal-card">
+    <button class="update-modal-close" onclick="closeUpdateModal()">✕</button>
+    <div class="update-modal-startup" id="update-modal-name">—</div>
+    <div class="update-modal-subtitle" id="update-modal-subtitle">Actualización de la compañía</div>
+    <div class="update-embed-wrap" id="update-embed-wrap">
+      <div class="update-embed-link" id="update-embed-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
      DASHBOARD
 ═══════════════════════════════════════════════════ -->
 <div id="dashboard">
@@ -511,7 +685,7 @@
               <th>Equity</th>
               <th>Estado</th>
               <th>TIR</th>
-              <th>Web</th>
+              <th style="color:#A855F7;">UPDATE</th>
             </tr>
           </thead>
           <tbody id="inv-table-body"></tbody>
@@ -600,6 +774,22 @@
 
   <!-- ═══════ ADMIN ONLY SECTION ═══════ -->
   <div id="admin-section" style="display:none;">
+
+    <!-- EXPORT BUTTON -->
+    <div style="display:flex;justify-content:flex-end;margin-top:24px;margin-bottom:-8px;">
+      <button id="export-excel-btn" onclick="exportToExcel()" style="
+        display:inline-flex;align-items:center;gap:10px;
+        background:linear-gradient(135deg,#1B5E20,#2E7D32);
+        color:white;border:none;border-radius:14px;padding:13px 28px;
+        font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+        cursor:pointer;box-shadow:0 4px 18px rgba(46,125,50,0.30);
+        transition:transform 0.2s,box-shadow 0.2s;letter-spacing:0.03em;
+      " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(46,125,50,0.40)'"
+         onmouseout="this.style.transform='';this.style.boxShadow='0 4px 18px rgba(46,125,50,0.30)'">
+        <span style="font-size:18px;">📥</span>
+        <span id="export-btn-label">Exportar a Excel</span>
+      </button>
+    </div>
 
     <!-- ADMIN KPI EXTRA ROW -->
     <div class="kpi-grid" style="margin-top:24px;">
@@ -699,6 +889,32 @@
           </thead>
           <tbody id="adm-investors-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ACTUALIZACIONES POR STARTUP -->
+    <div class="panel" id="admin-updates-panel" style="margin-top:24px;animation-delay:0.35s;">
+      <div class="panel-title">
+        📡 Actualizaciones por Startup
+        <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:8px;">
+          Añade un enlace (URL de documento, vídeo o web) por startup. Será visible para los inversores de esa compañía.
+        </span>
+      </div>
+      <div class="upd-grid" id="upd-cards-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- EQUITY POR STARTUP -->
+    <div class="panel" id="admin-equity-panel" style="margin-top:24px;animation-delay:0.40s;">
+      <div class="panel-title">
+        📊 Equity por Startup
+        <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:8px;">
+          Define el porcentaje de participación total del club en cada startup. El inversor verá su % individual calculado proporcionalmente a su aportación.
+        </span>
+      </div>
+      <div class="upd-grid" id="eq-cards-grid">
+        <!-- Populated by JS -->
       </div>
     </div>
 
@@ -2175,8 +2391,451 @@ RAW_INVESTORS.forEach(([name, email, startup, valuation, amount]) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// LOGIN MODE TOGGLE
+// STARTUP UPDATES — admin-managed links per startup
+// Persisted in localStorage so they survive page reloads
 // ═══════════════════════════════════════════════════════════════
+const UPDATES_STORAGE_KEY = 'angelclub_startup_updates_v1';
+let STARTUP_UPDATES = {}; // startupKey -> URL string
+
+function loadUpdates() {
+  try {
+    const raw = localStorage.getItem(UPDATES_STORAGE_KEY);
+    STARTUP_UPDATES = raw ? JSON.parse(raw) : {};
+  } catch(e) { STARTUP_UPDATES = {}; }
+}
+
+function saveUpdate(startupKey, url) {
+  if (url && url.trim()) {
+    STARTUP_UPDATES[startupKey] = url.trim();
+  } else {
+    delete STARTUP_UPDATES[startupKey];
+  }
+  try { localStorage.setItem(UPDATES_STORAGE_KEY, JSON.stringify(STARTUP_UPDATES)); } catch(e) {}
+}
+
+loadUpdates();
+
+// ═══════════════════════════════════════════════════════════════
+// STARTUP EQUITY OVERRIDES — admin-managed equity % per startup
+// Overrides the hardcoded equity in STARTUPS object
+// Persisted in localStorage
+// ═══════════════════════════════════════════════════════════════
+const EQUITY_STORAGE_KEY = 'angelclub_startup_equity_v1';
+let STARTUP_EQUITY = {}; // startupKey -> equity string e.g. "3.5%"
+
+function loadEquity() {
+  try {
+    const raw = localStorage.getItem(EQUITY_STORAGE_KEY);
+    STARTUP_EQUITY = raw ? JSON.parse(raw) : {};
+  } catch(e) { STARTUP_EQUITY = {}; }
+}
+
+function saveEquity(startupKey, value) {
+  const clean = value.trim().replace(/[^0-9.]/g, '');
+  if (clean && parseFloat(clean) >= 0) {
+    STARTUP_EQUITY[startupKey] = parseFloat(clean).toFixed(4) + '%';
+  } else {
+    delete STARTUP_EQUITY[startupKey];
+  }
+  try { localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(STARTUP_EQUITY)); } catch(e) {}
+}
+
+// Returns effective equity for a startup key (override > hardcoded)
+function getEffectiveEquity(startupKey) {
+  return STARTUP_EQUITY[startupKey] || STARTUPS[startupKey]?.equity || '—';
+}
+
+// Returns investor's individual equity % = (investorAmount / clubCapital) * clubEquity%
+function getInvestorEquity(startupKey, investorAmount, clubCapital) {
+  const eq = getEffectiveEquity(startupKey);
+  const eqPct = parseFloat(eq);
+  if (!eqPct || !investorAmount || !clubCapital) return null;
+  const investorEq = (investorAmount / clubCapital) * eqPct;
+  // Format: show up to 4 decimals but trim trailing zeros
+  const formatted = investorEq < 0.01
+    ? investorEq.toFixed(6).replace(/\.?0+$/, '')
+    : investorEq < 0.1
+      ? investorEq.toFixed(4).replace(/\.?0+$/, '')
+      : investorEq.toFixed(2).replace(/\.?0+$/, '');
+  return { pct: investorEq, str: formatted + '%', clubEq: eq };
+}
+
+loadEquity();
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN EQUITY PANEL renderer
+// ═══════════════════════════════════════════════════════════════
+function renderAdminEquityPanel(allStartups) {
+  const grid = document.getElementById('eq-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  allStartups.forEach(p => {
+    const hardcoded = STARTUPS[p.key]?.equity || '—';
+    const override  = STARTUP_EQUITY[p.key] || '';
+    const effective = override || hardcoded;
+    const isOverridden = !!override;
+
+    const card = document.createElement('div');
+    card.className = 'eq-card';
+    card.innerHTML = `
+      <div class="eq-card-name">
+        <span>${p.name}</span>
+        <span class="eq-current">${effective}</span>
+      </div>
+      <div class="eq-hint">
+        ${isOverridden
+          ? `<span style="color:var(--green);">✓ Personalizado</span> · base hardcoded: <em>${hardcoded}</em>`
+          : `Valor actual del código: <em>${hardcoded}</em>`
+        }
+      </div>
+      <div class="eq-input-wrap">
+        <input class="eq-input" id="eq-input-${p.key}"
+          type="number" min="0" max="100" step="0.01"
+          placeholder="${parseFloat(hardcoded) || ''}"
+          value="${override ? parseFloat(override) : ''}">
+        <span class="eq-pct-label">%</span>
+      </div>
+      <button class="eq-save-btn" onclick="adminSaveEquity('${p.key}','${p.name.replace(/'/g,"\\'")}')">
+        💾 Guardar equity
+      </button>
+      <div class="eq-saved-msg" id="eq-msg-${p.key}">✓ Equity actualizado</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function adminSaveEquity(startupKey, startupName) {
+  const input = document.getElementById(`eq-input-${startupKey}`);
+  if (!input) return;
+  saveEquity(startupKey, input.value);
+
+  // Re-render equity panel
+  const allStartups = Object.entries(STARTUPS).map(([key,s])=>({...s,key})).sort((a,b)=>a.name.localeCompare(b.name));
+  renderAdminEquityPanel(allStartups);
+
+  setTimeout(() => {
+    const msg = document.getElementById(`eq-msg-${startupKey}`);
+    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display='none', 2500); }
+  }, 50);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORTAR A EXCEL  (SheetJS via CDN)
+// ═══════════════════════════════════════════════════════════════
+function exportToExcel() {
+  const btn   = document.getElementById('export-excel-btn');
+  const label = document.getElementById('export-btn-label');
+  label.textContent = 'Generando…';
+  btn.disabled = true;
+
+  // Load SheetJS if not already loaded
+  function doExport() {
+    const XLSX = window.XLSX;
+    const wb   = XLSX.utils.book_new();
+    const date = new Date().toLocaleDateString('es-ES');
+
+    // ── helpers ──────────────────────────────────────────────
+    const euro   = v => v > 0 ? v : 0;
+    const pctNum = s => parseFloat(s) || 0;
+
+    // ── DATA BUILD ────────────────────────────────────────────
+    // All startups enriched
+    const allStartups = Object.entries(STARTUPS)
+      .map(([key, s]) => ({ ...s, key }))
+      .sort((a, b) => b.capital - a.capital);
+
+    // Investor summary
+    const investorSummary = [];
+    Object.entries(INVESTOR_DB).forEach(([email, rec]) => {
+      let total = 0;
+      const investments = [];
+      rec.investments.forEach((amt, key) => {
+        const s = STARTUPS[key];
+        if (!s) return;
+        const effEq    = getEffectiveEquity(key);
+        const eqClub   = pctNum(effEq);
+        const eqInv    = (amt > 0 && s.capital > 0) ? ((amt / s.capital) * eqClub) : 0;
+        const valuation = STARTUP_VALUATIONS[key] || null;
+        let valorActual = null;
+        if (valuation && amt > 0 && s.capital > 0) {
+          valorActual = Math.round((amt / s.capital) * (pctNum(effEq) / 100) * valuation);
+        }
+        total += amt || 0;
+        investments.push({ startup: s.name, key, amount: amt || 0, eqClub, eqInv, valorActual, status: s.status, tir: s.tir });
+      });
+      const name = [...rec.names].sort((a, b) => b.length - a.length)[0];
+      investorSummary.push({ name, email, total, investments });
+    });
+    investorSummary.sort((a, b) => b.total - a.total);
+
+    // Investor count per startup
+    const startupInvCount = {};
+    RAW_INVESTORS.forEach(([,, startup]) => {
+      const k = normalizeStartup(startup);
+      startupInvCount[k] = (startupInvCount[k] || 0) + 1;
+    });
+
+    const totalCapital = allStartups.reduce((s, p) => s + p.capital, 0);
+    const totalInvestors = investorSummary.filter(i => i.total > 0).length;
+
+    // ── HOJA 1: RESUMEN EJECUTIVO ─────────────────────────────
+    const resumeData = [
+      ['ANGELCLUB — INFORME EXPORTADO', '', date],
+      [],
+      ['KPI GLOBAL', 'Valor', ''],
+      ['Capital Total del Club (€)', totalCapital, ''],
+      ['Nº de Startups en Portfolio', allStartups.length, ''],
+      ['Startups Activas', allStartups.filter(p => p.status === 'active').length, ''],
+      ['Startups con EXIT', allStartups.filter(p => p.status === 'exit').length, ''],
+      ['Startups FAIL', allStartups.filter(p => p.status === 'fail').length, ''],
+      ['Total Inversores con Capital', totalInvestors, ''],
+      ['Capital Medio por Inversor (€)', totalInvestors > 0 ? Math.round(totalCapital / totalInvestors) : 0, ''],
+      [],
+      ['TOP 5 STARTUPS POR CAPITAL', 'Capital (€)', '% Portfolio'],
+      ...allStartups.slice(0, 5).map(p => [
+        p.name,
+        p.capital,
+        totalCapital > 0 ? parseFloat((p.capital / totalCapital * 100).toFixed(2)) : 0
+      ]),
+      [],
+      ['TOP 5 INVERSORES POR CAPITAL TOTAL', 'Capital (€)', 'Nº Startups'],
+      ...investorSummary.slice(0, 5).map(i => [i.name, i.total, i.investments.length]),
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(resumeData);
+    ws1['!cols'] = [{ wch: 38 }, { wch: 22 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, ws1, '1. Resumen');
+
+    // ── HOJA 2: PORTFOLIO STARTUPS ────────────────────────────
+    const hdr2 = [
+      'Startup', 'Estado', 'Capital Club (€)', 'Equity Club (%)',
+      'Valoración Cía (€)', 'Valor Participación Club (€)',
+      'TIR (%)', 'Nº Inversores', 'Update Publicado', 'Web'
+    ];
+    const rows2 = allStartups.map(p => {
+      const effEq   = getEffectiveEquity(p.key);
+      const eqPct   = pctNum(effEq) / 100;
+      const valuation = STARTUP_VALUATIONS[p.key] || null;
+      const valorPart = valuation ? Math.round(eqPct * valuation) : '';
+      return [
+        p.name,
+        p.status === 'exit' ? 'EXIT' : p.status === 'fail' ? 'FAIL' : 'ACTIVA',
+        p.capital,
+        pctNum(effEq),
+        valuation || '',
+        valorPart,
+        p.tir || '',
+        startupInvCount[p.key] || 0,
+        STARTUP_UPDATES[p.key] ? 'Sí — ' + STARTUP_UPDATES[p.key] : 'No',
+        p.web || ''
+      ];
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet([hdr2, ...rows2]);
+    ws2['!cols'] = [20,12,18,16,22,26,10,14,40,35].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws2, '2. Portfolio Startups');
+
+    // ── HOJA 3: DIRECTORIO DE INVERSORES ─────────────────────
+    const hdr3 = [
+      'Nombre', 'Email', 'Capital Total (€)',
+      'Nº Startups', 'Startups Invertidas', 'Valor Actual Total Est. (€)'
+    ];
+    const rows3 = investorSummary.map(inv => {
+      const startupNames = inv.investments.map(i => i.startup).join(', ');
+      const valorTotal   = inv.investments
+        .filter(i => i.valorActual !== null)
+        .reduce((s, i) => s + i.valorActual, 0);
+      return [
+        inv.name,
+        inv.email,
+        inv.total,
+        inv.investments.length,
+        startupNames,
+        valorTotal || ''
+      ];
+    });
+    const ws3 = XLSX.utils.aoa_to_sheet([hdr3, ...rows3]);
+    ws3['!cols'] = [30, 34, 18, 14, 60, 22].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws3, '3. Inversores');
+
+    // ── HOJA 4: DETALLE INVERSIONES (1 fila por inversor × startup) ──
+    const hdr4 = [
+      'Nombre Inversor', 'Email', 'Startup', 'Estado',
+      'Aportación (€)', 'Capital Club (€)', 'Equity Club (%)',
+      'Equity Inversor (%)', 'Valoración Cía (€)', 'Valor Actual Est. (€)',
+      'Múltiplo (x)', 'TIR (%)'
+    ];
+    const rows4 = [];
+    investorSummary.forEach(inv => {
+      inv.investments
+        .sort((a, b) => b.amount - a.amount)
+        .forEach(i => {
+          const s = STARTUPS[i.key];
+          if (!s) return;
+          const multiple = (i.valorActual && i.amount > 0)
+            ? parseFloat((i.valorActual / i.amount).toFixed(2))
+            : '';
+          rows4.push([
+            inv.name,
+            inv.email,
+            i.startup,
+            i.status === 'exit' ? 'EXIT' : i.status === 'fail' ? 'FAIL' : 'ACTIVA',
+            i.amount,
+            s.capital,
+            parseFloat(i.eqClub.toFixed(4)),
+            parseFloat(i.eqInv.toFixed(6)),
+            STARTUP_VALUATIONS[i.key] || '',
+            i.valorActual || '',
+            multiple,
+            i.tir || ''
+          ]);
+        });
+    });
+    const ws4 = XLSX.utils.aoa_to_sheet([hdr4, ...rows4]);
+    ws4['!cols'] = [28,34,18,10,16,16,16,18,22,20,12,10].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws4, '4. Detalle Inversiones');
+
+    // ── HOJA 5: CONFIGURACIÓN ADMIN ──────────────────────────
+    const hdr5 = ['Startup', 'Equity Configurado (%)', 'Equity Base Código (%)', 'URL Actualización'];
+    const rows5 = Object.entries(STARTUPS)
+      .map(([key, s]) => {
+        const override  = STARTUP_EQUITY[key] ? parseFloat(STARTUP_EQUITY[key]) : '';
+        const hardcoded = pctNum(s.equity);
+        const update    = STARTUP_UPDATES[key] || '';
+        return [s.name, override, hardcoded, update];
+      })
+      .sort((a, b) => a[0].localeCompare(b[0]));
+    const ws5 = XLSX.utils.aoa_to_sheet([hdr5, ...rows5]);
+    ws5['!cols'] = [22, 22, 22, 50].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws5, '5. Config Admin');
+
+    // ── EXPORT ───────────────────────────────────────────────
+    const fileName = `AngelClub_Export_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    label.textContent = '✓ Descargado';
+    setTimeout(() => { label.textContent = 'Exportar a Excel'; btn.disabled = false; }, 3000);
+  }
+
+  // Load SheetJS from CDN if needed
+  if (window.XLSX) {
+    doExport();
+  } else {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => doExport();
+    script.onerror = () => {
+      label.textContent = 'Error al cargar librería';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UPDATE MODAL (investor)
+// ═══════════════════════════════════════════════════════════════
+function openUpdateModal(startupKey, startupName, url) {
+  const modal = document.getElementById('update-modal');
+  document.getElementById('update-modal-name').textContent = startupName;
+  document.getElementById('update-modal-subtitle').textContent = 'Actualización de la compañía';
+  const wrap = document.getElementById('update-embed-wrap');
+  const content = document.getElementById('update-embed-content');
+
+  // Detect content type and embed accordingly
+  const u = url.toLowerCase();
+  const isYoutube = u.includes('youtube.com') || u.includes('youtu.be');
+  const isVimeo   = u.includes('vimeo.com');
+  const isDrive   = u.includes('drive.google.com') || u.includes('docs.google.com');
+  const isLoom    = u.includes('loom.com');
+
+  if (isYoutube || isVimeo || isDrive || isLoom) {
+    // Build embeddable src
+    let embedSrc = url;
+    if (isYoutube) {
+      const vid = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+      if (vid) embedSrc = `https://www.youtube.com/embed/${vid[1]}?rel=0&modestbranding=1`;
+    } else if (isVimeo) {
+      const vid = url.match(/vimeo\.com\/(\d+)/);
+      if (vid) embedSrc = `https://player.vimeo.com/video/${vid[1]}`;
+    } else if (isDrive) {
+      embedSrc = url.replace('/view', '/preview').replace('/edit', '/preview');
+    } else if (isLoom) {
+      embedSrc = url.replace('loom.com/share/', 'loom.com/embed/');
+    }
+    wrap.innerHTML = `<iframe src="${embedSrc}" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+  } else {
+    // Generic link — show a styled button
+    const ext = url.split('.').pop().toLowerCase().split('?')[0];
+    const icon = ['pdf'].includes(ext) ? '📄' : ['mp4','mov','avi'].includes(ext) ? '🎬' : '🔗';
+    wrap.innerHTML = `<div class="update-embed-link">
+      <div class="update-embed-link-icon">${icon}</div>
+      <p style="color:var(--muted);font-size:12px;margin-bottom:8px;">${startupName} — Actualización disponible</p>
+      <a href="${url}" target="_blank" rel="noopener">Ver documento / contenido ↗</a>
+      <p style="margin-top:10px;font-size:10px;">Se abrirá en una nueva pestaña</p>
+    </div>`;
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeUpdateModal() {
+  const modal = document.getElementById('update-modal');
+  modal.style.display = 'none';
+  document.getElementById('update-embed-wrap').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+// Close modal on backdrop click
+document.getElementById('update-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeUpdateModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUpdateModal(); });
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN UPDATE PANEL renderer
+// ═══════════════════════════════════════════════════════════════
+function renderAdminUpdatesPanel(allStartups) {
+  const grid = document.getElementById('upd-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  allStartups.forEach(p => {
+    const currentUrl = STARTUP_UPDATES[p.key] || '';
+    const hasLink = !!currentUrl;
+    const card = document.createElement('div');
+    card.className = 'upd-card';
+    card.innerHTML = `
+      <div class="upd-card-name">
+        <span>${p.name}</span>
+        ${hasLink ? '<span class="upd-has-link">● PUBLICADO</span>' : '<span style="color:var(--muted);font-size:10px;">Sin enlace</span>'}
+      </div>
+      <input class="upd-input" id="upd-input-${p.key}"
+        type="url" placeholder="https://… (YouTube, Drive, PDF, Vimeo…)"
+        value="${currentUrl.replace(/"/g,'&quot;')}">
+      <button class="upd-save-btn" onclick="adminSaveUpdate('${p.key}','${p.name.replace(/'/g,"\\'")}')">
+        ${hasLink ? '✎ Actualizar enlace' : '+ Añadir enlace'}
+      </button>
+      <div class="upd-saved-msg" id="upd-msg-${p.key}">✓ Guardado correctamente</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function adminSaveUpdate(startupKey, startupName) {
+  const input = document.getElementById(`upd-input-${startupKey}`);
+  if (!input) return;
+  const url = input.value.trim();
+  saveUpdate(startupKey, url);
+
+  // Re-render the card to reflect new state
+  const allStartups = Object.entries(STARTUPS).map(([key,s])=>({...s,key})).sort((a,b)=>a.name.localeCompare(b.name));
+  renderAdminUpdatesPanel(allStartups);
+
+  // Show saved message briefly
+  setTimeout(() => {
+    const msg = document.getElementById(`upd-msg-${startupKey}`);
+    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display='none', 2500); }
+  }, 50);
+}
 let loginMode = 'investor';
 
 function setLoginMode(mode) {
@@ -2401,16 +3060,30 @@ function showDashboard() {
       : `<span class="startup-name" style="cursor:default;">${p.name}</span>`;
     const tirEl = p.tir ? `<span class="tir-value">+${p.tir}%</span>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
     const webEl = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗ Web</a>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    // UPDATE button
+    const updLink = STARTUP_UPDATES[p.key] || null;
+    const updateEl = updLink
+      ? `<button class="update-btn" onclick="openUpdateModal('${p.key}','${p.name.replace(/'/g,"\\'")}','${updLink.replace(/'/g,"\\'")}')">▶ UPDATE</button>`
+      : `<button class="update-btn no-update" disabled>— sin update</button>`;
     const myAmountEl = p.investorAmount > 0
       ? `<span style="color:var(--gold);font-family:'Syne',sans-serif;font-weight:700;">€${p.investorAmount.toLocaleString('es-ES')}</span>`
       : `<span style="color:var(--muted);font-size:10px;">Part.</span>`;
-    // Valor actual = (miAportación / capitalClub) × (equity% × valoraciónCompañía)
-    // equity está guardado como "1%", "3%", etc. → parseamos el número
+    // Equity: use admin override if set, otherwise hardcoded value
+    const effectiveEq = getEffectiveEquity(p.key);
+    // Investor individual equity = (miAportación / capitalClub) × equityClub
+    const invEq = getInvestorEquity(p.key, p.investorAmount, p.capital);
+    const equityEl = invEq
+      ? `<div style="display:flex;flex-direction:column;gap:2px;">
+           <span class="eq-investor-tag">${invEq.str}</span>
+           <span class="eq-investor-sub">club: ${effectiveEq}</span>
+         </div>`
+      : `<span class="equity-tag">${effectiveEq}</span>`;
+    // Valor actual = (miAportación / capitalClub) × (effectiveEquity% × valoraciónCompañía)
     const valuation = STARTUP_VALUATIONS[p.key] || null;
     let valorActualEl = `<span style="color:var(--muted);font-size:10px;">—</span>`;
-    if (valuation && p.investorAmount > 0 && p.capital > 0 && p.equity) {
-      const equityPct = parseFloat(p.equity) / 100 || 0;
-      const clubStakeValue = equityPct * valuation;          // valor total del club en la compañía
+    if (valuation && p.investorAmount > 0 && p.capital > 0) {
+      const equityPct = parseFloat(effectiveEq) / 100 || 0;
+      const clubStakeValue = equityPct * valuation;
       const valorActual = Math.round((p.investorAmount / p.capital) * clubStakeValue);
       const multiple = (valorActual / p.investorAmount).toFixed(1);
       const isUp = valorActual >= p.investorAmount;
@@ -2428,10 +3101,10 @@ function showDashboard() {
         <div class="investor-amount">${pct}% del club</div></td>
       <td>${myAmountEl}</td>
       <td>${valorActualEl}</td>
-      <td><span class="equity-tag">${p.equity}</span></td>
+      <td>${equityEl}</td>
       <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
       <td>${tirEl}</td>
-      <td>${webEl}</td>`;
+      <td>${updateEl}</td>`;
     tbody.appendChild(tr);
   });
 
@@ -2474,6 +3147,7 @@ function showAdminDashboard() {
   const sharedThs = document.querySelectorAll('#inv-table-body')
     [0]?.closest('table')?.querySelectorAll('thead th');
   if (sharedThs && sharedThs.length >= 3) sharedThs[2].textContent = 'Capital Club';
+  if (sharedThs && sharedThs.length >= 8) { sharedThs[7].textContent = 'Update'; sharedThs[7].style.color = '#A855F7'; }
 
   // All startups as portfolio
   const allStartups = Object.entries(STARTUPS).map(([key, s]) => ({ ...s, key, investorAmount: s.capital }));
@@ -2506,11 +3180,17 @@ function showAdminDashboard() {
     const nameEl = p.web ? `<a href="${p.web}" target="_blank" class="startup-name">${p.name} <span class="link-icon">↗</span></a>` : `<span class="startup-name" style="cursor:default;">${p.name}</span>`;
     const tirEl  = p.tir ? `<span class="tir-value">+${p.tir}%</span>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
     const webEl  = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗ Web</a>` : `<span style="color:var(--muted);font-size:10px;">—</span>`;
+    // Update status for admin view
+    const admUpdLink = STARTUP_UPDATES[p.key] || null;
+    const admUpdEl = admUpdLink
+      ? `<span style="color:#7C3AED;font-size:10px;font-weight:700;">✓ Publicado</span>`
+      : `<span style="color:var(--muted);font-size:10px;">—</span>`;
     // Valor actual del club en esta startup (admin ve el valor total del club, no individual)
     const admValuation = STARTUP_VALUATIONS[p.key] || null;
+    const admEffEq = getEffectiveEquity(p.key);
     let admValorEl = `<span style="color:var(--muted);font-size:10px;">—</span>`;
-    if (admValuation && p.capital > 0 && p.equity) {
-      const equityPct = parseFloat(p.equity) / 100 || 0;
+    if (admValuation && p.capital > 0) {
+      const equityPct = parseFloat(admEffEq) / 100 || 0;
       const clubStake = Math.round(equityPct * admValuation);
       admValorEl = `<div style="display:flex;flex-direction:column;gap:2px;">
         <span style="color:var(--green);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">€${clubStake.toLocaleString('es-ES')}</span>
@@ -2525,10 +3205,10 @@ function showAdminDashboard() {
         <div class="investor-amount">${pct}% del portfolio</div></td>
       <td>—</td>
       <td>${admValorEl}</td>
-      <td><span class="equity-tag">${p.equity}</span></td>
+      <td><span class="equity-tag">${admEffEq}</span></td>
       <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
       <td>${tirEl}</td>
-      <td>${webEl}</td>`;
+      <td>${admUpdEl}</td>`;
     tbody.appendChild(tr);
   });
 
@@ -2612,22 +3292,27 @@ function renderAdminExtras(allStartups, totalCapital) {
     const webEl  = p.web ? `<a href="${p.web}" target="_blank" style="color:var(--blue-bright);font-size:11px;text-decoration:none;">↗</a>` : `<span style="color:var(--muted);">—</span>`;
     // Valoración de la compañía (si existe)
     const admSVal = STARTUP_VALUATIONS[p.key] || null;
+    const admSEffEq = getEffectiveEquity(p.key);
     let admSValEl = `<span style="color:var(--muted);font-size:10px;">—</span>`;
     if (admSVal) {
-      const equityPct = parseFloat(p.equity) / 100 || 0;
+      const equityPct = parseFloat(admSEffEq) / 100 || 0;
       const clubStake = Math.round(equityPct * admSVal);
       admSValEl = `<div style="display:flex;flex-direction:column;gap:1px;">
         <span style="color:var(--green);font-family:'Syne',sans-serif;font-weight:700;font-size:12px;">€${clubStake.toLocaleString('es-ES')}</span>
         <span style="font-size:10px;color:var(--muted);">${(admSVal/1000000).toFixed(0)}M val.</span>
       </div>`;
     }
+    // Equity badge: show override indicator if set
+    const admSEqDisplay = STARTUP_EQUITY[p.key]
+      ? `<span class="eq-current">${admSEffEq}</span>`
+      : `<span class="equity-tag">${admSEffEq}</span>`;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="color:var(--muted);font-size:11px;">${idx+1}</td>
       <td>${nameEl}</td>
       <td><span class="amount-cell">€${p.capital.toLocaleString('es-ES')}</span></td>
       <td>${admSValEl}</td>
-      <td><span class="equity-tag">${p.equity}</span></td>
+      <td>${admSEqDisplay}</td>
       <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
       <td>${tirEl}</td>
       <td><span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--blue-bright);">${investorCount}</span></td>
@@ -2707,6 +3392,11 @@ function renderAdminExtras(allStartups, totalCapital) {
 
   document.getElementById('adm-investor-count-label').textContent = `${window._admInvestorRows.length} registros`;
   renderAdminInvestorTable(window._admInvestorRows);
+
+  // Render updates panel
+  const allSorted = allStartups.slice().sort((a,b) => a.name.localeCompare(b.name));
+  renderAdminUpdatesPanel(allSorted);
+  renderAdminEquityPanel(allSorted);
 }
 
 function filterAdminTable() {
