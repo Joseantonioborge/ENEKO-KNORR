@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portal Inversor</title>
+<title>AngelClub — Portal Inversor v1.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -497,6 +497,24 @@
     font-size: 10px; color: var(--muted); margin-top: 2px;
   }
 
+  /* ── ACCESS LOG ── */
+  #access-log-tbody tr { transition: background 0.15s; }
+  #access-log-tbody tr:hover { background: rgba(30,136,229,0.04); }
+  .log-date  { font-family:'DM Mono',monospace; font-size:11px; color:var(--text); white-space:nowrap; }
+  .log-time  { font-size:10px; color:var(--muted); margin-top:2px; }
+  .log-name  { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
+  .log-email { font-size:10px; color:var(--muted); margin-top:2px; }
+  .log-session-badge {
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:50%;
+    font-family:'Syne',sans-serif;font-weight:800;font-size:11px;
+    background:rgba(30,136,229,0.10);color:var(--blue-bright);
+  }
+  .log-session-badge.first {
+    background:linear-gradient(135deg,rgba(230,168,23,0.20),rgba(249,200,70,0.10));
+    color:#B8860B;border:1px solid rgba(230,168,23,0.35);
+  }
+
   /* ANIMATIONS */
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -550,7 +568,7 @@
       <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
     </div>
 
-    <div id="login-title" class="login-title">Portal del Inversor</div>
+    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:11px;font-family:'DM Mono',monospace;font-weight:400;color:var(--muted);letter-spacing:0.08em;">v1.0</span></div>
     <div id="login-sub" class="login-sub">Accede con tu nombre completo y correo electrónico<br>tal como figuran en tu ficha de inversor</div>
 
     <!-- INVESTOR FIELDS -->
@@ -615,7 +633,7 @@
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor</div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.05em;opacity:0.7;">v1.0</span></div>
       </div>
     </div>
     <div class="topbar-right">
@@ -915,6 +933,46 @@
       </div>
       <div class="upd-grid" id="eq-cards-grid">
         <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- REGISTRO DE ACCESOS -->
+    <div class="panel" id="admin-access-log-panel" style="margin-top:24px;animation-delay:0.45s;">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span>🔐 Registro de Accesos al Portal</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input id="log-search" class="field-input" type="text" placeholder="🔍 Buscar inversor…"
+            oninput="filterAccessLog()" style="max-width:240px;margin:0;font-size:11px;padding:8px 14px;">
+          <span id="log-count-label" style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap;"></span>
+          <button onclick="clearAccessLog()" style="
+            background:rgba(198,40,40,0.10);border:1px solid rgba(198,40,40,0.25);
+            color:var(--red);border-radius:10px;padding:7px 14px;font-family:'Syne',sans-serif;
+            font-weight:700;font-size:10px;letter-spacing:0.05em;cursor:pointer;
+            text-transform:uppercase;transition:background 0.2s;white-space:nowrap;"
+            onmouseover="this.style.background='rgba(198,40,40,0.18)'"
+            onmouseout="this.style.background='rgba(198,40,40,0.10)'">
+            🗑 Limpiar registro
+          </button>
+        </div>
+      </div>
+      <div id="access-log-empty" style="display:none;padding:40px;text-align:center;color:var(--muted);font-size:12px;">
+        Aún no hay accesos registrados. Aparecerán aquí cuando los inversores inicien sesión.
+      </div>
+      <div class="table-scroll" id="access-log-table-wrap" style="max-height:480px;">
+        <table class="investments-table" id="access-log-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha y Hora</th>
+              <th>Inversor</th>
+              <th>Email</th>
+              <th>Nº Startups</th>
+              <th>Capital Total (€)</th>
+              <th>Sesión nº</th>
+            </tr>
+          </thead>
+          <tbody id="access-log-tbody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -2464,6 +2522,123 @@ function getInvestorEquity(startupKey, investorAmount, clubCapital) {
 loadEquity();
 
 // ═══════════════════════════════════════════════════════════════
+// REGISTRO DE ACCESOS — persiste en localStorage
+// ═══════════════════════════════════════════════════════════════
+const ACCESS_LOG_KEY = 'angelclub_access_log_v1';
+
+function loadAccessLog() {
+  try {
+    const raw = localStorage.getItem(ACCESS_LOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function saveAccessLog(log) {
+  try { localStorage.setItem(ACCESS_LOG_KEY, JSON.stringify(log)); } catch(e) {}
+}
+
+function registerAccess(investor) {
+  const log = loadAccessLog();
+  // Count previous sessions for this email
+  const prev = log.filter(e => e.email === investor.email).length;
+  // Compute investor stats at login time
+  let startupCount = 0, capitalTotal = 0;
+  investor.investments.forEach((amt, key) => {
+    const s = STARTUPS[key];
+    if (s) { startupCount++; capitalTotal += amt || 0; }
+  });
+  const entry = {
+    ts:           Date.now(),
+    date:         new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }),
+    time:         new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }),
+    name:         investor.name,
+    email:        investor.email,
+    startupCount,
+    capitalTotal,
+    session:      prev + 1
+  };
+  log.unshift(entry);               // newest first
+  if (log.length > 500) log.length = 500; // cap at 500 entries
+  saveAccessLog(log);
+}
+
+function renderAccessLog(entries) {
+  const tbody  = document.getElementById('access-log-tbody');
+  const empty  = document.getElementById('access-log-empty');
+  const wrap   = document.getElementById('access-log-table-wrap');
+  const label  = document.getElementById('log-count-label');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  if (!entries || entries.length === 0) {
+    empty.style.display  = 'block';
+    wrap.style.display   = 'none';
+    label.textContent    = '0 registros';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.style.display  = '';
+  label.textContent   = `${entries.length} acceso${entries.length !== 1 ? 's' : ''}`;
+
+  entries.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    const isFirst = e.session === 1;
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-size:11px;">${i + 1}</td>
+      <td>
+        <div class="log-date">${e.date}</div>
+        <div class="log-time">${e.time}</div>
+      </td>
+      <td>
+        <div class="log-name">${e.name}</div>
+      </td>
+      <td>
+        <div class="log-email" style="font-size:11px;color:var(--muted);">${e.email}</div>
+      </td>
+      <td>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--blue-bright);">${e.startupCount}</span>
+        <span style="font-size:10px;color:var(--muted);"> startups</span>
+      </td>
+      <td>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--gold);">
+          ${e.capitalTotal > 0 ? '€' + e.capitalTotal.toLocaleString('es-ES') : '—'}
+        </span>
+      </td>
+      <td style="text-align:center;">
+        <div class="log-session-badge ${isFirst ? 'first' : ''}" title="${isFirst ? 'Primer acceso' : 'Sesión ' + e.session}">
+          ${e.session}
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterAccessLog() {
+  const q = (document.getElementById('log-search')?.value || '').toLowerCase().trim();
+  const all = loadAccessLog();
+  const filtered = q
+    ? all.filter(e => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q))
+    : all;
+  renderAccessLog(filtered);
+}
+
+function clearAccessLog() {
+  if (!confirm('¿Seguro que quieres borrar todo el historial de accesos? Esta acción no se puede deshacer.')) return;
+  saveAccessLog([]);
+  renderAccessLog([]);
+  document.getElementById('log-search').value = '';
+}
+
+function refreshAccessLogPanel() {
+  const q = (document.getElementById('log-search')?.value || '').toLowerCase().trim();
+  const all = loadAccessLog();
+  const filtered = q
+    ? all.filter(e => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q))
+    : all;
+  renderAccessLog(filtered);
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ADMIN EQUITY PANEL renderer
 // ═══════════════════════════════════════════════════════════════
 function renderAdminEquityPanel(allStartups) {
@@ -2708,6 +2883,18 @@ function exportToExcel() {
     ws5['!cols'] = [22, 22, 22, 50].map(w => ({ wch: w }));
     XLSX.utils.book_append_sheet(wb, ws5, '5. Config Admin');
 
+    // ── HOJA 6: REGISTRO DE ACCESOS ──────────────────────────
+    const accessEntries = loadAccessLog();
+    const hdr6 = ['#', 'Fecha', 'Hora', 'Nombre Inversor', 'Email', 'Nº Startups', 'Capital Total (€)', 'Nº Sesión'];
+    const rows6 = accessEntries.map((e, i) => [
+      i + 1, e.date, e.time, e.name, e.email,
+      e.startupCount, e.capitalTotal, e.session
+    ]);
+    if (rows6.length === 0) rows6.push(['— Sin accesos registrados —', '', '', '', '', '', '', '']);
+    const ws6 = XLSX.utils.aoa_to_sheet([hdr6, ...rows6]);
+    ws6['!cols'] = [6, 12, 8, 28, 34, 12, 18, 10].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws6, '6. Registro Accesos');
+
     // ── EXPORT ───────────────────────────────────────────────
     const fileName = `AngelClub_Export_${new Date().toISOString().slice(0,10)}.xlsx`;
     XLSX.writeFile(wb, fileName);
@@ -2844,7 +3031,7 @@ function setLoginMode(mode) {
   const isAdmin = mode === 'admin';
   document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
   document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
-  document.getElementById('login-title').textContent = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor';
+  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:400;color:var(--muted);letter-spacing:0.08em;">v1.0</span>';
   document.getElementById('login-sub').textContent   = isAdmin
     ? 'Acceso exclusivo para el equipo de AngelClub'
     : 'Accede con tu nombre completo y correo electrónico tal como figuran en tu ficha de inversor';
@@ -2972,6 +3159,7 @@ function doLogin() {
   errEl.style.display = 'none';
   const displayName = [...record.names].sort((a,b)=>b.length-a.length)[0];
   currentInvestor = { role: 'investor', name: displayName, email: emailInput, investments: record.investments };
+  registerAccess(currentInvestor);
   showDashboard();
 }
 
@@ -3001,7 +3189,7 @@ function showDashboard() {
   // Topbar
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('admin-badge').style.display = 'none';
-  document.getElementById('topbar-subtitle').textContent = 'Portal Inversor';
+  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.05em;opacity:0.7;">v1.0</span>';
   document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
 
   const inv = currentInvestor;
@@ -3398,6 +3586,7 @@ function renderAdminExtras(allStartups, totalCapital) {
   const allSorted = allStartups.slice().sort((a,b) => a.name.localeCompare(b.name));
   renderAdminUpdatesPanel(allSorted);
   renderAdminEquityPanel(allSorted);
+  refreshAccessLogPanel();
 }
 
 function filterAdminTable() {
@@ -3549,7 +3738,7 @@ function sendContactForm() {
     feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub`);
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v1.0`);
   window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
   document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
