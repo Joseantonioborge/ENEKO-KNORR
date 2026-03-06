@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+// ── Cache-busting para Cloudflare / CDN ──────────────────────────
+// Fuerza URL con ?v= para bypassar caché del CDN sin acceso a Cloudflare.
+// IMPORTANTE: cambia _DEPLOY_VERSION cada vez que subas un nuevo index.html
+(function(){
+  var _DEPLOY_VERSION = '3.3';
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('v') !== _DEPLOY_VERSION) {
+    params.set('v', _DEPLOY_VERSION);
+    window.location.replace(window.location.pathname + '?' + params.toString());
+  }
+})();
+</script>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portal Inversor v1.0</title>
+<title>AngelClub — Portal Inversor v3.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -260,7 +276,8 @@
   .chart-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
   svg.donut { filter: drop-shadow(0 4px 12px rgba(21,101,192,0.15)); }
   .donut-segments circle { fill: none; stroke-width: 18; transform-origin: center; transition: stroke-width 0.3s ease; cursor: pointer; }
-  .donut-center-text { font-family: 'Syne', sans-serif; fill: var(--text); font-weight: 800; font-size: 18px; text-anchor: middle; dominant-baseline: middle; }
+  .donut-center-text { font-family: 'Syne', sans-serif; fill: #1a2744; font-weight: 800; font-size: 17px; text-anchor: middle; dominant-baseline: middle; }
+  .donut-center-bg { fill: rgba(255,255,255,0.92); }
   .donut-center-sub { fill: var(--muted); font-size: 9px; text-anchor: middle; dominant-baseline: middle; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
   .legend { width: 100%; display: flex; flex-direction: column; gap: 8px; }
   .legend-item { display: flex; align-items: center; gap: 10px; font-size: 11px; }
@@ -362,12 +379,14 @@
     background: rgba(20,35,70,0.55); backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
     padding: 24px; animation: fadeIn 0.2s ease both;
+    overflow-y: auto;
   }
   .update-modal-card {
     background: rgba(255,255,255,0.97); border-radius: 20px;
     padding: 36px 40px; max-width: 680px; width: 100%;
     box-shadow: 0 24px 80px rgba(21,101,192,0.22);
     position: relative; animation: fadeUp 0.25s ease both;
+    max-height: calc(100vh - 80px); overflow-y: auto;
   }
   .update-modal-close {
     position: absolute; top: 18px; right: 20px;
@@ -568,18 +587,41 @@
       <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
     </div>
 
-    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:11px;font-family:'DM Mono',monospace;font-weight:400;color:var(--muted);letter-spacing:0.08em;">v1.0</span></div>
-    <div id="login-sub" class="login-sub">Accede con tu nombre completo y correo electrónico<br>tal como figuran en tu ficha de inversor</div>
+    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.3</span></div>
+    <div id="login-sub" class="login-sub">Introduce tu correo electrónico para continuar</div>
 
-    <!-- INVESTOR FIELDS -->
+    <!-- INVESTOR FIELDS — STEP 1: email -->
     <div id="investor-fields">
-      <div class="login-field">
-        <label class="login-label">Nombre y apellidos</label>
-        <input class="login-input" id="login-name" type="text" placeholder="Ej: Ana García López" autocomplete="name">
-      </div>
       <div class="login-field">
         <label class="login-label">Correo electrónico</label>
         <input class="login-input" id="login-email" type="email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+    </div>
+
+    <!-- INVESTOR FIELDS — STEP 2: contraseña -->
+    <div id="investor-step2" style="display:none;">
+      <!-- Badge del inversor identificado -->
+      <div style="margin-bottom:18px;padding:12px 16px;border-radius:12px;background:rgba(30,136,229,0.07);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div id="inv-step2-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-bright));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:white;flex-shrink:0;"></div>
+        <div style="flex:1;min-width:0;">
+          <div id="inv-step2-name" style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          <div id="inv-step2-email" style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        </div>
+        <button onclick="doBackToStep1()" style="flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;padding:5px 10px;border-radius:8px;transition:all 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='rgba(30,136,229,0.4)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">← Volver</button>
+      </div>
+
+      <!-- Introducir contraseña asignada por el administrador -->
+      <div id="enter-pass-block">
+        <div class="login-field">
+          <label class="login-label">Contraseña</label>
+          <div style="position:relative;">
+            <input class="login-input" id="inv-enter-pass" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:46px;">
+            <button type="button" onclick="togglePassField('inv-enter-pass','eye-enter')" style="position:absolute;right:14px;top:13px;background:none;border:none;cursor:pointer;font-size:15px;color:var(--muted);padding:0;" id="eye-enter">👁</button>
+          </div>
+        </div>
+        <div style="text-align:right;margin-bottom:4px;">
+          <button type="button" onclick="showForgotPassword()" style="background:none;border:none;color:var(--blue-bright);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:0.04em;padding:0;">¿Olvidaste tu contraseña?</button>
+        </div>
       </div>
     </div>
 
@@ -597,7 +639,7 @@
     </div>
 
     <button class="login-btn" id="login-btn" onclick="doLogin()">
-      <span id="login-btn-text">Acceder al Portal</span> <span>→</span>
+      <span id="login-btn-text">Continuar</span> <span>→</span>
     </button>
     <div class="login-error" id="login-error"></div>
     <div class="login-hint" id="login-hint">
@@ -633,7 +675,7 @@
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.05em;opacity:0.7;">v1.0</span></div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.3</span></div>
       </div>
     </div>
     <div class="topbar-right">
@@ -716,7 +758,8 @@
       <div class="chart-wrap">
         <svg class="donut" width="190" height="190" viewBox="0 0 200 200" id="donut-svg">
           <g id="donut-segments"></g>
-          <text class="donut-center-text" x="100" y="93" id="donut-center-val">€0</text>
+          <circle class="donut-center-bg" cx="100" cy="100" r="54"/>
+          <text class="donut-center-text" x="100" y="95" id="donut-center-val">€0</text>
           <text class="donut-center-sub" x="100" y="113">invertido</text>
         </svg>
         <div class="legend" id="donut-legend"></div>
@@ -873,7 +916,8 @@
         <div class="chart-wrap">
           <svg class="donut" width="190" height="190" viewBox="0 0 200 200" id="admin-donut-svg">
             <g id="admin-donut-segments"></g>
-            <text class="donut-center-text" x="100" y="93" id="admin-donut-center-val">€0</text>
+            <circle class="donut-center-bg" cx="100" cy="100" r="54"/>
+            <text class="donut-center-text" x="100" y="95" id="admin-donut-center-val">€0</text>
             <text class="donut-center-sub" x="100" y="113">total club</text>
           </svg>
           <div class="legend" id="admin-donut-legend"></div>
@@ -976,6 +1020,221 @@
       </div>
     </div>
 
+    <!-- PANEL: Gestión de contraseñas cross-device -->
+    <div class="panel" id="admin-passwords-panel" style="margin-top:24px;animation-delay:0.50s;">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span>🔑 Contraseñas de Inversores</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button onclick="adminExportPasswords()" style="
+            background:rgba(30,136,229,0.10);border:1px solid rgba(30,136,229,0.25);
+            color:var(--blue-bright);border-radius:10px;padding:7px 16px;
+            font-family:'Syne',sans-serif;font-weight:700;font-size:10px;
+            letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;
+            transition:background 0.2s;white-space:nowrap;"
+            onmouseover="this.style.background='rgba(30,136,229,0.18)'"
+            onmouseout="this.style.background='rgba(30,136,229,0.10)'">
+            📋 Exportar contraseñas
+          </button>
+          <button onclick="adminSetPassword()" style="
+            background:rgba(56,142,60,0.10);border:1px solid rgba(56,142,60,0.28);
+            color:#388E3C;border-radius:10px;padding:7px 16px;
+            font-family:'Syne',sans-serif;font-weight:700;font-size:10px;
+            letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;
+            transition:background 0.2s;white-space:nowrap;"
+            onmouseover="this.style.background='rgba(56,142,60,0.18)'"
+            onmouseout="this.style.background='rgba(56,142,60,0.10)'">
+            ✏️ Asignar contraseña
+          </button>
+          <button onclick="adminClearPassword()" style="
+            background:rgba(198,40,40,0.10);border:1px solid rgba(198,40,40,0.25);
+            color:var(--red);border-radius:10px;padding:7px 14px;
+            font-family:'Syne',sans-serif;font-weight:700;font-size:10px;
+            letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;
+            transition:background 0.2s;white-space:nowrap;"
+            onmouseover="this.style.background='rgba(198,40,40,0.18)'"
+            onmouseout="this.style.background='rgba(198,40,40,0.10)'">
+            🗑 Borrar contraseña
+          </button>
+          <button onclick="adminDownloadHtml()" id="btn-download-html" style="
+            background:linear-gradient(135deg,#1B5E20,#2E7D32);
+            border:1px solid rgba(46,125,50,0.5);
+            color:#fff;border-radius:10px;padding:7px 16px;
+            font-family:'Syne',sans-serif;font-weight:700;font-size:10px;
+            letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;
+            transition:opacity 0.2s;white-space:nowrap;box-shadow:0 2px 8px rgba(46,125,50,0.25);"
+            onmouseover="this.style.opacity='0.85'"
+            onmouseout="this.style.opacity='1'">
+            ⬇ Descargar HTML
+          </button>
+        </div>
+      </div>
+      <div id="admin-download-msg" style="display:none;margin:8px 0 0 0;padding:8px 14px;border-radius:8px;font-size:11px;font-family:'DM Mono',monospace;"></div>
+      <div id="admin-passwords-info" style="
+        font-size:11px;color:var(--muted);line-height:1.8;
+        padding:10px 0 4px 0;border-bottom:1px solid var(--border);margin-bottom:14px;">
+        Usa <strong style="color:#388E3C;">Asignar contraseña</strong> para crear o cambiar la contraseña de cualquier inversor.
+        Después pulsa <em>Exportar contraseñas</em> → <strong style="color:#388E3C;">⬇️ Descargar HTML actualizado</strong>: obtendrás el <code style="font-family:'DM Mono',monospace;font-size:10px;background:rgba(56,142,60,0.08);padding:1px 5px;border-radius:4px;">index.html</code> listo con todas las contraseñas embebidas. Súbelo a tu servidor y los inversores podrán acceder desde <strong>cualquier dispositivo y ubicación</strong>.
+      </div>
+
+      <!-- Asignar contraseña dialog -->
+      <div id="admin-set-pw-form" style="display:none;margin-bottom:16px;padding:16px;background:rgba(56,142,60,0.05);border:1px solid rgba(56,142,60,0.20);border-radius:10px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;margin-bottom:12px;color:#388E3C;">✏️ Asignar contraseña a inversor</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="admin-set-pw-email" type="email" placeholder="email@inversor.com"
+            style="width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;font-family:'DM Mono',monospace;background:var(--surface);color:var(--text);outline:none;">
+          <div style="position:relative;">
+            <input id="admin-set-pw-pass" type="password" placeholder="Nueva contraseña (mín. 8 caracteres)"
+              style="width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 44px 9px 14px;font-size:12px;font-family:'DM Mono',monospace;background:var(--surface);color:var(--text);outline:none;">
+            <button type="button" onclick="togglePassField('admin-set-pw-pass','admin-set-pw-eye')"
+              style="position:absolute;right:12px;top:10px;background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);padding:0;" id="admin-set-pw-eye">👁</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px;">
+            <button onclick="adminConfirmSetPassword()" style="
+              background:rgba(56,142,60,0.80);border:none;color:white;
+              border-radius:8px;padding:8px 20px;font-family:'Syne',sans-serif;
+              font-weight:700;font-size:11px;cursor:pointer;">Guardar contraseña</button>
+            <button onclick="document.getElementById('admin-set-pw-form').style.display='none'" style="
+              background:none;border:1px solid var(--border);color:var(--muted);
+              border-radius:8px;padding:8px 16px;font-family:'Syne',sans-serif;
+              font-weight:700;font-size:11px;cursor:pointer;">Cancelar</button>
+            <span id="admin-set-pw-msg" style="display:none;font-size:11px;font-family:'DM Mono',monospace;"></span>
+          </div>
+        </div>
+      </div>
+      <div id="admin-passwords-table-wrap"></div>
+      <div id="admin-passwords-export-box" style="display:none;margin-top:16px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--text);margin-bottom:8px;">
+          Copia este bloque y reemplaza el contenido de <code style="font-family:'DM Mono',monospace;background:rgba(30,136,229,0.08);padding:2px 6px;border-radius:4px;">PRESET_PASSWORDS</code> en el HTML:
+        </div>
+        <textarea id="admin-passwords-export-text" readonly style="
+          width:100%;box-sizing:border-box;min-height:160px;resize:vertical;
+          font-family:'DM Mono',monospace;font-size:11px;line-height:1.6;
+          background:rgba(0,0,0,0.04);border:1px solid var(--border);
+          border-radius:10px;padding:12px;color:var(--text);outline:none;"></textarea>
+        <button onclick="adminCopyExport()" style="
+          margin-top:10px;background:linear-gradient(135deg,var(--blue),var(--blue-bright));
+          border:none;color:white;border-radius:10px;padding:9px 22px;
+          font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+          letter-spacing:0.05em;cursor:pointer;">
+          📋 Copiar al portapapeles
+        </button>
+        <span id="admin-copy-msg" style="display:none;margin-left:12px;font-size:11px;color:var(--blue-bright);font-family:'DM Mono',monospace;">✓ Copiado</span>
+      </div>
+      <!-- Clear password dialog -->
+      <div id="admin-clear-pw-form" style="display:none;margin-top:16px;padding:14px;background:rgba(198,40,40,0.05);border:1px solid rgba(198,40,40,0.2);border-radius:10px;">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;margin-bottom:10px;color:var(--red);">Borrar contraseña de un inversor</div>
+        <input id="admin-clear-pw-email" type="email" placeholder="email@inversor.com"
+          style="width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;font-family:'DM Mono',monospace;background:var(--surface);color:var(--text);outline:none;margin-bottom:10px;">
+        <button onclick="adminConfirmClearPassword()" style="
+          background:rgba(198,40,40,0.80);border:none;color:white;
+          border-radius:8px;padding:8px 18px;font-family:'Syne',sans-serif;
+          font-weight:700;font-size:11px;cursor:pointer;margin-right:8px;">Borrar</button>
+        <button onclick="document.getElementById('admin-clear-pw-form').style.display='none'" style="
+          background:none;border:1px solid var(--border);color:var(--muted);
+          border-radius:8px;padding:8px 18px;font-family:'Syne',sans-serif;
+          font-weight:700;font-size:11px;cursor:pointer;">Cancelar</button>
+        <span id="admin-clear-pw-msg" style="display:none;margin-left:10px;font-size:11px;font-family:'DM Mono',monospace;"></span>
+      </div>
+    </div>
+
+
+    <!-- PANEL: Valoraciones de inversores -->
+    <div class="panel" id="admin-ratings-panel" style="margin-top:24px;animation-delay:0.55s;">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span>⭐ Valoraciones de Inversores</span>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span id="ratings-avg-badge" style="
+            font-family:'DM Mono',monospace;font-size:12px;font-weight:600;
+            background:rgba(230,168,23,0.13);color:var(--gold);
+            border:1px solid rgba(230,168,23,0.30);border-radius:8px;padding:4px 12px;">
+            — / 5
+          </span>
+          <button onclick="adminClearRatings()" style="
+            background:rgba(198,40,40,0.10);border:1px solid rgba(198,40,40,0.25);
+            color:var(--red);border-radius:10px;padding:7px 14px;font-family:'Syne',sans-serif;
+            font-weight:700;font-size:10px;letter-spacing:0.05em;cursor:pointer;
+            text-transform:uppercase;transition:background 0.2s;white-space:nowrap;"
+            onmouseover="this.style.background='rgba(198,40,40,0.18)'"
+            onmouseout="this.style.background='rgba(198,40,40,0.10)'">
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+      <!-- Summary bar -->
+      <div id="ratings-summary" style="display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap;"></div>
+      <!-- Table -->
+      <div id="ratings-empty" style="display:none;padding:36px;text-align:center;color:var(--muted);font-size:12px;">
+        Aún no hay valoraciones. Aparecerán aquí cuando los inversores cierren sesión.
+      </div>
+      <div class="table-scroll" id="ratings-table-wrap" style="max-height:400px;">
+        <table class="investments-table" id="ratings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Inversor</th>
+              <th>Email</th>
+              <th>Valoración</th>
+              <th>Comentario</th>
+            </tr>
+          </thead>
+          <tbody id="ratings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- ═══════ FAREWELL / RATING MODAL ═══════ -->
+  <div id="farewell-overlay" style="
+    display:none;position:fixed;inset:0;z-index:99990;
+    background:rgba(10,20,50,0.72);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;">
+    <div id="farewell-card" style="
+      background:var(--glass);backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.35);
+      border-radius:24px;padding:40px 36px 32px;
+      max-width:420px;width:90%;text-align:center;
+      box-shadow:0 24px 64px rgba(21,101,192,0.18);
+      animation:fadeInUp 0.35s ease;">
+      <div style="font-size:48px;margin-bottom:12px;">👋</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--text);margin-bottom:6px;" id="farewell-name">¡Hasta pronto!</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;">
+        Gracias por visitar tu portal AngelClub.<br>¿Cómo valorarías tu experiencia hoy?
+      </div>
+      <!-- Stars -->
+      <div id="farewell-stars" style="display:flex;justify-content:center;gap:10px;margin-bottom:20px;">
+        <span class="farewell-star" data-v="1" onclick="setFarewellStar(1)" style="font-size:36px;cursor:pointer;transition:transform 0.15s,filter 0.15s;filter:grayscale(0.7);user-select:none;">⭐</span>
+        <span class="farewell-star" data-v="2" onclick="setFarewellStar(2)" style="font-size:36px;cursor:pointer;transition:transform 0.15s,filter 0.15s;filter:grayscale(0.7);user-select:none;">⭐</span>
+        <span class="farewell-star" data-v="3" onclick="setFarewellStar(3)" style="font-size:36px;cursor:pointer;transition:transform 0.15s,filter 0.15s;filter:grayscale(0.7);user-select:none;">⭐</span>
+        <span class="farewell-star" data-v="4" onclick="setFarewellStar(4)" style="font-size:36px;cursor:pointer;transition:transform 0.15s,filter 0.15s;filter:grayscale(0.7);user-select:none;">⭐</span>
+        <span class="farewell-star" data-v="5" onclick="setFarewellStar(5)" style="font-size:36px;cursor:pointer;transition:transform 0.15s,filter 0.15s;filter:grayscale(0.7);user-select:none;">⭐</span>
+      </div>
+      <div id="farewell-star-label" style="font-size:12px;color:var(--muted);min-height:18px;margin-bottom:14px;font-family:'DM Mono',monospace;"></div>
+      <!-- Optional comment -->
+      <textarea id="farewell-comment" placeholder="Comentario opcional…" rows="2" style="
+        width:100%;box-sizing:border-box;resize:none;
+        border:1px solid var(--border);border-radius:10px;
+        padding:9px 12px;font-size:12px;font-family:'DM Mono',monospace;
+        background:rgba(255,255,255,0.6);color:var(--text);outline:none;
+        margin-bottom:18px;"></textarea>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="submitFarewell()" id="farewell-submit-btn" style="
+          background:linear-gradient(135deg,var(--blue),var(--blue-bright));
+          border:none;color:#fff;border-radius:12px;padding:11px 32px;
+          font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+          cursor:pointer;letter-spacing:0.04em;">
+          Enviar y cerrar sesión
+        </button>
+        <button onclick="skipFarewell()" style="
+          background:none;border:1px solid var(--border);color:var(--muted);
+          border-radius:12px;padding:11px 20px;font-family:'Syne',sans-serif;
+          font-weight:600;font-size:12px;cursor:pointer;">
+          Omitir
+        </button>
+      </div>
+    </div>
   </div>
   <!-- END ADMIN SECTION -->
 
@@ -1007,42 +1266,148 @@
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Fallback HTML source (used only if fetch() fails, e.g. file:// protocol).
+// Captured here, before the IIFE runs, so display states are still at their
+// HTML-defined defaults (admin-section hidden, login-screen visible).
+var _ORIGINAL_HTML_SRC = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+(function(){
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+// SECURITY LAYER v3.3
+// ═══════════════════════════════════════════════════════════════
+
+// ── SHA-256 (pure JS, no dependencies) ─────────────────────────
+// ── SHA-256 usando Web Crypto API nativa (sin bugs de estado) ──
+async function _sha256(str) {
+  const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── Protección básica: teclado y menú contextual ───────────────
+// Detección automática por tamaño/debugger eliminada: genera
+// falsos positivos continuos en Chrome por DPI, zoom, extensiones
+// y barras del SO. Se mantienen sólo los bloqueos de teclado.
+(function() {
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'K')) {
+      e.preventDefault(); return false;
+    }
+    if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); return false; }
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.textContent = [
+      '.investments-table td { user-select: none; -webkit-user-select: none; }',
+      '.amount-cell, .equity-tag, .tir-value, .kpi-value { user-select: none; -webkit-user-select: none; }',
+    ].join('\n');
+    document.head.appendChild(style);
+  });
+})();
+
+// ── Session integrity token ─────────────────────────────────────
+// A per-load random token stored in closure — cannot be spoofed from console
+const _SESSION_TOKEN = (function() {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, b => b.toString(16).padStart(2,'0')).join('');
+})();
+let _currentSessionToken = null;  // set on login, cleared on logout
+
+function _validateSession(expectedRole) {
+  if (!_currentSessionToken || _currentSessionToken !== _SESSION_TOKEN + expectedRole) {
+    _doLogoutFinal(); // direct final logout — never show farewell on invalid token
+    return false;
+  }
+  return true;
+}
+
+// ── Session persistence across page refreshes ───────────────────
+// Uses sessionStorage: survives F5/Ctrl+R but clears when tab/browser closes.
+const _SESSION_STORAGE_KEY = 'AC_SESSION_v1';
+
+function _saveSession(role, email) {
+  try {
+    sessionStorage.setItem(_SESSION_STORAGE_KEY, JSON.stringify({ role, email }));
+  } catch(e) {}
+}
+
+function _clearSavedSession() {
+  try { sessionStorage.removeItem(_SESSION_STORAGE_KEY); } catch(e) {}
+}
+
+function _tryRestoreSession() {
+  try {
+    const raw = sessionStorage.getItem(_SESSION_STORAGE_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.role || !saved.email) return false;
+    const role  = saved.role;
+    const email = saved.email.toLowerCase();
+
+    if (role === 'investor') {
+      const record = INVESTOR_DB[email];
+      if (!record) return false;
+      const displayName = [...record.names].sort((a,b) => b.length - a.length)[0];
+      currentInvestor = {
+        role:        'investor',
+        name:        displayName,
+        email:       email,
+        investments: record.investments
+      };
+      _currentSessionToken = _SESSION_TOKEN + 'investor';
+      showDashboard();
+      return true;
+    }
+
+    if (role === 'admin') {
+      // Admin must always re-authenticate manually — never auto-restore
+      _clearSavedSession();
+      return false;
+    }
+  } catch(e) {}
+  return false;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MASTER STARTUP DATA
 // ═══════════════════════════════════════════════════════════════
 const STARTUPS = {
-  'badi':           { name:'BADI',            web:'https://badi.com/es/',                       capital:81700,   equity:'0%',  status:'active', tir:null },
-  'mailtrack':      { name:'MAILTRACK',        web:'https://mailtrack.email/',                   capital:104000,  equity:'0%',  status:'exit',   tir:74   },
-  'vitcord':        { name:'VITCORD',          web:null,                                          capital:107400,  equity:'1%',  status:'active', tir:null },
-  'cabify':         { name:'CABIFY',           web:'https://cabify.com/es/prensa',               capital:340000,  equity:'1%',  status:'active', tir:null },
-  'goin':           { name:'GOIN',             web:'https://www.goin.app/',                      capital:131200,  equity:'2%',  status:'active', tir:null },
-  'coverfy':        { name:'COVERFY',          web:'https://www.coverfy.com/',                   capital:147000,  equity:'3%',  status:'active', tir:null },
-  'housers':        { name:'HOUSERS',          web:'https://www.housers.com/es/',                capital:72000,   equity:'1%',  status:'active', tir:null },
-  'kasitoko':       { name:'KASITOKO',         web:'http://kasitoko.com/',                       capital:104700,  equity:'3%',  status:'fail',   tir:null },
-  'chicisimo':      { name:'CHICISIMO',        web:'https://chicisimo.com/',                     capital:141000,  equity:'3%',  status:'fail',   tir:null },
-  'charplanet':     { name:'CHARPLANET',       web:'https://www.nisgo.com/es/',                  capital:62500,   equity:'3%',  status:'active', tir:null },
-  'mytriplea':      { name:'MYTRIPLEA',        web:'https://mytriplea.com/',                     capital:71240,   equity:'2%',  status:'active', tir:null },
-  'orbitalads':     { name:'ORBITALADS',       web:'https://www.orbitalads.com/',                capital:85848,   equity:'3%',  status:'active', tir:null },
+  'badi':           { name:'BADI',            web:'https://badi.com/es/',                       capital:30000,   equity:'0%',  status:'active', tir:null },
+  'mailtrack':      { name:'MAILTRACK',        web:'https://mailtrack.email/',                   capital:1000,  equity:'0%',  status:'exit',   tir:74   },
+  'vitcord':        { name:'VITCORD',          web:null,                                          capital:0,  equity:'1%',  status:'active', tir:null },
+  'cabify':         { name:'CABIFY',           web:'https://cabify.com/es/prensa',               capital:320900,  equity:'1%',  status:'active', tir:null, valuation:1500000000 },
+  'goin':           { name:'GOIN',             web:'https://www.goin.app/',                      capital:1000,  equity:'2%',  status:'active', tir:null },
+  'coverfy':        { name:'COVERFY',          web:'https://www.coverfy.com/',                   capital:1000,  equity:'3%',  status:'active', tir:null },
+  'housers':        { name:'HOUSERS',          web:'https://www.housers.com/es/',                capital:65000,   equity:'1%',  status:'active', tir:null },
+  'kasitoko':       { name:'KASITOKO',         web:'http://kasitoko.com/',                       capital:103700,  equity:'3%',  status:'fail',   tir:null },
+  'chicisimo':      { name:'CHICISIMO',        web:'https://chicisimo.com/',                     capital:129000,  equity:'3%',  status:'fail',   tir:null },
+  'charplanet':     { name:'CHARPLANET',       web:'https://www.nisgo.com/es/',                  capital:61500,   equity:'3%',  status:'active', tir:null },
+  'mytriplea':      { name:'MYTRIPLEA',        web:'https://mytriplea.com/',                     capital:71000,   equity:'2%',  status:'active', tir:null },
+  'orbitalads':     { name:'ORBITALADS',       web:'https://www.orbitalads.com/',                capital:83848,   equity:'3%',  status:'active', tir:null },
   'gomapi':         { name:'GOMAPI',           web:'http://gomapi.io/',                          capital:91600,   equity:'4%',  status:'active', tir:null },
-  'accurate':       { name:'ACCURATE',         web:'https://atranslations.com/',                 capital:107100,  equity:'3%',  status:'active', tir:null },
-  'lobster':        { name:'LOBSTER',          web:'https://projectlobster.com/',                capital:46700,   equity:'14%', status:'fail',   tir:null },
-  'myhair':         { name:'MYHAIR',           web:'https://www.myhair.ai/es',                  capital:47000,   equity:'2%',  status:'active', tir:null },
+  'accurate':       { name:'ACCURATE',         web:'https://atranslations.com/',                 capital:32600,  equity:'3%',  status:'active', tir:null },
+  'lobster':        { name:'LOBSTER',          web:'https://projectlobster.com/',                capital:505142,   equity:'14%', status:'fail',   tir:null },
+  'myhair':         { name:'MYHAIR/STIMUSIL',  web:'https://www.myhair.ai/es',                  capital:47000,   equity:'2%',  status:'active', tir:null },
   'mox':            { name:'MOX',              web:'https://www.linkedin.com/company/grupo-mox/',capital:74925,   equity:'3%',  status:'active', tir:null },
-  'kasaz':          { name:'KASAZ',            web:'https://www.kasaz.es/',                      capital:81955,   equity:'4%',  status:'active', tir:null },
-  'oncoheroes':     { name:'ONCOHEROES',       web:'https://www.oncoheroes.com/',                capital:49765,   equity:'3%',  status:'active', tir:null },
-  'bnext':          { name:'BNEXT',            web:'https://bnext.es/b2b/es',                   capital:142744,  equity:'3%',  status:'active', tir:null },
-  'roams':          { name:'ROAMS',            web:null,                                          capital:46000,   equity:'4%',  status:'active', tir:null },
+  'kasaz':          { name:'KASAZ',            web:'https://www.kasaz.es/',                      capital:88600,   equity:'4%',  status:'active', tir:null },
+  'oncoheroes':     { name:'ONCOHEROES',       web:'https://www.oncoheroes.com/',                capital:0,   equity:'3%',  status:'active', tir:null, valuation:24000000 },
+  'bnext':          { name:'BNEXT',            web:'https://bnext.es/b2b/es',                   capital:153318,  equity:'3%',  status:'active', tir:null },
+  'roams':          { name:'ROAMS',            web:null,                                          capital:48725,   equity:'4%',  status:'active', tir:null, valuation:13900000 },
   'greendatachain': { name:'GREEN DATA CHAIN', web:null,                                          capital:113550,  equity:'3%',  status:'active', tir:null },
-  'evil zeppeling': { name:'EVIL ZEPPELING',   web:null,                                          capital:70000,   equity:'1%',  status:'active', tir:null },
-  'luda':           { name:'LUDA',             web:null,                                          capital:178000,  equity:'2%',  status:'active', tir:null },
-  'zapiens.ai':     { name:'ZAPIENS',          web:null,                                          capital:232000,  equity:'5%',  status:'active', tir:null },
-  'claps':          { name:'CLAPS',            web:null,                                          capital:202000,  equity:'5%',  status:'active', tir:null },
-  'wellbeingos':    { name:'WELLBEINGOS',      web:null,                                          capital:89000,   equity:'4%',  status:'active', tir:null },
-  'edit.org':       { name:'EDIT ORG',         web:null,                                          capital:64865,   equity:'3%',  status:'active', tir:null },
-  'genially':       { name:'GENIALLY',         web:null,                                          capital:196000,  equity:'5%',  status:'active', tir:null },
-  'alterhome':      { name:'ALTERHOME',        web:null,                                          capital:102000,  equity:'6%',  status:'active', tir:null },
-  'froged':         { name:'FROGED',           web:null,                                          capital:43000,   equity:'4%',  status:'active', tir:null },
-  'mytriplea':      { name:'MYTRIPLEA',        web:'https://mytriplea.com/',                     capital:71240,   equity:'2%',  status:'active', tir:null },
+  'evil zeppelin':  { name:'EVIL ZEPPELIN',   web:null,                                          capital:74150,   equity:'1%',  status:'active', tir:null },
+  'luda':           { name:'LUDA',             web:null,                                          capital:192150,  equity:'2%',  status:'active', tir:null },
+  'zapiens.ai':     { name:'ZAPIENS',          web:null,                                          capital:241800,  equity:'5%',  status:'active', tir:null },
+  'claps':          { name:'CLAPS',            web:null,                                          capital:218501,  equity:'5%',  status:'active', tir:null },
+  'wellbeingos':    { name:'WELLBEINGOS',      web:null,                                          capital:95225,   equity:'4%',  status:'active', tir:null },
+  'edit.org':       { name:'EDIT ORG',         web:null,                                          capital:61865,   equity:'3%',  status:'active', tir:null },
+  'genially':       { name:'GENIALLY',         web:null,                                          capital:215000,  equity:'5%',  status:'active', tir:null },
+  'alterhome':      { name:'ALTERHOME',        web:null,                                          capital:118826,  equity:'6%',  status:'active', tir:null },
+  'froged':         { name:'FROGED',           web:null,                                          capital:45900,   equity:'4%',  status:'active', tir:null },
   'goin ii':        { name:'GOIN II',          web:null,                                          capital:25500,   equity:'3%',  status:'active', tir:null },
 };
 
@@ -1051,16 +1416,15 @@ function normalizeStartup(n) {
   const s = n.toLowerCase().trim()
     .replace(/^18\.\s*/,'').replace(/^4\.\s*/,'').replace(/\s+/g,' ');
   if (s.includes('orbital')) return 'orbitalads';
-  if (s.includes('mytriplea') || s.includes('mytriplea')) return 'mytriplea';
+  if (s.includes('mytriplea')) return 'mytriplea';
   if (s.includes('cabify')) return 'cabify';
   if (s.includes('zapien')) return 'zapiens.ai';
   if (s.includes('genial')) return 'genially';
-  if (s.includes('lobster') && !s.includes('ii') && !s.includes('iii')) return 'lobster';
-  if (s.includes('lobster')) return 'lobster'; // treat all lobster rounds as same
+  if (s.includes('lobster')) return 'lobster'; // all lobster rounds map to same key
   if (s.includes('green data') || s.includes('greendatachain')) return 'greendatachain';
-  if (s.includes('evil')) return 'evil zeppeling';
+  if (s.includes('evil')) return 'evil zeppelin';
   if (s.includes('wellbeing')) return 'wellbeingos';
-  if (s.includes('edit')) return 'edit.org';
+  if (s.includes('edit') && s.includes('org')) return 'edit.org';
   if (s.includes('froged')) return 'froged';
   if (s.includes('luda')) return 'luda';
   if (s.includes('roams')) return 'roams';
@@ -1070,6 +1434,7 @@ function normalizeStartup(n) {
   if (s.includes('vitcord')) return 'vitcord';
   if (s.includes('mailtrack')) return 'mailtrack';
   if (s.includes('badi')) return 'badi';
+  if (s.includes('goin ii')) return 'goin ii';
   if (s.includes('goin')) return 'goin';
   if (s.includes('coverfy')) return 'coverfy';
   if (s.includes('housers')) return 'housers';
@@ -1078,7 +1443,7 @@ function normalizeStartup(n) {
   if (s.includes('charplanet') || s.includes('nisgo')) return 'charplanet';
   if (s.includes('gomapi')) return 'gomapi';
   if (s.includes('accurate') || s.includes('atranslation')) return 'accurate';
-  if (s.includes('myhair')) return 'myhair';
+  if (s.includes('stimusil') || s.includes('myhair')) return 'myhair';
   if (s.includes('mox')) return 'mox';
   if (s.includes('kasaz')) return 'kasaz';
   if (s.includes('bnext')) return 'bnext';
@@ -1086,29 +1451,31 @@ function normalizeStartup(n) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // INVESTOR DATABASE (from CSV)
 // ═══════════════════════════════════════════════════════════════
-// 1335 entries — [name, email, startup, valuation, amount]
-// 1335 entries — [name, email, startup, valuation, amount]
-// 1335 entries — [name, email, startup, valuation, amount]
+// 1371 entries — [name, email, startup, valuation, amount]
+// 1371 entries — [name, email, startup, valuation, amount]
 const RAW_INVESTORS = [
-["Juan ortiz Camarero","juanortizcamarero@gmail.com","Vitcord",null,null],
+["Juan ortiz Camarero","juanortizcamarero@gmail.com","Vitcord/Camilion",null,null],
 ["Adrian Bernabéu Escudero","adrian.bernabeu1@gmail.com","Alterhome",null,1000],
 ["Adrian Bernabéu Escudero","adrian.bernabeu1@gmail.com","CLAPS",null,1000],
 ["Adrián Bernabéu Escudero","adrian.bernabeu1@gmail.com","Green Data Chain",null,2000],
 ["Adrián Bernabéu Escudero","adrian.bernabeu1@gmail.com","Zapiens.ai",null,2000],
 ["Adrián Bernabéu Escudero","soy@adrianbernabeu.com","Bnext",null,1000],
 ["Adrián Escudero Alonso","a.escuderoalonso@gmail.com","Zapiens.ai",null,2000],
+["Adrian Vera","","MyHair/Stimusil",null,1000],
 ["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","Lobster",null,1000],
 ["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","LOBSTER II",null,1000],
 ["Afrika Arnanz Lasurtegui","invertirenahorro@gmail.com","LUDA",null,1000],
 ["Aga Marketing & Business S.L. Lumbreras van Dulken","lumbrerasgerardo@gmail.com","Lobster",null,2000],
 ["Aga Marketing & Business S.L. Lumbreras van Dulken","lumbrerasgerardo@gmail.com","LOBSTER II",null,2000],
-["Agustín de la Villa","agusdelavilla@gmail.com","Cabify",1490000000,1400],
+["Agustín de la Villa","agusdelavilla@gmail.com","Cabify",1500000000,1400],
 ["Agustin De la Villa","agusdelavilla@gmail.com","Chicisimo",null,1500],
 ["Agustin De la Villa","agusdelavilla@gmail.com","Coverfy",null,null],
 ["Agustin De la Villa","agusdelavilla@gmail.com","Kasitoko",null,1500],
 ["Agustín de la Villa","agusdelavilla@gmail.com","MyTripleA",null,1500],
+["Agustín de la Villa","agusdelavilla@gmail.com","MyHair/Stimusil",null,1500],
 ["Agustín Elorza","agustinelorza8@gmail.com","Chicisimo",null,null],
 ["Agustin Rubini","rubinilondon@gmail.com","EVIL ZEPPELIN",null,1000],
 ["Aica Partners S.L","cm@aicapartners.com","CLAPS",null,2000],
@@ -1143,6 +1510,7 @@ const RAW_INVESTORS = [
 ["Alejandro Andres","fuzzy.alej@gmail.com","Goin",null,null],
 ["Alejandro Andres","fuzzy.alej@gmail.com","Kasitoko",null,1000],
 ["Alejandro Andres","fuzzy.alej@gmail.com","MyTripleA",null,1000],
+["Alejandro Andres","fuzzy.alej@gmail.com","MyHair/Stimusil",null,1000],
 ["Alejandro Aznar Argelich","aleargel@outlook.com","CLAPS",null,1200],
 ["Alejandro Aznar Argelich","aleargel@outlook.com","CLAPS",null,1200],
 ["Alejandro Aznar Argelich","aleargel@outlook.com","FROGED",null,1200],
@@ -1154,7 +1522,8 @@ const RAW_INVESTORS = [
 ["Alejandro Cavallero","a.cavallero@GuiaLocal.com","Goin",null,null],
 ["Alejandro Escolar Pabón","alex.escolar@gmail.com","Bnext",null,2000],
 ["Alejandro Fresneda","alejandro@mrnoow.com","Badi",null,2000],
-["Alejandro Fresneda","alejandro@mrnoow.com","Cabify",1490000000,3000],
+["Alejandro Fresneda","alejandro@mrnoow.com","MyHair/Stimusil",null,2000],
+["Alejandro Fresneda","alejandro@mrnoow.com","Cabify",1500000000,3000],
 ["Alejandro Fresneda","alejandro@mrnoow.com","Mailtrack",null,null],
 ["Alex Barquero","abarqueropayo@gmail.com","Mailtrack",null,null],
 ["Alex Barquero","abarqueropayo@gmail.com","MyTripleA",null,1000],
@@ -1178,16 +1547,16 @@ const RAW_INVESTORS = [
 ["Álvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","CLAPS",null,2000],
 ["Alvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","Oncoheroes",24000000,null],
 ["Alvaro Ruiz Urrutia","alvaro.urrutia@mirabaud-msl.com","WellbeingOS",null,2000],
-["Alvaro Villacorta","villacortafood@gmail.com","Cabify",1490000000,20000],
+["Alvaro Villacorta","villacortafood@gmail.com","Cabify",1500000000,20000],
 ["Alvaro Villacorta","villacortafood@gmail.com","Goin",null,null],
 ["Amaia Añua Martínez de Antoñana","aberasturi6@hotmail.com","KASAZ",null,10000],
 ["Ana Aldea","ana@datasocial.es","Badi",null,null],
-["Ana Aldea","ana@datasocial.es","Cabify",1490000000,1000],
+["Ana Aldea","ana@datasocial.es","Cabify",1500000000,1000],
 ["Ana Aldea","ana@datasocial.es","Mailtrack",null,null],
 ["Ana Aldea","ana@datasocial.es","OrbitalAds",null,1000],
 ["Ander Alberdi","anderalberdi94@gmail.com","Chicisimo",null,null],
 ["Ander García Diez","agdaa92@gmail.com","edit.org",null,1000],
-["Ander Uriarte","ander.uriarte@hotmail.com","Cabify",1490000000,1000],
+["Ander Uriarte","ander.uriarte@hotmail.com","Cabify",1500000000,1000],
 ["Ander Uriarte","ander.uriarte@hotmail.com","Charplanet",null,1000],
 ["Ander Uriarte","ander.uriarte@hotmail.com","Chicisimo",null,1000],
 ["Ander Uriarte","ander.uriarte@hotmail.com","Coverfy",null,null],
@@ -1200,13 +1569,13 @@ const RAW_INVESTORS = [
 ["Andrés Gonzalez Gutiérrez","andresglez93@hotmail.es","WellbeingOS",null,1000],
 ["Angel Rodriguez Cabrera","angelrodriguezcabrera1988@gmail.com","LOBSTER III",null,1000],
 ["Angel Salamanca","angelsalamanca@gmail.com","Badi",null,1000],
-["Angel Salamanca","angelsalamanca@gmail.com","Cabify",1490000000,1000],
+["Angel Salamanca","angelsalamanca@gmail.com","Cabify",1500000000,1000],
 ["Angel Salamanca","angelsalamanca@gmail.com","Chicisimo",null,1000],
 ["Angel Salamanca","angelsalamanca@gmail.com","Coverfy",null,null],
 ["Angel Salamanca Cardona","angelsalamanca@gmail.com","Zapiens.ai",null,1000],
 ["Angels Vinyals","manvica1@gmail.com","Alterhome",null,1000],
 ["Anna Gisbert Atarés","info@lespicardes.com","WellbeingOS",null,1000],
-["Antonio Alonso Daroca","antonio.alonso@gmail.com","Cabify",1490000000,5000],
+["Antonio Alonso Daroca","antonio.alonso@gmail.com","Cabify",1500000000,5000],
 ["Antonio Garcia","antonio@gpumarino.name","Badi",null,2000],
 ["Antonio Garcia","antonio@gpumarino.name","Charplanet",null,1000],
 ["Antonio Garcia","antonio@gpumarino.name","Chicisimo",null,1000],
@@ -1214,12 +1583,12 @@ const RAW_INVESTORS = [
 ["Antonio Garcia","antonio@gpumarino.name","Goin",null,null],
 ["Antonio Garcia","antonio@gpumarino.name","Kasitoko",null,1000],
 ["Antonio Garcia","antonio@gpumarino.name","MyTripleA",null,1000],
-["Antonio Gómez","gomeza@gmail.com","Cabify",1490000000,10000],
+["Antonio Gómez","gomeza@gmail.com","Cabify",1500000000,10000],
 ["Antonio José Rocha Rodríguez","rrja79@yahoo.es","Green Data Chain",null,2000],
 ["Antonio José Rocha Rodríguez","rrja79@yahoo.es","EVIL ZEPPELIN",null,2000],
 ["Antonio José Rocha Rodriguez","rrja79@yahoo.es","LUDA",null,2000],
 ["Anxo Armada","anxo.armada@gmail.com","Badi",null,3000],
-["Anxo Armada","anxo.armada@gmail.com","Cabify",1490000000,3000],
+["Anxo Armada","anxo.armada@gmail.com","Cabify",1500000000,3000],
 ["Anxo Armada","anxo.armada@gmail.com","Charplanet",null,3000],
 ["Anxo Armada","anxo.armada@gmail.com","Chicisimo",null,3000],
 ["Anxo Armada","anxo.armada@gmail.com","Coverfy",null,null],
@@ -1230,8 +1599,9 @@ const RAW_INVESTORS = [
 ["Anxo Armada","anxo.armada@gmail.com","OrbitalAds",null,3000],
 ["Anxo Armada Fernández","anxo.armada@gmail.com","KASAZ",null,5000],
 ["Anxo Armada Fernández","anxo.armada@gmail.com","WellbeingOS",null,5000],
+["Anxo Armada Fernández","anxo.armada@gmail.com","MyHair/Stimusil",null,3000],
 ["Argi Investor s.l.u Bravo Duque","Jesusangel.bravo@camptecnologico.com","Green Data Chain",null,20000],
-["Aritz Exposito Saratxo","aritz.saratxo@icloud.com","Cabify",1490000000,3000],
+["Aritz Exposito Saratxo","aritz.saratxo@icloud.com","Cabify",1500000000,3000],
 ["Arufin Consulting SL Roig Fernández de la Reguera","daniroig@me.com","Genially",null,2000],
 ["Asier Salsamendi García","asier@asiersalsamendi.com","Bnext",null,3000],
 ["Asier Salsamendi García","asier@asiersalsamendi.com","CLAPS",null,1075],
@@ -1241,13 +1611,13 @@ const RAW_INVESTORS = [
 ["Babieka Kapital, S.L Ruiz Ruiz","vruiz@tbig.es","LOBSTER III",null,1000],
 ["Babieka Kapital, S.L Ruiz Ruiz","vruiz@tbig.es","Zapiens.ai",null,1000],
 ["Babieka Kapital, S.L, Ruiz Ruiz","vruiz@tbig.es","Genially",null,1000],
-["Babieka Kapital, S.L, Ruiz Ruiz","vruiz@tbig.es","ROAMS",null,1000],
+["Babieka Kapital, S.L, Ruiz Ruiz","vruiz@tbig.es","ROAMS",13900000,1000],
 ["Bartolome Rosselló Servera","trosselloservera@gmail.com","Alterhome",null,2000],
 ["Bartolomé Rosselló Servera","trosselloservera@gmail.com","EVIL ZEPPELIN",null,1000],
 ["Bartolomé Rosselló Servera","trosselloservera@gmail.com","Green Data Chain",null,1500],
 ["Bartolomé Rosselló Servera","trosselloservera@gmail.com","LOBSTER III",null,1000],
 ["Bartolomé Rosselló Servera","trosselloservera@gmail.com","LUDA",null,1500],
-["Bartolomé Rosselló Servera","trosselloservera@gmail.com","ROAMS",null,1000],
+["Bartolomé Rosselló Servera","trosselloservera@gmail.com","ROAMS",13900000,1000],
 ["Beatriz Pérez Sanz","beatriz.perez_sanz@roche.com","Oncoheroes",24000000,null],
 ["Beatriz Ríos Rivas","abarqueropayo@gmail.com","LUDA",null,1000],
 ["Begoña Beobide Azpeitia","bbeobide@gmail.com","Charplanet",null,1000],
@@ -1258,11 +1628,11 @@ const RAW_INVESTORS = [
 ["Begoña Beobide Azpeitia","bbeobide@gmail.com","Zapiens.ai",null,1500],
 ["Begoña Mardaras","begomardaras@gmail.com","Coverfy",null,null],
 ["Belcua, S.L.U. Belda Cuadrado","innovation@belcua.com","LOBSTER III",null,5000],
-["Benchmark Invest SL","jjhenarejos@gmail.com","CLAPS",null,5000],
+["BENCHMARK INVEST SL","jjhenarejos@gmail.com","CLAPS",null,5000],
 ["BENCHMARK INVEST SL","jjhenarejos@gmail.com","KASAZ",null,2000],
 ["BENCHMARK INVEST SL","jjhenarejos@gmail.com","Zapiens.ai",null,3000],
 ["Benji Coll","benjicoll@gmail.com","Badi",null,null],
-["Benji Coll","benjicoll@gmail.com","Cabify",1490000000,2000],
+["Benji Coll","benjicoll@gmail.com","Cabify",1500000000,2000],
 ["Benji Coll","benjicoll@gmail.com","Goin",null,null],
 ["Benji Coll","benjicoll@gmail.com","Housers",null,3000],
 ["Benji Coll","benjicoll@gmail.com","Mailtrack",null,null],
@@ -1289,7 +1659,7 @@ const RAW_INVESTORS = [
 ["Borja Berastegui Anzorandía","borjaberastegui@gmail.com","Zapiens.ai",null,8000],
 ["Borja Burguillos","borja.burguillos@valoradigital.com","Badi",null,5000],
 ["Borja Burguillos","borja.burguillos@valoradigital.com","Chicisimo",null,2000],
-["Borja Fernandez","borja.fernandez.sanchez@gmail.com","Cabify",1490000000,1500],
+["Borja Fernandez","borja.fernandez.sanchez@gmail.com","Cabify",1500000000,1500],
 ["Borja Fernández","borja.fernandez.sanchez@gmail.com","Housers",null,2000],
 ["Borja Fernandez","borja.fernandez.sanchez@gmail.com","OrbitalAds",null,1000],
 ["Borja Fernández Sánchez","borja.fernandez.sanchez@gmail.com","LOBSTER III",null,2000],
@@ -1297,7 +1667,7 @@ const RAW_INVESTORS = [
 ["Borja Jose Jover de Olives","borjover5@hotmail.com","Green Data Chain",null,1000],
 ["Borja Llorens","bllorenspurti@gmail.com","Lobster",null,5000],
 ["Borja Llorens","bllorenspurti@gmail.com","LOBSTER II",null,5000],
-["Borja Mera","borjan@techpump.com","Cabify",1490000000,10000],
+["Borja Mera Urrestarazu","borjan@techpump.com","Cabify",1500000000,10000],
 ["Borja Mera Urrestarazu","borjan@techpump.com","Chicisimo",null,2000],
 ["Borja Mera Urrestarazu","borjan@techpump.com","Coverfy",null,null],
 ["Borja Mera Urrestarazu","borjan@techpump.com","Goin",null,null],
@@ -1306,6 +1676,7 @@ const RAW_INVESTORS = [
 ["Borja Mera Urrestarazu","borjan@techpump.com","Kasitoko",null,5000],
 ["Borja Mera Urrestarazu","borjan@techpump.com","Mailtrack",null,null],
 ["Borja Mera Urrestarazu","borjan@techpump.com","MyTripleA",null,2000],
+["Borja Mera Urrestarazu","borjan@techpump.com","MyHair/Stimusil",null,2000],
 ["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","Alterhome",null,1500],
 ["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","CLAPS",null,2000],
 ["Borja Mesanza Unamunzaga","uribasterra2005@yahoo.es","EVIL ZEPPELIN",null,1500],
@@ -1318,7 +1689,7 @@ const RAW_INVESTORS = [
 ["Brice Lapouble","brice.lapouble@gmail.com","Bnext",null,2000],
 ["Canteli Capital SLU","empresas@genei.es","CLAPS",null,10000],
 ["Carles Torrejón Puchol","Carles.torrejon@gmail.com","Alterhome",null,3000],
-["Carlo Magnoni","cm@aicapartners.com","ROAMS",null,2500],
+["Carlo Magnoni","cm@aicapartners.com","ROAMS",13900000,2500],
 ["Carlos Barrachina Berbís","carlos.barrachina.upv@gmail.com","Genially",null,2000],
 ["Carlos De Pedro Guri","carlos.dped@gmail.com","MyTripleA",null,5000],
 ["Carlos De Pedro Guri","carlos.dped@gmail.com","OrbitalAds",null,3000],
@@ -1328,7 +1699,7 @@ const RAW_INVESTORS = [
 ["Carlos De Pedro Guri","carlos.dped@gmail.com","Coverfy",null,null],
 ["Carlos De Pedro Guri","carlos.dped@gmail.com","Gomapi",null,3000],
 ["Carlos De Pedro Guri","carlos.dped@gmail.com","Kasitoko",null,2000],
-["Carlos Francisco Guerra Sanchez","cf_guerra_s@yahoo.es","Cabify",1490000000,10000],
+["Carlos Francisco Guerra Sanchez","cf_guerra_s@yahoo.es","Cabify",1500000000,10000],
 ["Carlos Francisco Guerra Sanchez","cf_guerra_s@yahoo.es","Gomapi",null,5000],
 ["Carlos García Chapa","karlosgch@gmail.com","Lobster",null,5000],
 ["Carlos García Chapa","karlosgch@gmail.com","LOBSTER II",null,5000],
@@ -1337,9 +1708,9 @@ const RAW_INVESTORS = [
 ["Carlos Guerra","cf_guerra_s@yahoo.es","Mailtrack",null,null],
 ["Carlos Guerra","cf_guerra_s@yahoo.es","MyTripleA",null,1000],
 ["Carlos Guerra","cf_guerra_s@yahoo.es","OrbitalAds",null,1000],
-["Carlos Laorden","claorden@gmail.com","ACCURATE",null,1000],
-["Carlos Laorden","claorden@gmail.com","Charplanet",null,1000],
-["Carlos Laorden","claorden@gmail.com","Goin",null,null],
+["Carlos Laorden Gomez","claorden@gmail.com","ACCURATE",null,1000],
+["Carlos Laorden Gomez","claorden@gmail.com","Charplanet",null,1000],
+["Carlos Laorden Gomez","claorden@gmail.com","Goin",null,null],
 ["Carlos Laorden Gomez","claorden@gmail.com","Alterhome",null,2000],
 ["Carlos Laorden Gomez","claorden@gmail.com","CLAPS",null,2000],
 ["Carlos Laorden Gomez","claorden@gmail.com","EVIL ZEPPELIN",null,2000],
@@ -1367,13 +1738,14 @@ const RAW_INVESTORS = [
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","Lobster",null,2150],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","LOBSTER II",null,2150],
 ["Daniel Díez","danidiezr@gmail.com","Mailtrack",null,null],
+["Daniel Díez","danidiezr@gmail.com","MyHair/Stimusil",null,1000],
 ["Daniel García García","daniel@abirtone.com","Zapiens.ai",null,2000],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","CLAPS",null,2150],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","EVIL ZEPPELIN",null,2150],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","Genially",null,2150],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","LOBSTER III",null,4300],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","LUDA",null,3225],
-["Daniel Herrero Martínez","dani.herrero.m@gmail.com","ROAMS",null,3225],
+["Daniel Herrero Martínez","dani.herrero.m@gmail.com","ROAMS",13900000,3225],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","WellbeingOS",null,3000],
 ["Daniel Herrero Martínez","dani.herrero.m@gmail.com","Zapiens.ai",null,3225],
 ["Daniel José García","dani.naturaforma@gmail.com","ACCURATE",null,1000],
@@ -1382,7 +1754,7 @@ const RAW_INVESTORS = [
 ["Daniel Ortega Gatón","dortegaton@yahoo.es","Coverfy",null,null],
 ["Daniel Planas Fernandez","daniel.planas@gmail.com","WellbeingOS",null,1000],
 ["Daniel Roig Fernández de la Reguera","daniroig@me.com","edit.org",null,1900],
-["David Alayón","alayon.david@gmail.com","Cabify",1490000000,2000],
+["David Alayón","alayon.david@gmail.com","Cabify",1500000000,2000],
 ["David Alayón","alayon.david@gmail.com","Mailtrack",null,null],
 ["David Alcantara Parra","dalpa8@hotmail.com","Alterhome",null,1500],
 ["David Bustos Fernandez","david.bustos@gmail.com","Lobster",null,1000],
@@ -1393,16 +1765,17 @@ const RAW_INVESTORS = [
 ["David Carnicer Sospedra","carnicer@yahoo.com","Genially",null,1000],
 ["David Carnicer Sospedra","carnicer@yahoo.com","LUDA",null,1000],
 ["David Carnicer Sospedra","carnicer@yahoo.com","Zapiens.ai",null,1000],
-["David Carrero Fdez-Baillo","david@carrero.es","Cabify",1490000000,1000],
+["David Carrero Fdez-Baillo","david@carrero.es","Cabify",1500000000,1000],
 ["David Carrero Fernández-Baillo","david@carrero.es","Mailtrack",null,null],
 ["David Granda Rossi (Sara Vaca)","savalo@gmail.com","KASAZ",null,1000],
 ["David Lozano Lucas","dlozanolu@gmail.com","Lobster",null,10000],
 ["David Lozano Lucas","dlozanolu@gmail.com","LOBSTER II",null,10000],
 ["David Motos Perez","dmotosp@gmail.com","LOBSTER III",null,1000],
 ["David Motos Perez","dmotosp@gmail.com","LUDA",null,1000],
-["David Motos Perez","dmotosp@gmail.com","ROAMS",null,1000],
+["David Motos Perez","dmotosp@gmail.com","ROAMS",13900000,1000],
 ["David Periscal","davidperiscal@gmail.com","Charplanet",null,1000],
 ["David Periscal","davidperiscal@gmail.com","WellbeingOS",null,1000],
+["David Periscal","davidperiscal@gmail.com","MyHair/Stimusil",null,1000],
 ["David Primo Castillo","goraastrabu@gmail.com","FROGED",null,1000],
 ["David Primo Castillo","goraastrabu@gmail.com","CLAPS",null,1500],
 ["David Primo Castillo","goraastrabu@gmail.com","edit.org",null,2000],
@@ -1410,7 +1783,7 @@ const RAW_INVESTORS = [
 ["David Sanchez Primo","dsanchez@stackscale.com","Mailtrack",null,null],
 ["David Sánchez Arfelis","david@innocells.io","Genially",null,1000],
 ["David Sánchez Arfelis","david@innocells.io","Zapiens.ai",null,2500],
-["David Sanchez Primo","dsanchez@stackscale.com","Cabify",1490000000,1000],
+["David Sanchez Primo","dsanchez@stackscale.com","Cabify",1500000000,1000],
 ["David Sanchez Primo","dsanchez@stackscale.com","CLAPS",null,1500],
 ["David Sanchez Primo","dsanchez@stackscale.com","Genially",null,1000],
 ["David Zaera Allue","monsieurdeivid@gmail.com","Lobster",null,1000],
@@ -1424,12 +1797,12 @@ const RAW_INVESTORS = [
 ["Débora Fontenla Oliveira","Correo@lamarka.es","Zapiens.ai",null,1000],
 ["Delia Angulo","delia.angulo13@gmail.com","Oncoheroes",24000000,null],
 ["Dennis Faulkner Pallaruelo","dennis.faulkner7@gmail.com","FROGED",null,1000],
-["Diego Lafuente García","tufosa@gmail.com","Cabify",1490000000,5000],
+["Diego Lafuente García","tufosa@gmail.com","Cabify",1500000000,5000],
 ["Diego Lafuente García","tufosa@gmail.com","Coverfy",null,null],
 ["Diego Lafuente García","tufosa@gmail.com","Housers",null,10000],
 ["Donald Faulkner","do.faulkner@gmail.com","edit.org",null,1000],
 ["Duarte Libano Monteiro","libanomonteiro@gmail.com","Alterhome",null,3000],
-["Duarte Libano Monteiro","libanomonteiro@gmail.com","Cabify",1490000000,5000],
+["Duarte Libano Monteiro","libanomonteiro@gmail.com","Cabify",1500000000,5000],
 ["Duarte Libano Monteiro","libanomonteiro@gmail.com","Chicisimo",null,1000],
 ["Duarte Libano Monteiro","libanomonteiro@gmail.com","Housers",null,2500],
 ["Edorta Iturraspe Perea","eiturras@gmail.com","Bnext",null,3000],
@@ -1448,11 +1821,11 @@ const RAW_INVESTORS = [
 ["Elena Sebastián Casares","elenaseb@hotmail.com","Chicisimo",null,1000],
 ["Elias Eseverri","eliaseseverri@gmail.com","Chicisimo",null,1500],
 ["Elias Eseverri","eliaseseverri@gmail.com","Mailtrack",null,null],
-["Emilio Avilés","emilio@slashmobility.com","Cabify",1490000000,1000],
+["Emilio Avilés","emilio@slashmobility.com","Cabify",1500000000,1000],
 ["Emilio Avilés","emilio@slashmobility.com","Coverfy",null,null],
 ["Emilio Aviles","emilio@slashmobility.com","OrbitalAds",null,null],
 ["Emilio Avilés","emilio@slashmobility.com","Gomapi",null,3000],
-["Emilio Rodriguez","emilio@lyra.digital","Cabify",1490000000,1500],
+["Emilio Rodriguez","emilio@lyra.digital","Cabify",1500000000,1500],
 ["Emilio Rodriguez","emilio@lyra.digital","Chicisimo",null,1500],
 ["Emilio Rodriguez","emilio@lyra.digital","Housers",null,1000],
 ["Emilio Rodriguez","emilio@lyra.digital","Mailtrack",null,null],
@@ -1465,7 +1838,7 @@ const RAW_INVESTORS = [
 ["Enrique López de Ceballos","enriqueceballos@gmail.com","Oncoheroes",24000000,null],
 ["Enrique López de Ceballos","enriqueceballos@gmail.com","Bnext",null,5000],
 ["Enrique López de Ceballos","enriqueceballos@gmail.com","FROGED",null,3500],
-["Enrique Ranedo","eranedo@magnoliafin.com","Cabify",1490000000,2000],
+["Enrique Ranedo","eranedo@magnoliafin.com","Cabify",1500000000,2000],
 ["Enrique Ranedo","eranedo@magnoliafin.com","Chicisimo",null,2000],
 ["Enrique Ranedo","eranedo@magnoliafin.com","Coverfy",null,null],
 ["Enrique Ranedo","eranedo@magnoliafin.com","Goin",null,null],
@@ -1482,12 +1855,12 @@ const RAW_INVESTORS = [
 ["Esoria Investments SLU Soria","eduardoteotico@gmail.com","Lobster",null,3000],
 ["Esoria Investments SLU Soria","eduardoteotico@gmail.com","LOBSTER II",null,3000],
 ["Esoria Investments SLU Soria","eduardoteotico@gmail.com","LOBSTER III",null,2000],
-["Esoria Investments SLU Soria","eduardoteotico@gmail.com","ROAMS",null,2000],
+["Esoria Investments SLU Soria","eduardoteotico@gmail.com","ROAMS",13900000,2000],
 ["Esteban Rubini","rubini.esteban@gmail.com","EVIL ZEPPELIN",null,1000],
-["Ester Caldentey","barcelonaplace@hotmail.com","CLAPS",null,1000],
-["Ester Caldentey","barcelonaplace@hotmail.com","Genially",null,1000],
-["Ester Caldentey","barcelonaplace@hotmail.com","Lobster",null,1000],
-["Ester Caldentey","barcelonaplace@hotmail.com","LOBSTER II",null,1000],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","CLAPS",null,1000],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","Genially",null,1000],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","Lobster",null,1000],
+["Ester Caldentey Torner","barcelonaplace@hotmail.com","LOBSTER II",null,1000],
 ["Ester Caldentey Torner","barcelonaplace@hotmail.com","WellbeingOS",null,1000],
 ["Ester Caldentey Torner","barcelonaplace@hotmail.com","Zapiens.ai",null,1000],
 ["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","CLAPS",null,3000],
@@ -1495,42 +1868,42 @@ const RAW_INVESTORS = [
 ["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","LUDA",null,3000],
 ["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Oncoheroes",24000000,null],
 ["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Zapiens.ai",null,3000],
-["Esther Saiz","esaiz@cxcrenovables.com","Badi",null,2500],
-["Esther Saiz","esaiz@cxcrenovables.com","Cabify",1490000000,1500],
-["Esther Saiz","esaiz@cxcrenovables.com","Chicisimo",null,1500],
-["Esther Saiz","esaiz@cxcrenovables.com","Housers",null,1500],
-["Esther Saiz","esaiz@cxcrenovables.com","Kasitoko",null,2000],
-["Esther Saiz","esaiz@cxcrenovables.com","Mailtrack",null,null],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Badi",null,2500],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Cabify",1500000000,1500],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Chicisimo",null,1500],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Housers",null,1500],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Kasitoko",null,2000],
+["Esther María Saiz Rastrilla","esaiz@cxcrenovables.com","Mailtrack",null,null],
 ["Eustaquio Zamora Olmos","parmopunt58@gmail.com","LUDA",null,1000],
 ["Evelio Miñano","evelio.minano@gmail.com","MyTripleA",null,2000],
 ["Fabcau Dinero SL","info@fabcaudinero.com","CLAPS",null,10000],
-["Fabio Castañeda","fcp@redycomercio.com","Cabify",1490000000,1000],
+["Fabio Castañeda","fcp@redycomercio.com","Cabify",1500000000,1000],
 ["Federico Castanedo","castanedofede@gmail.com","MyTripleA",null,3000],
 ["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","LOBSTER III",null,1000],
 ["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","LUDA",null,1000],
-["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","ROAMS",null,1000],
+["Felipe Lumbreras Ruiz","felipe.lumbreras@gmail.com","ROAMS",13900000,1000],
 ["Fermin Albiol Forés","ferminalbiol@gmail.com","Genially",null,2000],
 ["Fermin Albiol Forés","ferminalbiol@gmail.com","LUDA",null,2000],
 ["Fermin Albiol Forés","ferminalbiol@gmail.com","Zapiens.ai",null,1000],
-["Fernando Aguado","fernando.aguadog@iese.net","Cabify",1490000000,1000],
+["Fernando Aguado García","fernando.aguadog@iese.net","Cabify",1500000000,1000],
 ["Fernando Aguado García","aguado_fernando@hotmail.com","FROGED",null,1500],
 ["Fernando Aguado García","fernando.aguadog@iese.net","Chicisimo",null,1000],
 ["Fernando Aguado García","fernando.aguadog@iese.net","Coverfy",null,null],
 ["Fernando Aguado García","fernando.aguadog@iese.net","Mailtrack",null,null],
-["Fernando Egido","fernando@egido.info","Alterhome",null,4000],
-["Fernando Egido","fernando@egido.info","Chicisimo",null,2000],
-["Fernando Egido","fernando@egido.info","Mailtrack",null,null],
-["Fernando Egido","fernando@egido.info","OrbitalAds",null,3000],
+["Fernando Egido Egaña","fernando@egido.info","Alterhome",null,4000],
+["Fernando Egido Egaña","fernando@egido.info","Chicisimo",null,2000],
+["Fernando Egido Egaña","fernando@egido.info","Mailtrack",null,null],
+["Fernando Egido Egaña","fernando@egido.info","OrbitalAds",null,3000],
 ["Fernando Egido Egaña","fernando@egido.info","LUDA",null,3000],
-["Fernando Ferrer","fernandoferrermoreno@gmail.com","Cabify",1490000000,2000],
+["Fernando Ferrer","fernandoferrermoreno@gmail.com","Cabify",1500000000,2000],
 ["Fernando Ferrer","fernandoferrermoreno@gmail.com","Chicisimo",null,2000],
 ["Fernando Ferrer","fernandoferrermoreno@gmail.com","Goin",null,null],
 ["Fernando Ferrer","fernandoferrermoreno@gmail.com","Mailtrack",null,null],
 ["Fernando Ferrer Moreno","fernandoferrermoreno@gmail.com","Gomapi",null,3000],
-["Fernando Orejón","fog980@hotmail.com","Cabify",1490000000,1000],
+["Fernando Orejón","fog980@hotmail.com","Cabify",1500000000,1000],
 ["Fernando Sanz Prieto","fernandosanz82@gmail.com","KASAZ",null,3000],
 ["Fidel García","fgarciamd@gmail.com","Kasitoko",null,4000],
-["Flavia Bartolomé Tocino","f.bartolometocino@gmail.com","Cabify",1490000000,25000],
+["Flavia Bartolomé Tocino","f.bartolometocino@gmail.com","Cabify",1500000000,25000],
 ["Flavia Bartolomé Tocino","f.bartolometocino@gmail.com","Chicisimo",null,20000],
 ["Flavia Bartolomé Tocino","f.bartolometocino@gmail.com","Kasitoko",null,30000],
 ["Fran Conejos Mengó","franconejos@gmail.com","EVIL ZEPPELIN",null,2500],
@@ -1538,7 +1911,7 @@ const RAW_INVESTORS = [
 ["Francesc Miquel González Solà","fgonzalezsola@gmail.com","Zapiens.ai",null,1000],
 ["Francisco Javier Garcia Rodriguez","escribejavi@hotmail.com","LUDA",null,1000],
 ["Francisco Javier Perez Alonso","fperezalonso@gmail.com","CLAPS",null,1000],
-["Francisco Javier Saiz","fjaviersaiz@yahoo.es","Cabify",1490000000,1000],
+["Francisco Javier Saiz","fjaviersaiz@yahoo.es","Cabify",1500000000,1000],
 ["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","CLAPS",null,1000],
 ["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","Genially",null,2000],
 ["Francisco Javier Salvador Ortega","javiersalvador@crecemabogados.com","KASAZ",null,2000],
@@ -1555,7 +1928,7 @@ const RAW_INVESTORS = [
 ["GCON4 Spain S.L.","ion.otaegi@gcon4.com","CLAPS",null,3000],
 ["Gemma Sebastián","gemma.sebastian@argonconsultores.com","MyTripleA",null,1000],
 ["Gemma Sebastián","gemma.sebastian@argonconsultores.com","OrbitalAds",null,1000],
-["Gloria Concostrina Sicilia","gloriaconcostrina@gmail.com","Cabify",1490000000,1000],
+["Gloria Concostrina Sicilia","gloriaconcostrina@gmail.com","Cabify",1500000000,1000],
 ["Gonzalo Campuzano","gcampu@gmail.com","OrbitalAds",null,4348],
 ["Gonzalo Campuzano","gcampu@gmail.com","EVIL ZEPPELIN",null,2000],
 ["Gonzalo Fernández","gonzalo.fernandez.pico@gmail.com","Chicisimo",null,1000],
@@ -1588,11 +1961,11 @@ const RAW_INVESTORS = [
 ["Hector","hfdli85@gmail.com","Zapiens.ai",null,null],
 ["Hector Fernandez de Liger Inchaurregui","hfdli85@gmail.com","Alterhome",null,1000],
 ["Héctor García Fernández","hector@habichuelas.es","Genially",null,2000],
-["Hector García Fernández","hector@habichuelas.es","ROAMS",null,2000],
+["Hector García Fernández","hector@habichuelas.es","ROAMS",13900000,2000],
 ["Hector José García Fernández","hector@habichuelas.es","LUDA",null,1000],
-["Hector Perez","hi@hectorperezarenas.com","Cabify",1490000000,1000],
+["Hector Perez","hi@hectorperezarenas.com","Cabify",1500000000,1000],
 ["Héctor Trujillo Pérez","elrodesmo@gmail.com","Green Data Chain",null,1000],
-["Hoboken Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","ROAMS",null,10000],
+["Hoboken Inversiones S.L Oliver Guardiola","francisco.oliver@wonders.com","ROAMS",13900000,10000],
 ["Hoboken Inversiones S.L.","francisco.oliver@wonders.com","Alterhome",null,20000],
 ["Hokoben Inversiones S.L","francisco.oliver@wonders.com","CLAPS",null,10000],
 ["Hokoben Inversiones S.L Francisco Oliver Guardiola","francisco.oliver@wonders.com","Zapiens.ai",null,25000],
@@ -1603,7 +1976,7 @@ const RAW_INVESTORS = [
 ["Hugo Gómez Crespo","hgomecre@gmail.com","Lobster",null,1000],
 ["Hugo Gómez Crespo","hgomecre@gmail.com","LOBSTER II",null,1000],
 ["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","OrbitalAds",null,3000],
-["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Cabify",1490000000,5000],
+["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Cabify",1500000000,5000],
 ["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Charplanet",null,4000],
 ["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Chicisimo",null,3500],
 ["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Goin",null,null],
@@ -1612,6 +1985,7 @@ const RAW_INVESTORS = [
 ["Iaski Ruiz de Azua","iaskiruizdeazua@gmail.com","Gomapi",null,3000],
 ["Ideas And Business Management S.L.U Planas Fernandez","daniel.planas@gmail.com","Genially",null,1000],
 ["Ideas And Business Management S.L.U. Daniel Planas Fernandez","daniel.planas@gmail.com","Zapiens.ai",null,1000],
+["Idoia Iturbe","","MyHair/Stimusil",null,3000],
 ["IGN Alber SLU","Info.ignalber@gmail.com","Alterhome",null,5000],
 ["IGN Alber SLU","Info.ignalber@gmail.com","CLAPS",null,5000],
 ["IGN ALBER SLU Jose Ramón Sánchez García","Info.ignalber@gmail.com","Zapiens.ai",null,5000],
@@ -1621,33 +1995,33 @@ const RAW_INVESTORS = [
 ["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","Genially",null,5000],
 ["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","LOBSTER III",null,5000],
 ["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","LUDA",null,5000],
-["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","ROAMS",null,10000],
+["IGN Alber SLU Sánchez García","Info.ignalber@gmail.com","ROAMS",13900000,10000],
 ["Ignacio Arrieta","iarrietal@gmail.com","Genially",null,11450],
 ["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Bnext",null,2500],
 ["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","CLAPS",null,3000],
 ["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Genially",null,2000],
 ["Ignacio Burutaran Usandizaga","ignacioburu@hotmail.com","Green Data Chain",null,2500],
 ["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","ACCURATE",null,3000],
-["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","Cabify",1490000000,5000],
+["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","Cabify",1500000000,5000],
 ["Ignacio Grimá Alberola","ignacio@grupoarcadia.es","Genially",null,25000],
-["Ignacio Otalora","iotalora@digipen.edu","Cabify",1490000000,1000],
-["Ignacio Otalora","iotalora@digipen.edu","Coverfy",null,null],
-["Ignacio Otalora","iotalora@digipen.edu","Goin",null,null],
+["Ignacio Otalora Ariño","iotalora@digipen.edu","Cabify",1500000000,1000],
+["Ignacio Otalora Ariño","iotalora@digipen.edu","Coverfy",null,null],
+["Ignacio Otalora Ariño","iotalora@digipen.edu","Goin",null,null],
 ["Ignacio Otalora Ariño","iotalora@digipen.edu","Gomapi",null,1000],
 ["Ignacio Rivas Ormaza","ignacio.rivas@quirumed.com","Goin",null,null],
-["Ignasi Casanovas","ignasi@ilizion.com","Goin",null,null],
-["Ignasi Casanovas","ignasi@ilizion.com","Kasitoko",null,1200],
+["Ignasi Casanovas Tarafa","ignasi@ilizion.com","Goin",null,null],
+["Ignasi Casanovas Tarafa","ignasi@ilizion.com","Kasitoko",null,1200],
 ["Ignasi Casanovas Tarafa","ignasi@ilizion.com","Gomapi",null,1200],
 ["Iker Asategui Carracedo","ikasa22@hotmail.com","Green Data Chain",null,1500],
 ["Iker Asategui Carracedo","ikasa22@hotmail.com","LUDA",null,1000],
-["Iker Etxeberria Ijurra jetxeberria@baiba.es","ikeretxeberria1@gmail.com","Cabify",1490000000,1500],
+["Iker Etxeberria Ijurra jetxeberria@baiba.es","ikeretxeberria1@gmail.com","Cabify",1500000000,1500],
 ["Iker Ezkerra","ezkerra@gmail.com","Chicisimo",null,3000],
 ["Iker Ezkerra","ezkerra@gmail.com","Kasitoko",null,3000],
 ["Iñaki Aberasturi Larrañaga","aberasturi6@hotmail.com","KASAZ",null,5000],
 ["Indalecio Jesus De la Fuente Serrate","indaleinversiones@gmail.com","Lobster",null,1000],
 ["Indalecio Jesus De la Fuente Serrate","indaleinversiones@gmail.com","LOBSTER II",null,1000],
-["Iñigo Blanco Arana","inigo@trilogic.eus","Cabify",1490000000,1000],
-["Iñigo de Luis","ideluis@gmail.com","Cabify",1490000000,3000],
+["Iñigo Blanco Arana","inigo@trilogic.eus","Cabify",1500000000,1000],
+["Iñigo de Luis","ideluis@gmail.com","Cabify",1500000000,3000],
 ["Iñigo De Luis","ideluis@gmail.com","Goin",null,null],
 ["Íñigo Gutierrez Febles","febles@pm.me","Bnext",null,5000],
 ["Íñigo Gutiérrez Febles","febles@pm.me","LUDA",null,5000],
@@ -1656,7 +2030,7 @@ const RAW_INVESTORS = [
 ["Inmaculada Jiménez González","inmajimeglzrdgz@gmail.com","Green Data Chain",null,3000],
 ["Inmaculada Moya García","inmamoya@protonmail.com","EVIL ZEPPELIN",null,1000],
 ["Inmaculada Moya García","inmamoya@protonmail.com","Green Data Chain",null,2000],
-["Inmobiliaria ARCE XV, SL Salvadó Monreal","salvadox@gmail.com","ROAMS",null,5000],
+["Inmobiliaria ARCE XV, SL Salvadó Monreal","salvadox@gmail.com","ROAMS",13900000,5000],
 ["Ivan Ranz Sanchez","iranz@gruposomar.es","Alterhome",null,3226],
 ["Iván Ranz Sanchez","iranz@gruposomar.es","Bnext",null,6450],
 ["Iván Ranz Sanchez","iranz@gruposomar.es","Lobster",null,3225],
@@ -1664,20 +2038,21 @@ const RAW_INVESTORS = [
 ["Iván Ranz Sanchez","iranz@gruposomar.es","Zapiens.ai",null,5350],
 ["Izaro Aretxaga Isasmendi","izaroaretxaga@gmail.com","Green Data Chain",null,1000],
 ["Izaro Aretxaga Isasmendi","izaroaretxaga@gmail.com","Zapiens.ai",null,null],
-["Jaime Diez","jaime.diez.net@gmail.com","Cabify",1490000000,2000],
-["Jaime Díez","jaime.diez.net@gmail.com","Charplanet",null,1000],
-["Jaime Díez","jaime.diez.net@gmail.com","Chicisimo",null,1000],
-["Jaime Díez","jaime.diez.net@gmail.com","Coverfy",null,null],
-["Jaime Díez","jaime.diez.net@gmail.com","Goin",null,null],
-["Jaime Díez","jaime.diez.net@gmail.com","Housers",null,2000],
-["Jaime Díez","jaime.diez.net@gmail.com","Kasitoko",null,1000],
-["Jaime Diez","jaime.diez.net@gmail.com","MyTripleA",null,1000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Cabify",1500000000,2000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Charplanet",null,1000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Chicisimo",null,1000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Coverfy",null,null],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Goin",null,null],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Housers",null,2000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","Kasitoko",null,1000],
+["Jaime Díez Lopez","jaime.diez.net@gmail.com","MyTripleA",null,1000],
 ["Jaime Díez Lopez","jaime.diez.net@gmail.com","Alterhome",null,2000],
 ["Jaime Díez Lopez","jaime.diez.net@gmail.com","Green Data Chain",null,2000],
 ["Jaime Diez Lopez","jaime.diez.net@gmail.com","Lobster",null,1000],
 ["Jaime Diez Lopez","jaime.diez.net@gmail.com","LOBSTER II",null,1000],
 ["Jaime Díez Lopez","jaime.diez.net@gmail.com","LOBSTER III",null,5000],
 ["Jaime Díez Lopez","jaime.diez.net@gmail.com","Zapiens.ai",null,2000],
+["Jaime Diez","","Myhair/Stimusil",null,1000],
 ["Jaime Enrique Perez Villoslada","jaimeperezvilloslada@gmail.com","CLAPS",null,1000],
 ["Jaime Enrique Perez Villoslada","jaimeperezvilloslada@gmail.com","Zapiens.ai",null,2000],
 ["Jaime Luis Torres Berenguer","jaitober@gmail.com","Chicisimo",null,1500],
@@ -1690,20 +2065,21 @@ const RAW_INVESTORS = [
 ["Jaldo Rojas Inversiones SL Jaldo Ortega","jrinversiones21@gmail.com","LUDA",null,20000],
 ["Javier Amenabar Iriarte","javier_amenabar@hotmail.com","Green Data Chain",null,1350],
 ["Javier Amenabar Iriarte","javier_amenabar@hotmail.com","Oncoheroes",24000000,null],
-["Javier Añorga","soyjavier@gmail.com","Cabify",1490000000,3000],
-["Javier Añorga","soyjavier@gmail.com","Coverfy",null,null],
-["Javier Añorga","soyjavier@gmail.com","Goin",null,null],
-["Javier Añorga","soyjavier@gmail.com","Mailtrack",null,null],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","Cabify",1500000000,3000],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","Coverfy",null,null],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","Goin",null,null],
+["Javier Añorga Gonzalez","soyjavier@gmail.com","Mailtrack",null,null],
 ["Javier Añorga Gonzalez","soyjavier@gmail.com","Lobster",null,2000],
 ["Javier Añorga Gonzalez","soyjavier@gmail.com","LOBSTER II",null,2000],
 ["Javier Duro","jduro@portiumventures.com","Goin",null,null],
 ["Javier Español Muñoz","javierespanolmunoz@gmail.com","CLAPS",null,1000],
 ["Javier Español Muñoz","javierespanolmunoz@gmail.com","Zapiens.ai",null,2000],
 ["Javier Etxebeste","javier.etxebeste@gmail.com","Badi",null,null],
-["Javier Etxebeste","javier.etxebeste@gmail.com","Cabify",1490000000,1000],
+["Javier Etxebeste","javier.etxebeste@gmail.com","Cabify",1500000000,1000],
 ["Javier Etxebeste","javier.etxebeste@gmail.com","Coverfy",null,null],
 ["Javier Etxebeste","javier.etxebeste@gmail.com","Mailtrack",null,null],
 ["Javier González Dulanto","j.dulanto@yahoo.es","Kasitoko",null,2000],
+["Javier Guembe","","Myhair/Stimusil",null,1000],
 ["Javier Lasarte Remacha","javier@shoreview.app","LUDA",null,1000],
 ["Javier Martinez Pinto","javimartinez_24@hotmail.com","Bnext",null,2500],
 ["Javier Pardo Castillo","Jpardoc@liberbank.es","Charplanet",null,1500],
@@ -1712,8 +2088,9 @@ const RAW_INVESTORS = [
 ["Javier Romero San Martín","al051944@alumail.uji.es","LOBSTER III",null,1000],
 ["Javier Salvado","salvadox@gmail.com","Oncoheroes",24000000,null],
 ["Javier Salvadó Monreal","salvadox@gmail.com","FROGED",null,2000],
+["Javier Salvado","salvadox@gmail.com","MyHair/Stimusil",null,1500],
 ["Javier Vaquerizo","javiervaquerizo@gmail.com","Housers",null,2500],
-["Javier Vaquerizo Roldán","javiervaquerizo@gmail.com","Cabify",1490000000,2500],
+["Javier Vaquerizo Roldán","javiervaquerizo@gmail.com","Cabify",1500000000,2500],
 ["JBL DIGITAL SL Subirana Luque","oscarsubiranaluque@gmail.com","LUDA",null,2000],
 ["Jesus Blanco Aparicio","jesusblanco@i-modena.net","Gomapi",null,1500],
 ["Jesus Pinazo","jesus.pinazo@icloud.com","Chicisimo",null,5000],
@@ -1723,12 +2100,13 @@ const RAW_INVESTORS = [
 ["Jesus Pinazo","jesus.pinazo@icloud.com","MyTripleA",null,3000],
 ["Jesus Ripoll Lopez","jripoll@helpersconsulting.com","CLAPS",null,1100],
 ["Joan Enric Solina","enrisolina@gmail.com","ACCURATE",null,1000],
-["Joaquin Campuzano Gomez","jcampuzanoga@outlook.com","KASAZ",null,1000],
+["Joaquín Campuzano Gómez-Acebo","jcampuzanoga@outlook.com","KASAZ",null,1000],
 ["Joaquín Campuzano Gómez-Acebo","jcampuzanoga@outlook.com","Oncoheroes",24000000,null],
+["Joaquín Campuzano Gómez-Acebo","jcampuzanoga@outlook.com","MyHair/Stimusil",null,3000],
 ["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Chicisimo",null,1500],
 ["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Coverfy",null,null],
 ["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Housers",null,1500],
-["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Cabify",1490000000,1500],
+["Jon Etxeberria Ijurra","jetxeberria@baiba.es","Cabify",1500000000,1500],
 ["Jon Etxeberria Ijurra","jetxeberria@baiba.es","edit.org",null,1500],
 ["Jon Etxeberria Ijurra","jetxeberria@baiba.es","LOBSTER III",null,null],
 ["Jon Etxeberria Zulaika","jontryp@gmail.com","CLAPS",null,1075],
@@ -1741,11 +2119,11 @@ const RAW_INVESTORS = [
 ["Jon Iker Lorente","joniker09@gmail.com","Gomapi",null,1000],
 ["Jon Iker Lorente","joniker09@gmail.com","MyTripleA",null,1000],
 ["Jon Iker Lorente","joniker09@gmail.com","OrbitalAds",null,1000],
-["Jon Mentxaka","kaixomentxaka@gmail.com","ACCURATE",null,1000],
-["Jon Mentxaka","kaixomentxaka@gmail.com","Charplanet",null,1000],
-["Jon Mentxaka","kaixomentxaka@gmail.com","Chicisimo",null,1000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","ACCURATE",null,1000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Charplanet",null,1000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Chicisimo",null,1000],
 ["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Alterhome",null,1000],
-["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Cabify",1490000000,3000],
+["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","Cabify",1500000000,3000],
 ["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","CLAPS",null,1000],
 ["Jon Mentxaka Razkin","kaixomentxaka@gmail.com","LUDA",null,1000],
 ["Jordi","jordi.20@icloud.com","Zapiens.ai",null,null],
@@ -1766,7 +2144,7 @@ const RAW_INVESTORS = [
 ["Jorge Carbonell Guillo","jorge@wonders.com","CLAPS",null,5000],
 ["Jorge Carbonell Guillo","jorge@wonders.com","Genially",null,10000],
 ["Jorge de la Peña Sordo","eldelapena@hotmail.com","Bnext",null,1075],
-["Jorge Gisbert","j0rj0@hotmail.com","Mailtrack",null,null],
+["Jorge Gisbert Rueda","j0rj0@hotmail.com","Mailtrack",null,null],
 ["Jorge Gisbert Rueda","j0rj0@hotmail.com","Zapiens.ai",null,1000],
 ["Jorge Gonzalez Olalla","jorge.gonzalez@ticbiomed.net","WellbeingOS",null,1000],
 ["Jorge Güil Rivera","jgr1083@yahoo.com","Genially",null,10000],
@@ -1776,16 +2154,17 @@ const RAW_INVESTORS = [
 ["Jorge Maylin Larruy","jorge@oroi.eu","Genially",null,1700],
 ["Jorge Maylin Larruy","jorge@oroi.eu","Lobster",null,1000],
 ["Jorge Maylin Larruy","jorge@oroi.eu","LOBSTER II",null,1000],
-["Jorge Montoyo","jmontoyo@gmail.com","Cabify",1490000000,1000],
-["Jorge Uriarte Aretxaga","jorge.uriarte@omelas.net","Cabify",1490000000,2000],
+["Jorge Montoyo","jmontoyo@gmail.com","Cabify",1500000000,1000],
+["Jorge Uriarte Aretxaga","jorge.uriarte@omelas.net","Cabify",1500000000,2000],
 ["Jorge Uriarte Aretxaga","jorge.uriarte@omelas.net","Chicisimo",null,2000],
 ["Jorge Uriarte Aretxaga","jorge.uriarte@omelas.net","Mailtrack",null,null],
 ["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","LUDA",null,1000],
 ["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","Oncoheroes",24000000,null],
 ["Jorge Visedo Ceballos","jvisedoceballos@gmail.com","Zapiens.ai",null,1000],
-["Joritz Etxeberria Ijurra","joritzetxe@gmail.com","Cabify",1490000000,1500],
+["Joritz Etxeberria Ijurra","joritzetxe@gmail.com","Cabify",1500000000,1500],
 ["Jose Bugeda Becerril","josepbb@hotmail.com","Genially",null,1000],
 ["Jose Bugeda Becerril","josepbb@hotmail.com","Zapiens.ai",null,null],
+["Jose Carlos Boluda","","MyHair/Stimusil",null,2000],
 ["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Alterhome",null,3000],
 ["Jose Daniel Domenech Gasco","jdomenech@gmail.com","CLAPS",null,3000],
 ["Jose Daniel Domenech Gasco","jdomenech@gmail.com","Genially",null,3000],
@@ -1805,9 +2184,9 @@ const RAW_INVESTORS = [
 ["José Luis Gómez Martínez","jluisete@gmail.com","Goin",null,null],
 ["Jose Luis Gonzalez Junco","jlg_73@hotmail.com","Zapiens.ai",null,3000],
 ["José Luis Martínez Fueyo","jlmfluky@gmail.com","WellbeingOS",null,1000],
-["José Manuel Azofra Subia","jmanuelazofra@icloud.com","Cabify",1490000000,1500],
+["José Manuel Azofra Subia","jmanuelazofra@icloud.com","Cabify",1500000000,1500],
 ["José Manuel Azofra Subia","jmanuelazofra@icloud.com","Mailtrack",null,null],
-["José Manuel Cifuentes","josemanuel@meteorainversiones.com","Cabify",1490000000,1000],
+["José Manuel Cifuentes Cortegaza","josemanuel@meteorainversiones.com","Cabify",1500000000,1000],
 ["José Manuel Cifuentes Cortegaza","josemanuel@meteorainversiones.com","Green Data Chain",null,5000],
 ["José Manuel Cifuentes Cortegaza","josemanuel@meteorainversiones.com","LUDA",null,5000],
 ["Jose Manuel Garcia","jmgg@google.com","ACCURATE",null,1000],
@@ -1818,14 +2197,15 @@ const RAW_INVESTORS = [
 ["Jose Manuel Garcia","jmgg@google.com","Housers",null,3000],
 ["Jose Manuel Garcia","jmgg@google.com","Kasitoko",null,3000],
 ["Jose Manuel Garcia","jmgg@google.com","Mailtrack",null,null],
-["Jose Manuel Garcia Gavilán","j.garcia.gavilan@gmail.com","Cabify",1490000000,5000],
+["Jose Manuel Garcia","","Myhair/Stimusil",null,1000],
+["Jose Manuel Garcia Gavilán","j.garcia.gavilan@gmail.com","Cabify",1500000000,5000],
 ["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","edit.org",null,1000],
 ["Jose Manuel García Gavilan","j.garcia.gavilan@gmail.com","Gomapi",null,2000],
 ["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","MyTripleA",null,1000],
 ["Jose Manuel Garcia Gavilan","j.garcia.gavilan@gmail.com","OrbitalAds",null,5000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Alterhome",null,1000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Bnext",null,1000],
-["Jose Manuel Gonzalez de Rueda Ramos","jm.glezderueda@gmail.com","Cabify",1490000000,5000],
+["Jose Manuel Gonzalez de Rueda Ramos","jm.glezderueda@gmail.com","Cabify",1500000000,5000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Chicisimo",null,1000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Goin",null,null],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Housers",null,1000],
@@ -1834,11 +2214,11 @@ const RAW_INVESTORS = [
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","LOBSTER III",null,1000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","LUDA",null,1000],
 ["Jose Manuel González de Rueda Ramos","jm.glezderueda@gmail.com","Mailtrack",null,null],
-["Jose Manuel Louro Lago","jmlouro@ralightsolutions.com","Cabify",1490000000,20000],
+["Jose Manuel Louro Lago","jmlouro@ralightsolutions.com","Cabify",1500000000,20000],
 ["Jose Manuel Mier Albert","josemieralbert@gmail.com","Gomapi",null,1000],
 ["Jose Manuel Mier Albert","josemieralbert@gmail.com","Zapiens.ai",null,1000],
 ["José Manuel Rollán Prada","jose.rollan.prada@gmail.com","Badi",null,3000],
-["Jose Manuel Rollán Prada","jose.rollan.prada@gmail.com","Cabify",1490000000,3000],
+["Jose Manuel Rollán Prada","jose.rollan.prada@gmail.com","Cabify",1500000000,3000],
 ["José Manuel Rollán Prada","jose.rollan.prada@gmail.com","Goin",null,null],
 ["José Manuel Rollán Prada","jose.rollan.prada@gmail.com","Housers",null,3000],
 ["José Manuel Rollán Prada","jose.rollan.prada@gmail.com","Kasitoko",null,2000],
@@ -1847,10 +2227,10 @@ const RAW_INVESTORS = [
 ["Jose María De Armentia Mora","chemitarmentia@gmail.com","WellbeingOS",null,1050],
 ["José María De Armentia Mora","chemitarmentia@gmail.com","Zapiens.ai",null,1000],
 ["José María Pimienta González","josemaria.pimienta@gmail.com","Green Data Chain",null,1000],
-["Jose Ramon Lopez Rodriguez","andalnet@gmail.com","Cabify",1490000000,1000],
-["Jose Rodriguez Ruibal","jose@cangobox.com","Cabify",1490000000,1000],
+["Jose Ramon Lopez Rodriguez","andalnet@gmail.com","Cabify",1500000000,1000],
+["Jose Rodriguez Ruibal","jose@cangobox.com","Cabify",1500000000,1000],
 ["Jose Villalobos Cortés","mrvilla@gmail.com","Badi",null,null],
-["Jose Villalobos Cortés","mrvilla@gmail.com","Cabify",1490000000,3000],
+["Jose Villalobos Cortés","mrvilla@gmail.com","Cabify",1500000000,3000],
 ["Jose Villalobos Cortés","mrvilla@gmail.com","Chicisimo",null,2000],
 ["Jose Villalobos Cortés","mrvilla@gmail.com","Goin",null,null],
 ["Jose Villalobos Cortés","mrvilla@gmail.com","Housers",null,2000],
@@ -1860,8 +2240,8 @@ const RAW_INVESTORS = [
 ["Josep Maria Bagudà Serenó","jm.baguda@gmail.com","WellbeingOS",null,10000],
 ["Josetxu Silgo","jsilgo@metxa.com","Goin",null,null],
 ["Josu Estarrona","josuestarrona@gmail.com","Charplanet",null,3000],
-["Josu Estarrona Elizondo","josuestarrona@gmail.com","Cabify",1490000000,3000],
-["Joxemari Gallastegi","joxemgallastegi@gmail.com","Cabify",1490000000,5000],
+["Josu Estarrona Elizondo","josuestarrona@gmail.com","Cabify",1500000000,3000],
+["Joxemari Gallastegi","joxemgallastegi@gmail.com","Cabify",1500000000,5000],
 ["Joxemari Gallastegi Etxebarria","joxemgallastegi@gmail.com","Chicisimo",null,5000],
 ["Juan Antuña Cerredo","juanantuna@gmail.com","Coverfy",null,null],
 ["Juan Barinaga Ascasibar","jbarinagasca@gmail.com","Green Data Chain",null,1000],
@@ -1876,14 +2256,15 @@ const RAW_INVESTORS = [
 ["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Green Data Chain",null,4000],
 ["Juan Francisco Ortiz Camarero","juanortizcamarero@gmail.com","Zapiens.ai",null,5000],
 ["Juan Jesús Yubero","jjyubero@altiria.com","EVIL ZEPPELIN",null,5000],
-["Juan Jose Etxeberria Begiristain","eugenia.ijurra@gmail.com","Cabify",1490000000,1500],
+["Juan Jose Etxeberria Begiristain","eugenia.ijurra@gmail.com","Cabify",1500000000,1500],
 ["Juan Luis Hortelano","juanluis@gmail.com","CLAPS",null,3000],
+["Juan Leal","","MyHair/Stimusil",null,1000],
 ["Juan Manuel Escrivá Pastor","juanescrivap@gmail.com","EVIL ZEPPELIN",null,5000],
 ["Juan Ortiz","juanortizcamarero@gmail.com","ACCURATE",null,10000],
 ["Juan Ortiz Camarero","juanortizcamarero@gmail.com","FROGED",null,5000],
 ["Juan Ortiz Camarero","juanortizcamarero@gmail.com","LOBSTER III",null,6000],
 ["Juan Pablo Alberca Lucas","txampa@santafixie.com","Bnext",null,2500],
-["Juan Pablo Alberca Lucas","txampa@santafixie.com","Cabify",1490000000,2500],
+["Juan Pablo Alberca Lucas","txampa@santafixie.com","Cabify",1500000000,2500],
 ["Juan Pablo Alberca Lucas","txampa@santafixie.com","Chicisimo",null,2500],
 ["Juan Pablo Alberca Lucas","txampa@santafixie.com","Mailtrack",null,null],
 ["Juan Pedro Vazquez García","jpvazquez@revalia.es","MyTripleA",null,1000],
@@ -1893,9 +2274,9 @@ const RAW_INVESTORS = [
 ["Juan Pedro Vázquez García","jpvazquez@revalia.es","Gomapi",null,1200],
 ["Juan Pedro Vazquez García","jpvazquez@revalia.es","Kasitoko",null,1000],
 ["Juan Pedro Vázquez García","jpvazquez@revalia.es","Oncoheroes",24000000,null],
-["Juan Seguí","juan@acceseo.com","Chicisimo",null,1000],
-["Juan Seguí","juan@acceseo.com","Goin",null,null],
-["Juan Seguí","juan@acceseo.com","MyTripleA",null,2000],
+["Juan Seguí Moreno","juan@acceseo.com","Chicisimo",null,1000],
+["Juan Seguí Moreno","juan@acceseo.com","Goin",null,null],
+["Juan Seguí Moreno","juan@acceseo.com","MyTripleA",null,2000],
 ["Juan Seguí Moreno","juan@acceseo.com","ACCURATE",null,1500],
 ["Juan Seguí Moreno","juan@acceseo.com","Bnext",null,2000],
 ["Juan Seguí Moreno","juan@acceseo.com","Gomapi",null,1000],
@@ -1922,7 +2303,7 @@ const RAW_INVESTORS = [
 ["Julio Arias","julio.arias@gmail.com","Chicisimo",null,1000],
 ["Julio Arias","julio.arias@gmail.com","Coverfy",null,null],
 ["Julio Juan Merelo Casado","jjmereloc@gmail.com","Zapiens.ai",null,1500],
-["Julio Merelo Casado","jjmereloc@gmail.com","Cabify",1490000000,1000],
+["Julio Merelo Casado","jjmereloc@gmail.com","Cabify",1500000000,1000],
 ["Kadelion SL Lorenzo Rosado","contacto@kraoesp.com","LUDA",null,1000],
 ["Kaledion SL, Lorenzo Rosado","contacto@kraoesp.com","Green Data Chain",null,2000],
 ["Karusha Invest S.L Azofra Subia","jmanuelazofra@icloud.com","Genially",null,2000],
@@ -1935,7 +2316,7 @@ const RAW_INVESTORS = [
 ["Kike Dubois","enriquedubois10@gmail.com","Goin",null,null],
 ["Kike Dubois","enriquedubois10@gmail.com","Housers",null,null],
 ["Kofer Asesores Financieros S.L.U","jjcolasf@gmail.com","CLAPS",null,5000],
-["Laura Ruiz","lauraruizandrino@gmail.com","Cabify",1490000000,5000],
+["Laura Ruiz","lauraruizandrino@gmail.com","Cabify",1500000000,5000],
 ["Laura Ruiz","lauraruizandrino@gmail.com","Mailtrack",null,null],
 ["Leonardo Nomdedeu Calvente","leo.nomdedeu@gmail.com","LUDA",null,1000],
 ["Leonardo Nomdedeu Calvente","leo.nomdedeu@gmail.com","Oncoheroes",24000000,null],
@@ -1955,16 +2336,17 @@ const RAW_INVESTORS = [
 ["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","LOBSTER II",null,4500],
 ["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","LUDA",null,3000],
 ["Luis Fernando Caldentey Torner","lcaldentey@aparteasy.com","Zapiens.ai",null,1000],
-["Luis Galindo","luis@galindoasociados.es","MyTripleA",null,10000],
-["Luis Galindo","luis@galindoasociados.es","OrbitalAds",null,10000],
+["Luis Galindo Olivera","luis@galindoasociados.es","MyTripleA",null,10000],
+["Luis Galindo Olivera","luis@galindoasociados.es","OrbitalAds",null,10000],
 ["Luis Galindo Olivera","luis@galindoasociados.es","Coverfy",null,null],
+["Luis Galindo Olivera","luis@galindoasociados.es","MyHair/Stimusil",null,4000],
 ["Luis Laborda López","luisi_lab10@hotmail.com","Oncoheroes",24000000,null],
 ["Luis Laborda López","luis.laborda@diageo.com","KASAZ",null,2000],
 ["Luis Moreno Nieto","luismorenonieto@gmail.com","KASAZ",null,1000],
 ["Maider Mendizabal Azurmendi","reenfocandolavida@gmail.com","Green Data Chain",null,1000],
 ["MªJosé Díaz Bellón","mjdiazbellon@gmail.com","Bnext",null,2000],
 ["Manex Goenaga Arsuaga","manexgo@hotmail.com","CLAPS",null,1000],
-["Manex Goenaga Arsuaga","manexgo@hotmail.com","Cabify",1490000000,1000],
+["Manex Goenaga Arsuaga","manexgo@hotmail.com","Cabify",1500000000,1000],
 ["Manex Goenaga Arsuaga","manexgo@hotmail.com","FROGED",null,1000],
 ["Manex Goenaga Arsuaga","manexgo@hotmail.com","Genially",null,1500],
 ["Manex Goenaga Arsuaga","manexgo@hotmail.com","Housers",null,1000],
@@ -1977,11 +2359,11 @@ const RAW_INVESTORS = [
 ["Manuel Vila Braña","manuelvilabrana@outlook.es","LOBSTER III",null,2500],
 ["Marc Duran","marc.duran.96@gmail.com","Alterhome",null,1000],
 ["Marc Noguera","mnoguera88@gmail.com","Mailtrack",null,null],
-["Marc Noguera Güell","mnoguera88@gmail.com","Cabify",1490000000,2000],
+["Marc Noguera Güell","mnoguera88@gmail.com","Cabify",1500000000,2000],
 ["Marcel Aragonès Mas","aragonesmarcel1@gmail.com","Zapiens.ai",null,1000],
 ["Marco Antonio Tabasco Ortiz","matabasco@gmail.com","Zapiens.ai",null,1500],
 ["Marco Dominguez Bonini","huanco@gmail.com","MyTripleA",null,1000],
-["Marco Dominguez Bonini","huanco@gmail.com","Cabify",1490000000,1000],
+["Marco Dominguez Bonini","huanco@gmail.com","Cabify",1500000000,1000],
 ["Marco Dominguez Bonini","huanco@gmail.com","OrbitalAds",null,1000],
 ["Marco Dominguez Bonini","marco.dominguez@ikusi.com","Badi",null,1000],
 ["Marco Dominguez Bonini","marco.dominguez@ikusi.com","Charplanet",null,1000],
@@ -1992,13 +2374,13 @@ const RAW_INVESTORS = [
 ["Marco Dominguez Bonini","marco.dominguez@ikusi.com","Kasitoko",null,1000],
 ["Marco Dominguez Bonini","marco.dominguez@ikusi.com","Mailtrack",null,null],
 ["Marcos Fernandez","marcosf@mockingbird.es","Badi",null,1000],
-["Marcos Fernández","marcosf@mockingbird.es","Cabify",1490000000,1000],
+["Marcos Fernández","marcosf@mockingbird.es","Cabify",1500000000,1000],
 ["Marcos Fernandez Concostrina","marcosfernandez@uni-media.es","Mailtrack",null,null],
 ["María Beatriz Martinez Miranda","beatrizmartinezmiranda@gmail.com","Zapiens.ai",null,6000],
 ["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","CLAPS",null,1000],
 ["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","Oncoheroes",24000000,null],
 ["María Estibaliz Rodríguez Cengotitabengoa","estibaliz_rodriguez@yahoo.es","Zapiens.ai",null,1000],
-["Maria Eugenia Ijurra Araña","eugenia.ijurra@gmail.com","Cabify",1490000000,1500],
+["Maria Eugenia Ijurra Araña","eugenia.ijurra@gmail.com","Cabify",1500000000,1500],
 ["Maria Goti","mgoti@elcorreo.com","Chicisimo",null,2000],
 ["Maria Goti","mgoti@elcorreo.com","Goin",null,null],
 ["María Goti Ciprian","maria.ecd@gmail.com","Lobster",null,2500],
@@ -2033,7 +2415,7 @@ const RAW_INVESTORS = [
 ["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","EVIL ZEPPELIN",null,5000],
 ["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","Genially",null,10000],
 ["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","LOBSTER III",null,10000],
-["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","ROAMS",null,5000],
+["Medcom 2006 S.L. Oliver Guardiola","francisco.oliver.guardiola@gmail.com","ROAMS",13900000,5000],
 ["Mercedes Royo Sanz","mercedesrs62@gmail.com","Green Data Chain",null,5000],
 ["Mercury Consultores Tecnologicos SL Aitor Gaisán Montoya","aitorgaisan82@gmail.com","Zapiens.ai",null,1500],
 ["Mercury Consultores Tecnologicos SL Gaisán Montoya","aitorgaisan82@gmail.com","Lobster",null,2000],
@@ -2072,22 +2454,23 @@ const RAW_INVESTORS = [
 ["Miguel Covas","miguel@crealink.com","Kasitoko",null,null],
 ["Miguel Covas","miguel@crealink.com","Mailtrack",null,null],
 ["Miguel Fernández Herencias","miguel.fer.herencias@gmail.com","CLAPS",null,2000],
-["Miguel Gaton","miguel@abinternet.es","ACCURATE",null,2000],
-["Miguel Gaton","miguel@abinternet.es","Badi",null,1000],
-["Miguel Gaton","miguel@abinternet.es","Cabify",1490000000,2000],
-["Miguel Gaton","miguel@abinternet.es","Charplanet",null,2000],
-["Miguel Gaton","miguel@abinternet.es","Chicisimo",null,2000],
-["Miguel Gaton","miguel@abinternet.es","Coverfy",null,null],
-["Miguel Gaton","miguel@abinternet.es","Goin",null,null],
-["Miguel Gaton","miguel@abinternet.es","Housers",null,1000],
-["Miguel Gaton","miguel@abinternet.es","Kasitoko",null,1000],
-["Miguel Gaton","miguel@abinternet.es","Mailtrack",null,null],
-["Miguel Gaton","miguel@abinternet.es","MyTripleA",null,2000],
-["Miguel Gatón","miguel@abinternet.es","OrbitalAds",null,2000],
-["Miguel Gatón García","miguel@abinternet.es","FROGED",null,2000],
-["Miguel Gaton García","miguel@abinternet.es","Gomapi",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","ACCURATE",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Badi",null,1000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Cabify",1500000000,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Charplanet",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Chicisimo",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Coverfy",null,null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Goin",null,null],
+["Miguel Angel Gatón García","miguel@abinternet.es","Housers",null,1000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Kasitoko",null,1000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Mailtrack",null,null],
+["Miguel Angel Gatón García","miguel@abinternet.es","MyTripleA",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","OrbitalAds",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","FROGED",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Gomapi",null,2000],
+["Miguel Angel Gatón García","miguel@abinternet.es","Myhair/Stimusil",null,2000],
 ["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","Alterhome",null,5000],
-["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","Cabify",1490000000,3000],
+["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","Cabify",1500000000,3000],
 ["Miguel Sotomayor Aparicio","miguel_sotomayor@hotmail.com","CLAPS",null,3000],
 ["Miguel Sotomayor Aparicio","msotomayor@haya.es","Chicisimo",null,2000],
 ["Miguel Sotomayor Aparicio","msotomayor@haya.es","Coverfy",null,null],
@@ -2098,10 +2481,10 @@ const RAW_INVESTORS = [
 ["Mikel Gotzon Losa","3000@gmx.fr","LUDA",null,3000],
 ["Mikel López de Torre Querejazu","mikellpzdetorre@gmail.com","CLAPS",null,5000],
 ["Mikel López de Torre Querejazu","mikellpzdetorre@gmail.com","Bnext",null,10000],
-["Mikel Sampedro","mikelsampedro@gmail.com","Cabify",1490000000,1000],
+["Mikel Sampedro","mikelsampedro@gmail.com","Cabify",1500000000,1000],
 ["Mikel Sampedro","mikelsampedro@icloud.com","Chicisimo",null,1000],
 ["Mikel Sampedro","mikelsampedro@icloud.com","OrbitalAds",null,1000],
-["Miguel Julián Miguel López","mikineator@gmail.com","Cabify",1490000000,1000],
+["Miguel Julián Miguel López","mikineator@gmail.com","Cabify",1500000000,1000],
 ["Miguel Julián Miguel López","mikineator@gmail.com","Housers",null,1000],
 ["Miquel Cantenys Sanchez","miquelcant@gmail.com","Alterhome",null,1000],
 ["Miquel Mascort Reig","mmascort@ocasionia.com","WellbeingOS",null,2500],
@@ -2112,7 +2495,7 @@ const RAW_INVESTORS = [
 ["MORENO RUIZ HERMANOS S.L.(Fernando Moreno Cáceres)","fmoreno@auroracorp.es","KASAZ",null,3000],
 ["Munther Odeh","muntherom@gmail.com","Goin",null,null],
 ["Natalia Cecilia Zamora Bunker","nataliazamora@continuos.com","Zapiens.ai",null,3000],
-["Nerea Iglesias","Krypteiacapital@gmail.com","Cabify",1490000000,3000],
+["Nerea Iglesias","Krypteiacapital@gmail.com","Cabify",1500000000,3000],
 ["Nerea Iglesias","Krypteiacapital@gmail.com","OrbitalAds",null,10000],
 ["Nerea Iglesias","niglesias@krypteiavalue.com","Charplanet",null,5000],
 ["Nerea Iglesias","niglesias@krypteiavalue.com","Chicisimo",null,10000],
@@ -2133,7 +2516,8 @@ const RAW_INVESTORS = [
 ["Nicolas Teleki","nicolas@teleki.name","OrbitalAds",null,3000],
 ["Noel Arias Ruiz","Ariasnoel9@gmail.com","Lobster",null,1000],
 ["Noel Arias Ruiz","Ariasnoel9@gmail.com","LOBSTER II",null,1000],
-["Omar Pera","omar@reply.ai","Cabify",1490000000,2500],
+["Omar Pera","omar@reply.ai","Cabify",1500000000,2500],
+["Omar Pera","omar@reply.ai","Myhair/Stimusil",null,5000],
 ["Omar Pera Mira","campbell.sx@gmail.com","Genially",null,5000],
 ["Omar Pera Mira","omar@reply.ai","Bnext",null,5000],
 ["Oriol Huesa Ripoll","oriolhuesa@gmail.com","Genially",null,3000],
@@ -2143,23 +2527,23 @@ const RAW_INVESTORS = [
 ["Oscar Del Río De Miguel","oscar.delrio@interacso.com","Lobster",null,1000],
 ["Oscar Del Río De Miguel","oscar.delrio@interacso.com","LOBSTER II",null,1000],
 ["Oscar Del Río De Miguel","oscar.delrio@interacso.com","LUDA",null,1000],
-["Oscar Iglesias Touceda","osc.iglesias@gmail.com","Cabify",1490000000,1000],
+["Oscar Iglesias Touceda","osc.iglesias@gmail.com","Cabify",1500000000,1000],
 ["Óscar Iglesias Touceda","osc.iglesias@gmail.com","Mailtrack",null,null],
 ["Oscar Rodríguez González","ribasaltas@gmail.com","CLAPS",null,2000],
 ["Oscar Rodríguez González","ribasaltas@gmail.com","Green Data Chain",null,2000],
 ["Oscar Rodríguez González","ribasaltas@gmail.com","LOBSTER III",null,1000],
 ["Oscar Rodríguez González","ribasaltas@gmail.com","Zapiens.ai",null,1000],
-["Oymyakon Invest S.L","salvadox@gmail.com","Alterhome",null,5000],
-["Oymyakon Invest S.L","salvadox@gmail.com","CLAPS",null,9000],
-["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","EVIL ZEPPELIN",null,2000],
-["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","Genially",null,5000],
-["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","Green Data Chain",null,2500],
-["Oymyakon Invest S.L Salvadó Monreal","salvadox@gmail.com","LUDA",null,3000],
-["OYMYAKON INVEST S.L. Salvadó Monreal","salvadox@gmail.com","Lobster",null,1500],
-["OYMYAKON INVEST S.L. Salvadó Monreal","salvadox@gmail.com","LOBSTER II",null,1500],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Alterhome",null,5000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","CLAPS",null,9000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","EVIL ZEPPELIN",null,2000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Genially",null,5000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Green Data Chain",null,2500],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","LUDA",null,3000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Lobster",null,1500],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","LOBSTER II",null,1500],
 ["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","Zapiens.ai",null,8000],
-["Oymyakon Invest, SL","salvadox@gmail.com","edit.org",null,9865],
-["Oymyakon Invest, SL (Javier Salvado)","salvadox@gmail.com","KASAZ",null,3000],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","edit.org",null,9865],
+["OYMYAKON INVEST S.L. Xavier Salvadó Monreal","salvadox@gmail.com","KASAZ",null,3000],
 ["Pablo Abad","pabloam95@gmail.com","ACCURATE",null,1100],
 ["Pablo Abad Martinez","pabloam95@gmail.com","CLAPS",null,1000],
 ["Pablo Abad Martinez","pabloam95@gmail.com","Genially",null,2000],
@@ -2167,9 +2551,9 @@ const RAW_INVESTORS = [
 ["Pablo Abad Martínez","pabloam95@gmail.com","KASAZ",null,1100],
 ["Pablo Alejandro Artacho Amichis","artacho@spotahome.com","Bnext",null,1500],
 ["Pablo Alejandro Artacho Amichis","artacho@spotahome.com","Gomapi",null,10000],
-["Pablo Castaño","pablocastano@yahoo.com","Charplanet",null,1000],
-["Pablo Castano","pablocastano@yahoo.com","MyTripleA",null,1000],
-["Pablo Castano","pablocastano@yahoo.com","OrbitalAds",null,1000],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","Charplanet",null,1000],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","MyTripleA",null,1000],
+["Pablo Castaño Poudade","pablocastano@yahoo.com","OrbitalAds",null,1000],
 ["Pablo Castaño Poudade","pablocastano@yahoo.com","Lobster",null,1000],
 ["Pablo Castaño Poudade","pablocastano@yahoo.com","LOBSTER II",null,1000],
 ["Pablo Castaño Poudade","pablocastano@yahoo.com","WellbeingOS",null,1000],
@@ -2180,11 +2564,12 @@ const RAW_INVESTORS = [
 ["Pablo Naranjo Pelayo","pablonaranjop@gmail.com","edit.org",null,1000],
 ["Pablo Pardo Cáceres","pablo.pardocaceres@gmail.com","Oncoheroes",24000000,null],
 ["Pablo Pardo Cáceres","pablo.pardocaceres@gmail.com","WellbeingOS",null,2000],
-["Pablo Pera Mira","pablo.sx@gmail.com","Cabify",1490000000,2500],
+["Pablo Pera Mira","pablo.sx@gmail.com","Cabify",1500000000,2500],
 ["Pablo Pera Mira","pablo.sx@gmail.com","Lobster",null,2500],
 ["Pablo Pera Mira","pablo.sx@gmail.com","LOBSTER II",null,2500],
 ["Pablo Pera Mira","pablo@reply.ai","Bnext",null,5000],
 ["Pablo Pera Mira","pablo@reply.ai","WellbeingOS",null,5000],
+["Pablo Pera Mira","","Myhair/Stimusil",null,5000],
 ["Pablo Rafael Castano Paudade","pablocastano@yahoo.com","Gomapi",null,1000],
 ["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","Alterhome",null,1000],
 ["Pablo Rafael Castaño Poudade","pablocastano@yahoo.com","Genially",null,1000],
@@ -2230,20 +2615,21 @@ const RAW_INVESTORS = [
 ["Ramón Rotaeche","rarotaeche@gmail.com","EVIL ZEPPELIN",null,1000],
 ["Ramón Rotaeche","rarotaeche@gmail.com","LOBSTER III",null,1000],
 ["Ramón Rotaeche","rarotaeche@gmail.com","LUDA",null,1000],
-["Raul Kripalani","raul.kripalani@gmail.com","Cabify",1490000000,1500],
+["Raul Kripalani","raul.kripalani@gmail.com","Cabify",1500000000,1500],
 ["Raul Kripalani","raul@evosent.com","Badi",null,null],
 ["Raul Kripalani","raul@evosent.com","Mailtrack",null,null],
 ["Raul Onaindia","onaindiaraul@gmail.com","Genially",null,2000],
 ["Rearviewmirror Investments S.L. Von Schiller","ovonschiller@ecija.com","Genially",null,10000],
 ["Ricard Garriga","ri.garriga@gmail.com","Coverfy",null,null],
-["Ricard Garriga","ri.garriga@gmail.com","ROAMS",null,1000],
+["Ricard Garriga","ri.garriga@gmail.com","ROAMS",13900000,1000],
+["Ricard Garriga","ri.garriga@gmail.com","Myhair/Stimusil",null,1000],
 ["Ricard Porta Valero","rportavalero@gmail.com","Lobster",null,1075],
 ["Ricard Porta Valero","rportavalero@gmail.com","LOBSTER II",null,1075],
 ["Ricardo Alvarez","darthricard@gmail.com","ACCURATE",null,1500],
-["Ricardo Alvarez","darthricard@gmail.com","Cabify",1490000000,1000],
+["Ricardo Alvarez","darthricard@gmail.com","Cabify",1500000000,1000],
 ["Ricardo Alvarez","darthricard@gmail.com","Mailtrack",null,null],
 ["Roberto Barrio","roberhood@gmail.com","Badi",null,1000],
-["Roberto Barrio","roberhood@gmail.com","Cabify",1490000000,1000],
+["Roberto Barrio","roberhood@gmail.com","Cabify",1500000000,1000],
 ["Roberto Barrio","roberhood@gmail.com","OrbitalAds",null,1000],
 ["Roberto Martín Muñoz","robertomartin76@hotmail.com","Alterhome",null,1000],
 ["Roberto Martín Muñoz","robertomartin76@hotmail.com","CLAPS",null,1000],
@@ -2256,30 +2642,31 @@ const RAW_INVESTORS = [
 ["Rodolf Rius Expósito","rodolf_rius@hotmail.com","LOBSTER II",null,2000],
 ["Roger Martínez Terés","roger.runch@gmail.com","EVIL ZEPPELIN",null,1000],
 ["Roger Martínez Terés","roger.runch@gmail.com","LOBSTER III",null,1000],
-["Roger Martínez Terés","roger.runch@gmail.com","ROAMS",null,1000],
+["Roger Martínez Terés","roger.runch@gmail.com","ROAMS",13900000,1000],
 ["Roger Runch","roger.runch@gmail.com","Zapiens.ai",null,null],
 ["Román Sanchez","Info.ignalber@gmail.com","WellbeingOS",null,6000],
 ["Rosa Bonafoux Amengual","administracion@grupotrato.com","WellbeingOS",null,1000],
-["Rosa Jiménez Cano","rosajc@gmail.com","Cabify",1490000000,2000],
+["Rosa Jiménez Cano","rosajc@gmail.com","Cabify",1500000000,2000],
 ["Rosa Jiménez Cano","rosajc@gmail.com","Coverfy",null,null],
 ["Rosa Jiménez Cano","rosajc@gmail.com","Goin",null,null],
-["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Cabify",1490000000,3000],
+["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Cabify",1500000000,3000],
 ["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Charplanet",null,3000],
 ["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Coverfy",null,null],
 ["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Goin",null,null],
 ["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","Mailtrack",null,null],
 ["Rubén Bernat Enguídanos","ruben.bernat@icloud.com","MyTripleA",null,5000],
-["Ruben Ferreiro","ruben.ferreiro@elogia.net","Cabify",1490000000,3000],
+["Ruben Ferreiro","ruben.ferreiro@elogia.net","Cabify",1500000000,3000],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Badi",null,1000],
-["Saioa de la Fuente","saioadelafuente@gmail.com","Cabify",1490000000,1000],
+["Saioa de la Fuente","saioadelafuente@gmail.com","Cabify",1500000000,1000],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Chicisimo",null,2000],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Coverfy",null,null],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Goin",null,null],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Kasitoko",null,1000],
 ["Saioa de la Fuente","saioadelafuente@gmail.com","Mailtrack",null,null],
 ["Saioa De la Fuente Zugazaga","saioadelafuente@gmail.com","Zapiens.ai",null,2000],
+["Saioa De la Fuente Zugazaga","saioadelafuente@gmail.com","MyHair/Stimusil",null,2000],
 ["Saioa Ojenbarrena","saioaojembarrena@gmail.com","LUDA",null,1000],
-["Salvador López Sanchez","slopez@andamur.com","Cabify",1490000000,50000],
+["Salvador López Sanchez","slopez@andamur.com","Cabify",1500000000,50000],
 ["Santi Casanellas","scasanellas@gmail.com","FROGED",null,1100],
 ["Santi Casanellas Soler","scasanellas@gmail.com","WellbeingOS",null,1100],
 ["Santiago Casanellas Soler","scasanellas@gmail.com","Alterhome",null,1100],
@@ -2290,8 +2677,8 @@ const RAW_INVESTORS = [
 ["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","Badi",null,null],
 ["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","LUDA",null,2000],
 ["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","Mailtrack",null,null],
-["Santiago Sanchez-Lozano Turmo","santiago.sanchezlozano@gmail.com","Lobster",null,2000],
-["Santiago Sanchez-Lozano Turmo","santiago.sanchezlozano@gmail.com","LOBSTER II",null,2000],
+["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","Lobster",null,2000],
+["Santiago Sanchez-Lozano","santiago.sanchezlozano@gmail.com","LOBSTER II",null,2000],
 ["Sara Diez Pelae","administracion@vestelingenieros.com","WellbeingOS",null,10000],
 ["SEMANTICAE FORMACION S.L. Ana Aldea Alonso","ana@datasocial.es","Zapiens.ai",null,3000],
 ["SEMANTICAE FORMACION S.L., Aldea Alonso","ana@datasocial.es","Lobster",null,2000],
@@ -2320,7 +2707,7 @@ const RAW_INVESTORS = [
 ["Shadenn Zarur Guzman","szarur@tonalli.cl","LUDA",null,1500],
 ["Shadenn Zarur Guzman","szarur@tonalli.cl","WellbeingOS",null,2000],
 ["Sheila Rodriguez Sanchez","sheilars29@gmail.com","LOBSTER III",null,1200],
-["Silvia","simarque@trabajaportucuenta.com","Zapiens.ai",null,null],
+["Silvia Marquez Rodriguez","simarque@trabajaportucuenta.com","Zapiens.ai",null,null],
 ["Silvia Marquez Rodriguez","simarque@trabajaportucuenta.com","Green Data Chain",null,1000],
 ["Smile and Think SLU","benjicoll@gmail.com","Alterhome",null,2000],
 ["Smile and Think SLU","benjicoll@gmail.com","CLAPS",null,2000],
@@ -2330,19 +2717,19 @@ const RAW_INVESTORS = [
 ["Smile and Think SLU Coll","benjicoll@gmail.com","Green Data Chain",null,3000],
 ["Smile and Think SLU Coll","benjicoll@gmail.com","LOBSTER III",null,3000],
 ["Smile and Think SLU Coll","benjicoll@gmail.com","LUDA",null,2000],
-["Stephan Rolf Richter","stephan@richtersolution.com","Cabify",1490000000,1500],
+["Stephan Rolf Richter","stephan@richtersolution.com","Cabify",1500000000,1500],
 ["Thomas Emile Petit","thomasbcna@gmail.com","KASAZ",null,1000],
-["Tomas Sebastian Richter","stephan@richtersolution.com","Cabify",1490000000,1500],
+["Tomas Sebastian Richter","stephan@richtersolution.com","Cabify",1500000000,1500],
 ["Tomeu","trosselloservera@gmail.com","Zapiens.ai",null,null],
 ["Triboulietx XXI S.L (Miquel Mascort)","mr1410@hotmail.com","KASAZ",null,2500],
 ["TRIBOULIETX XXI S.L. Mascort Reig","mmascort@ocasionia.com","Lobster",null,2500],
 ["TRIBOULIETX XXI S.L. Mascort Reig","mmascort@ocasionia.com","LOBSTER II",null,2500],
 ["Triboulietx XXI S.L. Miquel Mascort Reig","mmascort@ocasionia.com","Zapiens.ai",null,2500],
-["Txomin Gallastegi","gallastegi.ego@gmail.com","Cabify",1490000000,5000],
+["Txomin Gallastegi","gallastegi.ego@gmail.com","Cabify",1500000000,5000],
 ["Txomin Gallastegi","gallastegi.ego@gmail.com","Chicisimo",null,5000],
 ["Universosm Soluciones Digitales SLU","javier@universosm.es","edit.org",null,1000],
-["Urko Jauregi","urkojauregi@gmail.com","MyTripleA",null,1000],
-["Urko Jauregi","urkojauregi@gmail.com","OrbitalAds",null,1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","MyTripleA",null,1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","OrbitalAds",null,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","Alterhome",null,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","Bnext",null,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","Charplanet",null,1000],
@@ -2352,9 +2739,10 @@ const RAW_INVESTORS = [
 ["Urko Jauregi Llona","urkojauregi@gmail.com","Genially",null,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","Green Data Chain",null,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","LUDA",null,1000],
-["Urko Jauregi Llona","urkojauregi@gmail.com","ROAMS",null,1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","ROAMS",13900000,1000],
 ["Urko Jauregi Llona","urkojauregi@gmail.com","WellbeingOS",null,1000],
-["Urko Jauregui Llona","urkojauregi@gmail.com","Gomapi",null,1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","Gomapi",null,1000],
+["Urko Jauregi Llona","urkojauregi@gmail.com","MyHair/Stimusil",null,1000],
 ["Valdric Vidal Forcada","info@lespicardes.com","WellbeingOS",null,1000],
 ["Valmiro Lopes","vlopestey@hotmail.com","Charplanet",null,2000],
 ["Valmiro Lopes","vlopestey@hotmail.com","Goin",null,null],
@@ -2370,11 +2758,11 @@ const RAW_INVESTORS = [
 ["Vicente Javier Navarro Pastor","vicentxnavarro@gmail.com","LUDA",null,1000],
 ["Vicente Jiménez Montero","vicenteliebe62@hotmail.es","Green Data Chain",null,2000],
 ["Victor De Frutos","victor@vestelingenieros.com","Alterhome",null,10000],
-["Victor Diaz de Arcaya","vdarcaya@hotmail.com","MyTripleA",null,2500],
-["Víctor Díaz de Arcaya","vdarcaya@hotmail.com","ACCURATE",null,2000],
-["Victor Diaz de Arcaya","vdarcaya@hotmail.com","Charplanet",null,1500],
-["Victor Diaz de Arcaya","vdarcaya@hotmail.com","Chicisimo",null,2500],
-["Víctor Díaz de Arcaya","vdarcaya@hotmail.com","OrbitalAds",null,3000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","MyTripleA",null,2500],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","ACCURATE",null,2000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Charplanet",null,1500],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Chicisimo",null,2500],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","OrbitalAds",null,3000],
 ["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Alterhome",null,2000],
 ["Victor Diaz de Arcaya Fernández","vdarcaya@hotmail.com","Bnext",null,1500],
 ["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","CLAPS",null,2000],
@@ -2390,14 +2778,15 @@ const RAW_INVESTORS = [
 ["Víctor Díaz de Arcaya Fernández","vdarcaya@hotmail.com","Oncoheroes",24000000,null],
 ["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","WellbeingOS",null,1000],
 ["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","Zapiens.ai",null,1000],
-["Virginia Fernández Concostrina","fdezconcostrina.virginia@gmail.com","Cabify",1490000000,1000],
+["Victor Diaz de Arcaya Fernandez","vdarcaya@hotmail.com","MyHair/Stimusil",null,1000],
+["Virginia Fernández Concostrina","fdezconcostrina.virginia@gmail.com","Cabify",1500000000,1000],
 ["VPozzi Inversiones, SL","marco.pozzi.bcn@gmail.com","CLAPS",null,3500],
 ["Wenceslao Garcia","wencesg@gmail.com","Kasitoko",null,1000],
 ["Wolfgang Haselwander","wolfhas2@gmail.com","Lobster",null,10000],
 ["Wolfgang Haselwander","wolfhas2@gmail.com","LOBSTER II",null,10000],
 ["Xabier Prada Benito","x_prada@yahoo.com","Gomapi",null,2000],
 ["xabier prada benito","x_prada@yahoo.com","Badi",null,2000],
-["Xabier Prada Benito","x_prada@yahoo.com","Cabify",1490000000,2000],
+["Xabier Prada Benito","x_prada@yahoo.com","Cabify",1500000000,2000],
 ["xabier prada benito","x_prada@yahoo.com","Charplanet",null,1000],
 ["xabier prada benito","x_prada@yahoo.com","Chicisimo",null,2000],
 ["xabier prada benito","x_prada@yahoo.com","Goin",null,null],
@@ -2406,7 +2795,7 @@ const RAW_INVESTORS = [
 ["Xavier Marín López","xavvi8@hotmail.com","EVIL ZEPPELIN",null,5000],
 ["Xavier Marín López","xavvi8@hotmail.com","LUDA",null,10000],
 ["Xavier Salvadó Monreal","salvadox@gmail.com","Badi",null,null],
-["Xavier Salvadó Monreal","salvadox@gmail.com","Cabify",1490000000,5000],
+["Xavier Salvadó Monreal","salvadox@gmail.com","Cabify",1500000000,5000],
 ["Xavier Salvadó Monreal","salvadox@gmail.com","Charplanet",null,5000],
 ["Xavier Salvadó Monreal","salvadox@gmail.com","Chicisimo",null,2500],
 ["Xavier Salvadó Monreal","salvadox@gmail.com","Coverfy",null,null],
@@ -2421,12 +2810,24 @@ const RAW_INVESTORS = [
 ["Ynamis capital SLU","aguado_fernando@hotmail.com","edit.org",null,2000],
 ["Ynamis Capital SLU","fernando.aguadog@iese.net","CLAPS",null,2000],
 ["Ynamis Capital SLU Aguado García","fernando.aguadog@iese.net","LUDA",null,1500],
-["Ynamis Capital SLU Aguado García","fernando.aguadog@iese.net","ROAMS",null,2000],
+["Ynamis Capital SLU Aguado García","fernando.aguadog@iese.net","ROAMS",13900000,2000],
 ["Ynamis Capital SLU Fernando Aguado García","fernando.aguadog@iese.net","Zapiens.ai",null,2000],
 ["Yolanda García Conde","yoli.garcia@gmail.com","Green Data Chain",null,2000],
-["Yolanda Muñoz","y.munoz.1974@gmail.com","Cabify",1490000000,1500],
+["Yolanda Muñoz","y.munoz.1974@gmail.com","Cabify",1500000000,1500],
 ["Yolanda Muñoz","y.munoz.1974@gmail.com","Housers",null,2000],
-["Yolanda Muñoz","y.munoz.1974@gmail.com","OrbitalAds",null,1000]
+["Yolanda Muñoz","y.munoz.1974@gmail.com","OrbitalAds",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Badi",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Cabify",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Charplanet",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Chicisimo",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Coverfy",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Goin",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Housers",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Kasitoko",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Mailtrack",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","MyTripleA",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","OrbitalAds",null,1000],
+["Eneko Knorr","enekoknorr@gmail.com","Bnext",null,1000]
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -2436,11 +2837,15 @@ let currentInvestor = null;
 const INVESTOR_DB = {}; // key: email_lower => { names:Set, investments:Map<startupKey, amount> }
 // Build STARTUP_VALUATIONS from CSV data (valuation column)
 const STARTUP_VALUATIONS = {}; // startupKey -> valuation (€)
+// Seed from STARTUPS object (explicit, always reliable)
+Object.entries(STARTUPS).forEach(([key, s]) => {
+  if (s.valuation) STARTUP_VALUATIONS[key] = s.valuation;
+});
 RAW_INVESTORS.forEach(([name, email, startup, valuation, amount]) => {
   if (!email || !name) return;
   const emailKey = email.trim().toLowerCase();
   const startupKey = normalizeStartup(startup);
-  // Store valuation per startup (first non-null value wins)
+  // Store valuation per startup (CSV value takes priority if present)
   if (valuation && !STARTUP_VALUATIONS[startupKey]) STARTUP_VALUATIONS[startupKey] = valuation;
   if (!INVESTOR_DB[emailKey]) INVESTOR_DB[emailKey] = { names: new Set(), investments: new Map() };
   INVESTOR_DB[emailKey].names.add(name.trim());
@@ -2482,11 +2887,20 @@ loadUpdates();
 const EQUITY_STORAGE_KEY = 'angelclub_startup_equity_v1';
 let STARTUP_EQUITY = {}; // startupKey -> equity string e.g. "3.5%"
 
+// STARTUP_EQUITY_PRESET: admin-managed equity % embedded in HTML.
+// Edited by adminDownloadHtml() — do NOT modify manually.
+const STARTUP_EQUITY_PRESET = {
+};
+
 function loadEquity() {
   try {
+    // 1. Start from preset values embedded in this HTML (cross-device)
+    STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET);
+    // 2. Merge localStorage overrides (same-device edits not yet downloaded)
     const raw = localStorage.getItem(EQUITY_STORAGE_KEY);
-    STARTUP_EQUITY = raw ? JSON.parse(raw) : {};
-  } catch(e) { STARTUP_EQUITY = {}; }
+    const local = raw ? JSON.parse(raw) : {};
+    Object.assign(STARTUP_EQUITY, local);
+  } catch(e) { STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET); }
 }
 
 function saveEquity(startupKey, value) {
@@ -2525,6 +2939,25 @@ loadEquity();
 // REGISTRO DE ACCESOS — persiste en localStorage
 // ═══════════════════════════════════════════════════════════════
 const ACCESS_LOG_KEY = 'angelclub_access_log_v1';
+
+// ── Ratings storage ─────────────────────────────────────────────
+const RATINGS_KEY = 'angelclub_ratings_v1';
+let RATINGS_LOG = []; // { email, name, stars, date, comment }
+function loadRatings() {
+  try {
+    const raw = localStorage.getItem(RATINGS_KEY);
+    if (raw) RATINGS_LOG = JSON.parse(raw);
+  } catch(e) { RATINGS_LOG = []; }
+}
+function saveRatings() {
+  try { localStorage.setItem(RATINGS_KEY, JSON.stringify(RATINGS_LOG)); } catch(e) {}
+}
+function addRating(email, name, stars, comment) {
+  RATINGS_LOG.unshift({ email, name, stars, comment: comment || '', date: new Date().toISOString() });
+  if (RATINGS_LOG.length > 200) RATINGS_LOG = RATINGS_LOG.slice(0, 200);
+  saveRatings();
+}
+loadRatings();
 
 function loadAccessLog() {
   try {
@@ -2928,6 +3361,10 @@ function openUpdateModal(startupKey, startupName, url) {
   const wrap = document.getElementById('update-embed-wrap');
   const content = document.getElementById('update-embed-content');
 
+  // Show modal BEFORE inserting iframe so Chrome lays out the iframe correctly
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
   // Detect content type and embed accordingly
   const u = url.toLowerCase();
   const isYoutube = u.includes('youtube.com') || u.includes('youtu.be');
@@ -2945,11 +3382,18 @@ function openUpdateModal(startupKey, startupName, url) {
       const vid = url.match(/vimeo\.com\/(\d+)/);
       if (vid) embedSrc = `https://player.vimeo.com/video/${vid[1]}`;
     } else if (isDrive) {
-      embedSrc = url.replace('/view', '/preview').replace('/edit', '/preview');
+      if (u.includes('/open?id=') || (u.includes('?id=') && !u.includes('/file/d/'))) {
+        // Format: drive.google.com/open?id=FILE_ID
+        const idMatch = url.match(/[?&]id=([^&]+)/);
+        if (idMatch) embedSrc = `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+      } else {
+        // Standard format: …/view or …/edit → …/preview
+        embedSrc = url.replace(/\/(view|edit)([?#]|$)/, '/preview$2');
+      }
     } else if (isLoom) {
       embedSrc = url.replace('loom.com/share/', 'loom.com/embed/');
     }
-    wrap.innerHTML = `<iframe src="${embedSrc}" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+    wrap.innerHTML = `<iframe src="${embedSrc}" allowfullscreen referrerpolicy="no-referrer-when-downgrade" allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-read; clipboard-write"></iframe>`;
   } else {
     // Generic link — show a styled button
     const ext = url.split('.').pop().toLowerCase().split('?')[0];
@@ -2961,9 +3405,6 @@ function openUpdateModal(startupKey, startupName, url) {
       <p style="margin-top:10px;font-size:10px;">Se abrirá en una nueva pestaña</p>
     </div>`;
   }
-
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
 }
 
 function closeUpdateModal() {
@@ -3029,13 +3470,15 @@ let loginMode = 'investor';
 function setLoginMode(mode) {
   loginMode = mode;
   const isAdmin = mode === 'admin';
+  _pendingLoginRecord = null;
   document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
+  document.getElementById('investor-step2').style.display  = 'none';
   document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
-  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:400;color:var(--muted);letter-spacing:0.08em;">v1.0</span>';
-  document.getElementById('login-sub').textContent   = isAdmin
+  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.3</span>';
+  document.getElementById('login-sub').textContent = isAdmin
     ? 'Acceso exclusivo para el equipo de AngelClub'
-    : 'Accede con tu nombre completo y correo electrónico tal como figuran en tu ficha de inversor';
-  document.getElementById('login-btn-text').textContent = isAdmin ? 'Entrar como Admin' : 'Acceder al Portal';
+    : 'Introduce tu correo electrónico para acceder';
+  document.getElementById('login-btn-text').textContent = isAdmin ? 'Entrar como Admin' : 'Continuar';
   document.getElementById('login-hint').style.display = isAdmin ? 'none' : 'block';
   document.getElementById('login-error').style.display = 'none';
 
@@ -3066,16 +3509,16 @@ function togglePass() {
 }
 
 // Allow Enter key
-document.getElementById('login-name').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('login-email').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('admin-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('admin-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('inv-enter-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 // ═══════════════════════════════════════════════════════════════
 // ADMIN CREDENTIALS
 // ═══════════════════════════════════════════════════════════════
 const ADMIN_USER = 'equipo@angelclub.es';
-const ADMIN_PASS = 'soytuangel2026';
+const ADMIN_PASS_HASH = '1fde92a0f16fae949f0632f4de8e13d42cd7c6bd2b313e4df8879a56729879c4'; // SHA-256
 
 // ── Inyección anti-ofuscación Cloudflare ──────────────────────
 // El email se construye en JS para que Cloudflare no lo detecte en el HTML
@@ -3109,7 +3552,122 @@ function normalize(s) {
     .replace(/\s+/g,' ');
 }
 
-function doLogin() {
+// ── Password storage helpers (localStorage + preset hashes) ─────
+// PRESET_PASSWORDS: admin-managed hashes that work across all devices.
+// To add/update: run "Exportar contraseñas" in the admin panel, copy
+// the block shown and replace the content between the braces below.
+const PRESET_PASSWORDS = {
+  "aberasturi6@hotmail.com": "b23b7338aad7c4dafb1b3e2fec31a907a1a364ec6dc571ce9f9800caaf57ed61",
+  "administracion@vestelingenieros.com": "dca0bf64fcd26f2f8ea07d0a6486c92c076134eb03df1211ab6a838d4334053f",
+  "alberto.jimenez@smileatbaby.com": "4cdcb64a7cc7ce24ae35629ae3629d368021259748fd9e515e3678a7d5528714",
+  "alfervaq@yahoo.es": "86a90452a0d206d2b1d288bea506b6a9225b8644329e575fb9a6d2155ebb183e",
+  "anxo.armada@gmail.com": "092aaedb57ac4c3a99a8e2eda9749f8907c2aa822b2f7e3006936bd3600b0ad6",
+  "benjicoll@gmail.com": "94afabec87b343b2532be91d872f8f89dbd1f82912b80f5e9d432413ed2ad936",
+  "bernardo.martinez.gil@gmail.com": "5ecf3589e180225014b6902f44824947ed3ed140d56aac1abd7308c20817d656",
+  "borjaberastegui@gmail.com": "1004f32d6294b31129ebd6a4a199cf1321e26594b26b5e17114f9034a09d0058",
+  "borjan@techpump.com": "92d99a50611dcfd3ad7113a8b062840560d7706b16778004697e4a3e193e20d5",
+  "bruneau.damien@gmail.com": "193311d5cd62ab9490d0796ad15e56f9255123c854689cbab993cd5bcbbd22ee",
+  "cf_guerra_s@yahoo.es": "3a20b43f2d134b9ed949cf0dd2aa9e8fbec4403324232eaea4f3aa67136ba09a",
+  "cm@aicapartners.com": "df003d557bab43987f9c7fd7218f837cbd03d899d76589711a52d5cd744b525c",
+  "dani.herrero.m@gmail.com": "7d1f516590b9cbfa98e8686ce9e2cafda8e46c24ae2cb33ce65bb9fdbbc3ed96",
+  "daniroig@me.com": "fb37fca7b9b89704dabd3dc40ab872b53a02d55cdab187b742d7da82c3bae8a8",
+  "dlozanolu@gmail.com": "2cc38c2d7bc02dddc0b775cff9386e41abcad871c5e811df4313408d6af172e9",
+  "eduardoteotico@gmail.com": "3246a4801d38ba9679a6528e288d4da517b63e073e7c6d5153dba34bd90ac7a1",
+  "egallemi@gmail.com": "e19fc8d940aab44833302212d66bb9f6c825b06eee0ccffff1768fc6a9c93f79",
+  "egr@gisons.com": "43754f44793ff363641946c37537e25526f32b1e415e3b27cfd39338e1d4a03f",
+  "enekoknorr@gmail.com": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+  "f.bartolometocino@gmail.com": "c2a10f66f45996e5a7b09217340e9bc6a6958757ea0b25a9f27e25a076392709",
+  "fjaviersaiz@yahoo.es": "f5171d1c9539b2e26bdff616cfe83d8c98104f340bcbb21827ffcfc1bdfce6b2",
+  "francisco.oliver.guardiola@gmail.com": "a0359a73f1f69c604bf2dcaebef68c08bede900c25d493e10ac6951d15e21390",
+  "francisco.oliver@wonders.com": "543a64c2606dd137778bf0028874ece486dccabe469bca7e3086963d0cda048f",
+  "francisco.rizquez@gmail.com": "03436301c9eb30f45936ad261148b3cdfd9bf6a42c2c7dc714b5fe78756a9e67",
+  "g.perernau@gmail.com": "435b71aeb611398c11c396dbb8982494bfd0001edb1e56df512a29e4312d6e00",
+  "gemma.sebastian@argonconsultores.com": "2a5fa1d7549ad77972095746b97537d6cbea3f8d52cb9203e8464b1f640ddb20",
+  "hi@hectorperezarenas.com": "d8184731a32015afad4c7f3c2e4dce40d4ff638bd29cc1babd315b0165846c5d",
+  "ignacio@grupoarcadia.es": "b765aefc5f2b5bd6030a30663c8b486cff7e1855e692b40158234756a5b59b9d",
+  "info.ignalber@gmail.com": "7afa9960ffa58b44441a98102e53a3cb9c289d9c20175a20354cc1d6410bdf9d",
+  "iranz@gruposomar.es": "34226fc0a753445378bc63fd52fe66d24ad8d4e133a5378fa7bebd0a22266089",
+  "j.garcia.gavilan@gmail.com": "3a52cc58064da97f939c453a045fc653df19c0951d906eb71943bea54e28b46a",
+  "jaime.diez.net@gmail.com": "8b15ca206c98dfa9857bd42c35c85787aa08f1ea5255af0356a7b51192af8c5d",
+  "javier_amenabar@hotmail.com": "23bf8c1d45cfe9788a5db72f8c00318c9def6620d28a044f96f9ebf6a4274cd8",
+  "javiervaquerizo@gmail.com": "89c03e6a401d9d984139a2e6774498b5b8bc27d5457ba51b0bc11c2c0aaafcbd",
+  "jdomenech@gmail.com": "f6b36fc31437ac49787027008a0274544737954270dc57e056f439f5a10332dc",
+  "jesusangel.bravo@camptecnologico.com": "2550782bdf2421edeb105870b5386cdbde2cc14670d8153e1ce2b4186bf83542",
+  "jgr1083@yahoo.com": "20efbd45b7e49011fa5f16320f318307644531a9a251c828d322482e2bfb64ad",
+  "jmlouro@ralightsolutions.com": "edb8b08f0b6d9edb809d0dd0ad32db89b79c41b2bd3f20a80d37d3912003769b",
+  "jorge@wonders.com": "dd73714944a5dce6157c022fe88570050263dd0b1ed2beede08d26e99af537ab",
+  "jrinversiones21@gmail.com": "8d42343abef025a0742204e98ebfa71ec497a76e1dc39489e18f942270b5841f",
+  "juan-chile@hotmail.com": "d7a5799cbf910ceba9f1a61d79e0c0ae2ba85dffb75493a06f7b52505a5a2c85",
+  "juanortizcamarero@gmail.com": "cef8defa90643fd7ee11a077fd453abba1732c684fbc1a6a84e1ae3502b94dbf",
+  "lcaldentey@aparteasy.com": "68dc187789215224babf2b505db29b9abcfec9e52452f22ab7f7d8383ff487e1",
+  "libanomonteiro@gmail.com": "4fcf8c4d276db1d29dded5a1b9f5b138fa0a89da0a00a53c4746dec90f702166",
+  "maria.ecd@gmail.com": "bd43015330758abb90e0e6e38b80bbb4fef2afaa23c847d09fbc2baae922910a",
+  "mercedesrs62@gmail.com": "569d0b2518df0495036eaf2d097dfa9645501c3d04357e7c2adc940327940c13",
+  "mgoti@elcorreo.com": "2234bb18d01077fdd5f0076220aba648d5744f1d8da7ad3cb3357fba8a71dff0",
+  "miguel.fer.herencias@gmail.com": "604f302429bd6b8b8b473dff43be478c715088a7e4ebf090894fbf55c53c7f76",
+  "miguel@abinternet.es": "88a47b5eb80edc15532794195ce0edae740df26dc6ec468677b6a9a423fbb125",
+  "mikellpzdetorre@gmail.com": "a3a71f1c1a4ab5e1fbaf62458983e4d4384646c0f90ff5e2f135074147adf30b",
+  "mikelsampedro@gmail.com": "2c025626c5140deee02232a3b1d18aab344156fe6ab211692a8d12930efe9337",
+  "monsieurdeivid@gmail.com": "58c5c256d08d7d5fc1118a393ce1fd5a57a3937fa929d4548689540a078fe546",
+  "rcanca@gmail.com": "c411f86d5f400ce9eedc7e3732e8e767c10a1df113426fcc082bc713e6ca8fb6",
+  "salvadox@gmail.com": "7cb511ff95a2c4e87fc59ff9267c2ba28480f5af0e44fbd7cc64e3e5d01eebc7",
+  "slopez@andamur.com": "5724c763c498238c13c0c896d9182fa4d9b396b9d2054f2a240a643a3c32b4c9",
+  "uribasterra2005@yahoo.es": "d008e40446f52a5dc6a318fc602ccde8085cd6ff4db2bbd5d027f3c563dc10ac",
+  "vdarcaya@hotmail.com": "650f05c84b230536bf7e0241e2d3823c9f29550919b2147134cc3cb11141a798",
+  "villacortafood@gmail.com": "211b73ff431fb9bfc83600a64376c165ee5a31369f03e2c2a376c43e842d356e",
+  "wolfhas2@gmail.com": "9b5261a9ebb0ba56279f6a30fe83548b8d456f5e803a72d6e8661308600008f0",
+  "xavvi8@hotmail.com": "be6e66c480772ceda21ee83e61befd0439f7e07f006b606b6bc5c95e82fd9824"
+};
+
+function _pwKey(email) { return 'AC_INV_PW_' + email.toLowerCase(); }
+function _getStoredPwHash(email) {
+  const key = email.toLowerCase();
+  // 1. Check localStorage first (most recent, device-local)
+  try {
+    const local = localStorage.getItem(_pwKey(key));
+    if (local) return local;
+  } catch(e) {}
+  // 2. Fall back to PRESET_PASSWORDS (admin-embedded, cross-device)
+  return PRESET_PASSWORDS[key] || null;
+}
+function _setStoredPwHash(email, hash) {
+  try {
+    localStorage.setItem(_pwKey(email), hash);
+    // Verify it was actually stored
+    return localStorage.getItem(_pwKey(email)) === hash;
+  } catch(e) { return false; }
+}
+
+
+// Intermediate state between step 1 and step 2
+let _pendingLoginRecord = null;
+
+function togglePassField(inputId, eyeId) {
+  const inp = document.getElementById(inputId);
+  const eye = document.getElementById(eyeId);
+  if (!inp || !eye) return;
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+}
+
+function doBackToStep1() {
+  _pendingLoginRecord = null;
+  document.getElementById('investor-fields').style.display = 'block';
+  document.getElementById('investor-step2').style.display = 'none';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-btn-text').textContent = 'Continuar';
+  const ep = document.getElementById('inv-enter-pass'); if (ep) ep.value = '';
+  setTimeout(() => { const el = document.getElementById('login-email'); if (el) el.focus(); }, 60);
+}
+
+function showForgotPassword() {
+  const errEl = document.getElementById('login-error');
+  const u = 'equipo'; const d = 'angelclub.es';
+  errEl.innerHTML = '🔑 Para restablecer tu contraseña, contacta con <a href="mailto:' + u + '@' + d + '" style="color:var(--blue-bright);">' + u + '@' + d + '</a>';
+  errEl.style.display = 'block';
+}
+
+async function doLogin() {
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
 
@@ -3120,60 +3678,162 @@ function doLogin() {
       errEl.textContent = '⚠️ Por favor, introduce usuario y contraseña.';
       errEl.style.display = 'block'; return;
     }
-    if (user !== ADMIN_USER || pass !== ADMIN_PASS) {
+    if (user !== ADMIN_USER || await _sha256(pass) !== ADMIN_PASS_HASH) {
       errEl.textContent = '❌ Credenciales incorrectas. Acceso denegado.';
       errEl.style.display = 'block'; return;
     }
     currentInvestor = { role: 'admin', name: 'Administrador', email: ADMIN_USER };
+    _currentSessionToken = _SESSION_TOKEN + 'admin';
+    // Admin sessions are NEVER persisted — must re-authenticate on every page load
     showAdminDashboard();
     return;
   }
 
-  // INVESTOR LOGIN
-  const nameInput  = document.getElementById('login-name').value.trim();
+  // ── STEP 2: verificar contraseña ─────────────────────────────
+  if (_pendingLoginRecord) {
+    const record     = _pendingLoginRecord;
+    const storedHash = _getStoredPwHash(record.email);
+    const ep = document.getElementById('inv-enter-pass').value;
+    if (!ep) {
+      errEl.textContent = '⚠️ Por favor, introduce tu contraseña.';
+      errEl.style.display = 'block'; return;
+    }
+    let hash;
+    try { hash = await _sha256(ep); } catch(e) {
+      errEl.textContent = '❌ Error al procesar la contraseña. Inténtalo de nuevo.';
+      errEl.style.display = 'block'; return;
+    }
+    if (hash !== storedHash) {
+      errEl.textContent = '❌ Contraseña incorrecta. Inténtalo de nuevo.';
+      errEl.style.display = 'block'; return;
+    }
+    _finishInvestorLogin(record);
+    return;
+  }
+
+  // ── STEP 1: validar email ─────────────────────────────────────
   const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
 
-  if (!nameInput || !emailInput) {
-    errEl.textContent = '⚠️ Por favor, introduce tu nombre y correo electrónico.';
+  if (!emailInput) {
+    errEl.textContent = '⚠️ Por favor, introduce tu correo electrónico.';
     errEl.style.display = 'block'; return;
   }
 
   const record = INVESTOR_DB[emailInput];
   if (!record) {
-    errEl.textContent = '❌ Datos no encontrados. Comprueba tu nombre y email exactamente como figuran en tu ficha de inversor.';
+    errEl.textContent = '❌ Email no encontrado en la base de datos de inversores.';
     errEl.style.display = 'block'; return;
   }
 
-  const normInput = normalize(nameInput);
-  let matched = false;
-  record.names.forEach(n => {
-    if (normalize(n) === normInput) matched = true;
-    if (normalize(n).includes(normInput) || normInput.includes(normalize(n).split(' ')[0])) matched = true;
-  });
-
-  if (!matched) {
-    errEl.textContent = '❌ Datos no encontrados. Comprueba tu nombre y email exactamente como figuran en tu ficha de inversor.';
+  const storedHash = _getStoredPwHash(emailInput);
+  if (!storedHash) {
+    errEl.textContent = '⚠️ Aún no tienes acceso activado. Contacta con el equipo para que te asignen una contraseña.';
     errEl.style.display = 'block'; return;
   }
 
+  // ── Email válido y contraseña asignada — ir a step 2 ─────────
+  const displayName = [...record.names].sort((a,b) => b.length - a.length)[0];
+  _pendingLoginRecord = { _record: record, displayName, email: emailInput, investments: record.investments };
+
+  const initials = displayName.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('inv-step2-avatar').textContent = initials;
+  document.getElementById('inv-step2-name').textContent   = displayName;
+  document.getElementById('inv-step2-email').textContent  = emailInput;
+
+  // Clear password field
+  const ep = document.getElementById('inv-enter-pass'); if (ep) ep.value = '';
+
+  document.getElementById('investor-fields').style.display = 'none';
+  document.getElementById('investor-step2').style.display  = 'block';
+  document.getElementById('login-btn-text').textContent = 'Entrar al Portal';
   errEl.style.display = 'none';
-  const displayName = [...record.names].sort((a,b)=>b.length-a.length)[0];
-  currentInvestor = { role: 'investor', name: displayName, email: emailInput, investments: record.investments };
+
+  setTimeout(() => { const el = document.getElementById('inv-enter-pass'); if (el) el.focus(); }, 80);
+}
+
+function _finishInvestorLogin(record) {
+  currentInvestor = {
+    role:        'investor',
+    name:        record.displayName,
+    email:       record.email,
+    investments: record.investments || (record._record && record._record.investments) || new Map()
+  };
+  _pendingLoginRecord = null;
+  _currentSessionToken = _SESSION_TOKEN + 'investor';
+  _saveSession('investor', record.email);
   registerAccess(currentInvestor);
   showDashboard();
 }
 
-function doLogout() {
+function _doLogoutFinal() {
+  _currentSessionToken = null;
   currentInvestor = null;
+  _pendingLoginRecord = null;
+  _clearSavedSession();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('admin-section').style.display = 'none';
+  document.getElementById('farewell-overlay').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-name').value = '';
-  document.getElementById('login-email').value = '';
-  document.getElementById('admin-user').value = '';
-  document.getElementById('admin-pass').value = '';
+  ['login-email','admin-user','admin-pass','inv-enter-pass'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('investor-fields').style.display = 'block';
+  document.getElementById('investor-step2').style.display = 'none';
   document.getElementById('login-error').style.display = 'none';
   setLoginMode('investor');
+}
+
+let _farewellSelectedStars = 0;
+
+function doLogout() {
+  // If no session or admin role → skip modal, logout immediately
+  if (!currentInvestor || currentInvestor.role === 'admin') {
+    _doLogoutFinal(); return;
+  }
+  // Investor only: show farewell modal
+  _farewellSelectedStars = 0;
+  document.querySelectorAll('.farewell-star').forEach(s => {
+    s.style.filter = 'grayscale(0.7)'; s.style.transform = 'scale(1)';
+  });
+  const comment = document.getElementById('farewell-comment');
+  if (comment) comment.value = '';
+  const label = document.getElementById('farewell-star-label');
+  if (label) label.textContent = '';
+  const nameEl = document.getElementById('farewell-name');
+  if (nameEl && currentInvestor) {
+    const first = currentInvestor.name.split(' ')[0];
+    nameEl.textContent = '¡Hasta pronto, ' + first + '!';
+  }
+  const ov = document.getElementById('farewell-overlay');
+  ov.style.display = 'flex';
+}
+
+function setFarewellStar(n) {
+  _farewellSelectedStars = n;
+  const labels = ['', 'Muy malo 😞', 'Mejorable 😐', 'Aceptable 🙂', 'Bueno 😊', 'Excelente 🌟'];
+  const label = document.getElementById('farewell-star-label');
+  if (label) label.textContent = labels[n] || '';
+  document.querySelectorAll('.farewell-star').forEach(s => {
+    const v = parseInt(s.getAttribute('data-v'));
+    if (v <= n) {
+      s.style.filter = 'none'; s.style.transform = 'scale(1.12)';
+    } else {
+      s.style.filter = 'grayscale(0.7)'; s.style.transform = 'scale(1)';
+    }
+  });
+}
+
+function submitFarewell() {
+  const stars = _farewellSelectedStars;
+  const comment = (document.getElementById('farewell-comment') || {}).value || '';
+  if (stars > 0 && currentInvestor) {
+    addRating(currentInvestor.email, currentInvestor.name, stars, comment.trim());
+  }
+  _doLogoutFinal();
+}
+
+function skipFarewell() {
+  _doLogoutFinal();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3182,6 +3842,7 @@ function doLogout() {
 const COLORS = ['#1976D2','#2196F3','#42A5F5','#64B5F6','#1565C0','#0D47A1','#00BCD4','#0097A7','#006064','#01579B','#00838F','#00ACC1'];
 
 function showDashboard() {
+  if (!_validateSession('investor')) return;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('admin-section').style.display = 'none';
@@ -3189,7 +3850,7 @@ function showDashboard() {
   // Topbar
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('admin-badge').style.display = 'none';
-  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.05em;opacity:0.7;">v1.0</span>';
+  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.3</span>';
   document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
 
   const inv = currentInvestor;
@@ -3268,7 +3929,8 @@ function showDashboard() {
          </div>`
       : `<span class="equity-tag">${effectiveEq}</span>`;
     // Valor actual = (miAportación / capitalClub) × (effectiveEquity% × valoraciónCompañía)
-    const valuation = STARTUP_VALUATIONS[p.key] || null;
+    // p.valuation viene directamente del objeto STARTUPS (siempre fiable)
+    const valuation = p.valuation || STARTUP_VALUATIONS[p.key] || null;
     let valorActualEl = `<span style="color:var(--muted);font-size:10px;">—</span>`;
     if (valuation && p.investorAmount > 0 && p.capital > 0) {
       const equityPct = parseFloat(effectiveEq) / 100 || 0;
@@ -3279,7 +3941,7 @@ function showDashboard() {
       const color = isUp ? 'var(--green)' : 'var(--red)';
       valorActualEl = `<div style="display:flex;flex-direction:column;gap:2px;">
         <span style="color:${color};font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">€${valorActual.toLocaleString('es-ES')}</span>
-        <span style="font-size:10px;color:${color};opacity:0.8;">${multiple}x inversión</span>
+        <span style="font-size:10px;color:${color};opacity:0.8;">${multiple}x · val. ${(valuation/1e6).toFixed(0)}M€</span>
       </div>`;
     }
     const tr = document.createElement('tr');
@@ -3311,7 +3973,308 @@ function showDashboard() {
 // ═══════════════════════════════════════════════════════════════
 // ADMIN DASHBOARD
 // ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// ADMIN PASSWORD MANAGEMENT
+// ══════════════════════════════════════════════════════════════
+
+function adminRenderPasswordsTable() {
+  const wrap = document.getElementById('admin-passwords-table-wrap');
+  if (!wrap) return;
+
+  // Collect all emails from INVESTOR_DB
+  const allEmails = Object.keys(INVESTOR_DB).sort();
+
+  // Find which ones have passwords (localStorage or preset)
+  const withPass = [];
+  allEmails.forEach(email => {
+    const local   = (() => { try { return localStorage.getItem(_pwKey(email)); } catch(e) { return null; } })();
+    const preset  = PRESET_PASSWORDS[email] || null;
+    if (local || preset) {
+      withPass.push({ email, local: !!local, preset: !!preset });
+    }
+  });
+
+  if (withPass.length === 0) {
+    wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;">Ningún inversor ha creado contraseña todavía.</div>';
+    return;
+  }
+
+  let rows = withPass.map((r, i) => {
+    const localBadge  = r.local  ? '<span style="background:rgba(30,136,229,0.12);color:var(--blue-bright);border-radius:6px;padding:2px 8px;font-size:10px;font-family:\'DM Mono\',monospace;">local</span>' : '';
+    const presetBadge = r.preset ? '<span style="background:rgba(56,142,60,0.12);color:#388E3C;border-radius:6px;padding:2px 8px;font-size:10px;font-family:\'DM Mono\',monospace;">global</span>' : '<span style="background:rgba(198,40,40,0.10);color:var(--red);border-radius:6px;padding:2px 8px;font-size:10px;font-family:\'DM Mono\',monospace;">solo local</span>';
+    return `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;">${i+1}</td>
+      <td style="font-size:12px;">${r.email}</td>
+      <td style="white-space:nowrap;">${localBadge} ${presetBadge}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">
+      ${withPass.length} inversor${withPass.length!==1?'es':''} con contraseña.
+      <strong style="color:#388E3C;">global</strong> = disponible en todos los dispositivos.
+      <strong style="color:var(--red);">solo local</strong> = pendiente de exportar.
+    </div>
+    <div class="table-scroll" style="max-height:320px;">
+      <table class="investments-table">
+        <thead><tr><th>#</th><th>Email</th><th>Estado</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function adminExportPasswords() {
+  // Gather all hashes: localStorage takes priority over preset
+  const allEmails = Object.keys(INVESTOR_DB).sort();
+  const combined  = Object.assign({}, PRESET_PASSWORDS);
+
+  allEmails.forEach(email => {
+    try {
+      const local = localStorage.getItem(_pwKey(email));
+      if (local) combined[email] = local;
+    } catch(e) {}
+  });
+
+  if (Object.keys(combined).length === 0) {
+    alert('No hay contraseñas guardadas todavía.');
+    return;
+  }
+
+  // Build JS block
+  const lines = Object.entries(combined)
+    .sort(([a],[b]) => a.localeCompare(b))
+    .map(([email, hash]) => `  "${email}": "${hash}"`)
+    .join(',\n');
+  const block = `const PRESET_PASSWORDS = {
+${lines}
+};`;
+
+  const box  = document.getElementById('admin-passwords-export-box');
+  const text = document.getElementById('admin-passwords-export-text');
+  if (box && text) {
+    text.value = block;
+    box.style.display = 'block';
+    text.select();
+  }
+  // Re-render table to reflect current state
+  adminRenderPasswordsTable();
+}
+
+function adminCopyExport() {
+  const text = document.getElementById('admin-passwords-export-text');
+  const msg  = document.getElementById('admin-copy-msg');
+  if (!text) return;
+  text.select();
+  try {
+    navigator.clipboard.writeText(text.value).then(() => {
+      if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2500); }
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2500); }
+  }
+}
+
+function adminDownloadHtml() {
+  // ── Recoger TODAS las contraseñas de localStorage ─────────────
+  var combined = {};
+  try {
+    var pk = Object.keys(PRESET_PASSWORDS);
+    for (var pi = 0; pi < pk.length; pi++) combined[pk[pi]] = PRESET_PASSWORDS[pk[pi]];
+  } catch(e) {}
+  try {
+    var PREFIX = 'AC_INV_PW_';
+    for (var li = 0; li < localStorage.length; li++) {
+      var lk = localStorage.key(li);
+      if (lk && lk.indexOf(PREFIX) === 0) {
+        var lv = localStorage.getItem(lk);
+        if (lv) combined[lk.slice(PREFIX.length)] = lv;
+      }
+    }
+  } catch(e) { alert('Error al leer localStorage: ' + e); return; }
+
+  var nPw = Object.keys(combined).length;
+  if (nPw === 0) {
+    alert('No hay contraseñas asignadas todavía.\nUsa "Asignar contraseña" y guarda al menos una.');
+    return;
+  }
+
+  // ── Construir bloque PRESET_PASSWORDS ─────────────────────────
+  var pwArr = [];
+  var pwKeys = Object.keys(combined).sort();
+  for (var i = 0; i < pwKeys.length; i++) {
+    pwArr.push('  "' + pwKeys[i] + '": "' + combined[pwKeys[i]] + '"');
+  }
+  var newBlock = 'const PRESET_PASSWORDS = {\n' + pwArr.join(',\n') + '\n};';
+
+  // ── Construir bloque STARTUP_EQUITY_PRESET ────────────────────
+  var eqCombined = Object.assign({}, STARTUP_EQUITY_PRESET, STARTUP_EQUITY);
+  var eqArr = [];
+  var eqKeys = Object.keys(eqCombined).sort();
+  for (var ei2 = 0; ei2 < eqKeys.length; ei2++) {
+    eqArr.push('  "' + eqKeys[ei2] + '": "' + eqCombined[eqKeys[ei2]] + '"');
+  }
+  var newEquityBlock = eqArr.length > 0
+    ? 'const STARTUP_EQUITY_PRESET = {\n' + eqArr.join(',\n') + '\n};'
+    : 'const STARTUP_EQUITY_PRESET = {\n};';
+  var nEq = eqKeys.length;
+
+  // ── Feedback visual: mostrar estado de carga ──────────────────
+  var btn    = document.getElementById('btn-download-html');
+  var msgEl  = document.getElementById('admin-download-msg');
+  var origBtnHtml = btn ? btn.innerHTML : '';
+  if (btn) btn.innerHTML = '⏳ Obteniendo fuente…';
+
+  // ── Función que aplica el reemplazo y lanza la descarga ────────
+  function _applyAndDownload(src) {
+    // — Reemplazar PRESET_PASSWORDS —
+    var OPEN  = 'const PRESET_PASSWORDS = {';
+    var CLOSE = '\n};';
+    var si = src.indexOf(OPEN);
+    if (si === -1) { alert('No se encontró PRESET_PASSWORDS en el HTML. Contacta con soporte.'); if (btn) btn.innerHTML = origBtnHtml; return; }
+    var ei = src.indexOf(CLOSE, si);
+    if (ei === -1) { alert('Bloque PRESET_PASSWORDS incompleto. Contacta con soporte.'); if (btn) btn.innerHTML = origBtnHtml; return; }
+    var updated = src.slice(0, si) + newBlock + src.slice(ei + CLOSE.length);
+
+    // — Reemplazar STARTUP_EQUITY_PRESET —
+    var EQ_OPEN  = 'const STARTUP_EQUITY_PRESET = {';
+    var EQ_CLOSE = '\n};';
+    var eqSi = updated.indexOf(EQ_OPEN);
+    if (eqSi !== -1) {
+      var eqEi = updated.indexOf(EQ_CLOSE, eqSi);
+      if (eqEi !== -1) {
+        updated = updated.slice(0, eqSi) + newEquityBlock + updated.slice(eqEi + EQ_CLOSE.length);
+      }
+    }
+
+    try {
+      var blob = new Blob([updated], { type: 'text/html;charset=utf-8' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'index.html');
+      a.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        try { document.body.removeChild(a); } catch(e2) {}
+        URL.revokeObjectURL(url);
+      }, 3000);
+    } catch(e) { alert('Error al generar la descarga: ' + e); if (btn) btn.innerHTML = origBtnHtml; return; }
+    if (msgEl) {
+      msgEl.textContent = '✅ index.html descargado con ' + nPw + ' contraseña' + (nPw > 1 ? 's' : '') + ' y ' + nEq + ' equity' + (nEq !== 1 ? 's' : '') + ' embebidos. Súbelo a tu servidor.';
+      msgEl.style.cssText = 'display:block;padding:8px 14px;border-radius:8px;font-size:11px;font-family:"DM Mono",monospace;background:rgba(46,125,50,0.10);color:#2E7D32;border:1px solid rgba(46,125,50,0.25);margin:8px 0 0 0;';
+      setTimeout(function() { if (msgEl) msgEl.style.display = 'none'; }, 7000);
+    }
+    if (btn) {
+      btn.innerHTML = '✅ Descargado (' + nPw + ' pw · ' + nEq + ' eq)';
+      setTimeout(function() { if (btn) btn.innerHTML = origBtnHtml; }, 4000);
+    }
+  }
+
+  // ── ESTRATEGIA: fetch() obtiene el HTML exacto del servidor ───
+  // Esto evita cualquier modificación del DOM (Cloudflare, JS, etc.)
+  // y garantiza que el archivo descargado es idéntico al subido,
+  // salvo el bloque de contraseñas. Sin fetch (file://), usa fallback.
+  fetch(location.href, { cache: 'no-store', credentials: 'same-origin' })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function(html) {
+      _applyAndDownload(html);
+    })
+    .catch(function(err) {
+      // Fallback: usar el HTML capturado antes de que JS modificara el DOM.
+      // Este fallback es suficiente cuando no hay servidor (entorno local).
+      console.warn('fetch falló (' + err + '), usando HTML capturado al cargar.');
+      if (_ORIGINAL_HTML_SRC) {
+        _applyAndDownload(_ORIGINAL_HTML_SRC);
+      } else {
+        alert('No se pudo obtener el HTML fuente.\nError: ' + err);
+        if (btn) btn.innerHTML = origBtnHtml;
+      }
+    });
+}
+function adminSetPassword() {
+  document.getElementById('admin-passwords-export-box').style.display = 'none';
+  document.getElementById('admin-clear-pw-form').style.display = 'none';
+  const form = document.getElementById('admin-set-pw-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') {
+    document.getElementById('admin-set-pw-email').value = '';
+    document.getElementById('admin-set-pw-pass').value = '';
+    const msg = document.getElementById('admin-set-pw-msg');
+    if (msg) msg.style.display = 'none';
+    setTimeout(() => document.getElementById('admin-set-pw-email').focus(), 50);
+  }
+}
+
+async function adminConfirmSetPassword() {
+  const emailInp = document.getElementById('admin-set-pw-email');
+  const passInp  = document.getElementById('admin-set-pw-pass');
+  const msg      = document.getElementById('admin-set-pw-msg');
+  if (!emailInp || !passInp || !msg) return;
+
+  const email = emailInp.value.trim().toLowerCase();
+  const pass  = passInp.value;
+
+  if (!email || !email.includes('@')) {
+    msg.textContent = '⚠️ Email inválido.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  }
+  if (!INVESTOR_DB[email]) {
+    msg.textContent = '⚠️ Email no encontrado en la base de datos de inversores.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  }
+  if (!pass || pass.length < 8) {
+    msg.textContent = '⚠️ La contraseña debe tener al menos 8 caracteres.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  }
+  let hash;
+  try { hash = await _sha256(pass); } catch(e) {
+    msg.textContent = '❌ Error al generar hash.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  }
+  const ok = _setStoredPwHash(email, hash);
+  if (!ok) {
+    msg.textContent = '⚠️ No se pudo guardar (localStorage bloqueado).'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  }
+  msg.textContent = '✓ Contraseña asignada. Ahora exporta y actualiza el HTML.';
+  msg.style.color = '#388E3C'; msg.style.display = 'inline';
+  emailInp.value = '';
+  passInp.value  = '';
+  adminRenderPasswordsTable();
+}
+
+function adminClearPassword() {
+  document.getElementById('admin-passwords-export-box').style.display = 'none';
+  document.getElementById('admin-set-pw-form').style.display = 'none';
+  document.getElementById('admin-clear-pw-form').style.display = 'block';
+  const inp = document.getElementById('admin-clear-pw-email');
+  const msg = document.getElementById('admin-clear-pw-msg');
+  if (inp) inp.value = '';
+  if (msg) msg.style.display = 'none';
+}
+
+function adminConfirmClearPassword() {
+  const inp   = document.getElementById('admin-clear-pw-email');
+  const msg   = document.getElementById('admin-clear-pw-msg');
+  if (!inp) return;
+  const email = inp.value.trim().toLowerCase();
+  if (!email) { 
+    if (msg) { msg.textContent = '⚠️ Introduce un email.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; }
+    return;
+  }
+  // Remove from localStorage
+  try { localStorage.removeItem(_pwKey(email)); } catch(e) {}
+  if (msg) {
+    msg.textContent = `✓ Contraseña local de ${email} eliminada. Actualiza también PRESET_PASSWORDS en el HTML si estaba exportada.`;
+    msg.style.color = 'var(--blue-bright)';
+    msg.style.display = 'inline';
+  }
+  if (inp) inp.value = '';
+  adminRenderPasswordsTable();
+}
+
 function showAdminDashboard() {
+  if (!_validateSession('admin')) return;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('admin-section').style.display = 'block';
@@ -3375,15 +4338,16 @@ function showAdminDashboard() {
       ? `<span style="color:#7C3AED;font-size:10px;font-weight:700;">✓ Publicado</span>`
       : `<span style="color:var(--muted);font-size:10px;">—</span>`;
     // Valor actual del club en esta startup (admin ve el valor total del club, no individual)
-    const admValuation = STARTUP_VALUATIONS[p.key] || null;
+    // p.valuation viene directamente del objeto STARTUPS (siempre fiable)
+    const admValuation = p.valuation || STARTUP_VALUATIONS[p.key] || null;
     const admEffEq = getEffectiveEquity(p.key);
     let admValorEl = `<span style="color:var(--muted);font-size:10px;">—</span>`;
-    if (admValuation && p.capital > 0) {
+    if (admValuation) {
       const equityPct = parseFloat(admEffEq) / 100 || 0;
       const clubStake = Math.round(equityPct * admValuation);
       admValorEl = `<div style="display:flex;flex-direction:column;gap:2px;">
         <span style="color:var(--green);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">€${clubStake.toLocaleString('es-ES')}</span>
-        <span style="font-size:10px;color:var(--muted);">val. compañía</span>
+        <span style="font-size:10px;color:var(--muted);">${(admValuation/1e6).toFixed(0)}M€ val. cía</span>
       </div>`;
     }
     const tr = document.createElement('tr');
@@ -3433,6 +4397,7 @@ function showAdminDashboard() {
   renderAdminExtras(allStartups, totalCapital);
 }
 
+let _admInvestorRows = [];
 function renderAdminExtras(allStartups, totalCapital) {
   // Build investor summary from INVESTOR_DB
   const investorSummary = []; // { name, email, totalAmount, startupCount, startups[] }
@@ -3563,41 +4528,43 @@ function renderAdminExtras(allStartups, totalCapital) {
   });
 
   // Investor detail table with filter
-  window._admInvestorRows = [];
+  _admInvestorRows = [];
   RAW_INVESTORS.forEach(([name,email,startup,amount]) => {
     if (!name || !email) return;
     const key = normalizeStartup(startup);
     const s = STARTUPS[key];
     const statusLabel = s ? (s.status==='exit'?'✅ EXIT':s.status==='fail'?'❌ FAIL':'● ACTIVA') : '—';
     const statusClass = s ? (s.status==='exit'?'status-exit':s.status==='fail'?'status-fail':'status-active') : '';
-    window._admInvestorRows.push({ name, email, startup: s?.name||startup, amount: amount||0, statusLabel, statusClass });
+    _admInvestorRows.push({ name, email, startup: s?.name||startup, amount: amount||0, statusLabel, statusClass });
   });
-  window._admInvestorRows.sort((a,b) => b.amount - a.amount);
+  _admInvestorRows.sort((a,b) => b.amount - a.amount);
 
   // Populate startup filter
   const admFilterStartup = document.getElementById('adm-filter-startup');
   admFilterStartup.innerHTML = '<option value="">Todas las startups</option>';
   allStartups.forEach(p => { const opt=document.createElement('option'); opt.value=p.name; opt.textContent=p.name; admFilterStartup.appendChild(opt); });
 
-  document.getElementById('adm-investor-count-label').textContent = `${window._admInvestorRows.length} registros`;
-  renderAdminInvestorTable(window._admInvestorRows);
+  document.getElementById('adm-investor-count-label').textContent = `${_admInvestorRows.length} registros`;
+  renderAdminInvestorTable(_admInvestorRows);
 
   // Render updates panel
   const allSorted = allStartups.slice().sort((a,b) => a.name.localeCompare(b.name));
   renderAdminUpdatesPanel(allSorted);
   renderAdminEquityPanel(allSorted);
+  adminRenderPasswordsTable();
   refreshAccessLogPanel();
+  adminRenderRatings();
 }
 
 function filterAdminTable() {
   const q = document.getElementById('adm-search').value.toLowerCase();
   const sf = document.getElementById('adm-filter-startup').value.toLowerCase();
-  const filtered = window._admInvestorRows.filter(r => {
+  const filtered = _admInvestorRows.filter(r => {
     const matchQ = !q || r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || r.startup.toLowerCase().includes(q);
     const matchS = !sf || r.startup.toLowerCase() === sf;
     return matchQ && matchS;
   });
-  document.getElementById('adm-investor-count-label').textContent = `${filtered.length} / ${window._admInvestorRows.length} registros`;
+  document.getElementById('adm-investor-count-label').textContent = `${filtered.length} / ${_admInvestorRows.length} registros`;
   renderAdminInvestorTable(filtered);
 }
 
@@ -3659,6 +4626,79 @@ function renderDonut(portfolio, total) {
 
     currentAngle += share * 360;
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN RATINGS PANEL
+// ═══════════════════════════════════════════════════════════════
+function adminRenderRatings() {
+  const tbody   = document.getElementById('ratings-tbody');
+  const empty   = document.getElementById('ratings-empty');
+  const wrap    = document.getElementById('ratings-table-wrap');
+  const badge   = document.getElementById('ratings-avg-badge');
+  const summary = document.getElementById('ratings-summary');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  const entries = RATINGS_LOG;
+
+  if (entries.length === 0) {
+    if (empty)  empty.style.display  = 'block';
+    if (wrap)   wrap.style.display   = 'none';
+    if (badge)  badge.textContent    = '— / 5';
+    if (summary) summary.innerHTML   = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  if (wrap)  wrap.style.display  = 'block';
+
+  // Average
+  const avg = (entries.reduce((s,e) => s + e.stars, 0) / entries.length).toFixed(1);
+  if (badge) badge.textContent = avg + ' / 5  (' + entries.length + ' valoracion' + (entries.length>1?'es':'')+')';
+
+  // Star distribution bar
+  const dist = [0,0,0,0,0];
+  entries.forEach(e => { if (e.stars >= 1 && e.stars <= 5) dist[e.stars-1]++; });
+  if (summary) {
+    summary.innerHTML = '';
+    [5,4,3,2,1].forEach(n => {
+      const cnt  = dist[n-1];
+      const pct  = Math.round(cnt / entries.length * 100);
+      const stars = '⭐'.repeat(n);
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:11px;flex:0 0 auto;';
+      div.innerHTML = `<span style="color:var(--gold);letter-spacing:-2px;font-size:12px;">${stars}</span>
+        <div style="width:80px;height:6px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:3px;transition:width 0.5s;"></div>
+        </div>
+        <span style="font-family:'DM Mono',monospace;color:var(--muted);min-width:28px;">${cnt}</span>`;
+      summary.appendChild(div);
+    });
+  }
+
+  // Table rows
+  entries.forEach((e, idx) => {
+    const d = new Date(e.date);
+    const dateStr = d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' })
+      + ' ' + d.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+    const starsHtml = '⭐'.repeat(e.stars) + '<span style="color:var(--muted);font-size:10px;margin-left:4px;">' + e.stars + '/5</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:'DM Mono',monospace;color:var(--muted);font-size:11px;">${idx+1}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;white-space:nowrap;">${dateStr}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:600;">${e.name || '—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${e.email || '—'}</td>
+      <td>${starsHtml}</td>
+      <td style="font-size:11px;color:var(--muted);max-width:200px;">${e.comment || '<span style="opacity:0.4;">—</span>'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function adminClearRatings() {
+  if (!confirm('¿Borrar todas las valoraciones? Esta acción no se puede deshacer.')) return;
+  RATINGS_LOG = [];
+  saveRatings();
+  adminRenderRatings();
 }
 
 function renderStats(portfolio, active, exits, fails) {
@@ -3738,7 +4778,7 @@ function sendContactForm() {
     feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v1.0`);
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.3`);
   window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
   document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
@@ -3747,6 +4787,88 @@ function sendContactForm() {
   feedback.style.display = 'block';
   setTimeout(()=>{ btn.disabled=false; document.getElementById('cf-btn-text').textContent='Enviar solicitud'; document.getElementById('cf-message').value=''; feedback.style.display='none'; }, 5000);
 }
+// ── Expose only what inline HTML handlers need ──────────────────
+window.doLogin          = doLogin;
+window.doLogout         = doLogout;
+window.setLoginMode     = setLoginMode;
+window.togglePass       = togglePass;
+window.togglePassField         = togglePassField;
+window.doBackToStep1           = doBackToStep1;
+window.showForgotPassword      = showForgotPassword;
+window.adminExportPasswords      = adminExportPasswords;
+window.adminCopyExport           = adminCopyExport;
+window.adminDownloadHtml         = adminDownloadHtml;
+window.adminSetPassword          = adminSetPassword;
+window.adminConfirmSetPassword   = adminConfirmSetPassword;
+window.adminClearPassword        = adminClearPassword;
+window.adminConfirmClearPassword = adminConfirmClearPassword;
+window.setFarewellStar           = setFarewellStar;
+window.submitFarewell            = submitFarewell;
+window.skipFarewell              = skipFarewell;
+window.adminClearRatings         = adminClearRatings;
+window.sendContactForm  = sendContactForm;
+window.openUpdateModal  = openUpdateModal;
+window.closeUpdateModal = closeUpdateModal;
+window.filterAdminTable = filterAdminTable;
+window.filterAccessLog  = filterAccessLog;
+window.clearAccessLog   = clearAccessLog;
+window.adminSaveUpdate  = adminSaveUpdate;
+window.adminSaveEquity  = adminSaveEquity;
+window.exportToExcel    = exportToExcel;
+
+// ── Auto-restore session on page load/refresh ───────────────────
+// ── Page initialisation: handles both normal load and BFCache restore ──
+// BFCache (Back-Forward Cache) in Chrome/Firefox preserves the entire JS heap
+// including currentInvestor and _currentSessionToken — pageshow fires for both.
+function _initPage(fromCache) {
+  window._pageInitDone = true;
+  // Always wipe any admin session from storage (belt-and-suspenders)
+  try {
+    const raw = sessionStorage.getItem(_SESSION_STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && saved.role === 'admin') sessionStorage.removeItem(_SESSION_STORAGE_KEY);
+    }
+  } catch(e) {}
+
+  if (fromCache) {
+    // BFCache restore: JS state is still in memory from previous session.
+    // Force a hard reset to the login screen regardless of what was active.
+    _currentSessionToken = null;
+    currentInvestor      = null;
+    _pendingLoginRecord  = null;
+    _clearSavedSession();
+    document.getElementById('dashboard').style.display     = 'none';
+    document.getElementById('admin-section').style.display = 'none';
+    try { document.getElementById('farewell-overlay').style.display = 'none'; } catch(e) {}
+    document.getElementById('login-screen').style.display  = 'flex';
+    ['login-email','admin-user','admin-pass','inv-enter-pass'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    try { document.getElementById('investor-fields').style.display = 'block'; } catch(e) {}
+    try { document.getElementById('investor-step2').style.display  = 'none';  } catch(e) {}
+    try { document.getElementById('login-error').style.display     = 'none';  } catch(e) {}
+    try { setLoginMode('investor'); } catch(e) {}
+    return;
+  }
+
+  // Normal page load: try to restore investor session only
+  _tryRestoreSession();
+}
+
+// pageshow fires on normal load (persisted=false) AND BFCache restore (persisted=true)
+window.addEventListener('pageshow', function(e) {
+  _initPage(e.persisted === true);
+});
+
+// DOMContentLoaded as fallback for environments that don't support pageshow
+document.addEventListener('DOMContentLoaded', function() {
+  // Only run if pageshow hasn't already initialised (pageshow fires after DOMContentLoaded
+  // on normal loads, so we use a flag to avoid double-init)
+  if (!window._pageInitDone) _initPage(false);
+});
+
+})();
 </script>
 </body>
 </html>
