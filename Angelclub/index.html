@@ -19,7 +19,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portal Inversor v3.4</title>
+<title>AngelClub — Portal Inversor v3.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -587,7 +587,7 @@
       <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
     </div>
 
-    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.4</span></div>
+    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.5</span></div>
     <div id="login-sub" class="login-sub">Introduce tu correo electrónico para continuar</div>
 
     <!-- INVESTOR FIELDS — STEP 1: email -->
@@ -675,7 +675,7 @@
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.4</span></div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.5</span></div>
       </div>
     </div>
     <div class="topbar-right">
@@ -1275,7 +1275,7 @@ var _ORIGINAL_HTML_SRC = '<!DOCTYPE html>\n' + document.documentElement.outerHTM
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════
-// SECURITY LAYER v3.4
+// SECURITY LAYER v3.5
 // ═══════════════════════════════════════════════════════════════
 
 // ── SHA-256 (pure JS, no dependencies) ─────────────────────────
@@ -2880,20 +2880,9 @@ function saveUpdate(startupKey, url) {
 loadUpdates();
 
 // ═══════════════════════════════════════════════════════════════
-// API CONFIGURATION — Vercel + MongoDB Atlas
-// ═══════════════════════════════════════════════════════════════
-const API_BASE = 'https://angelclub-api.vercel.app/api';
-// API key de solo lectura — embebida en el HTML (inversores)
-const _AC_API_KEY_RO = 'al-Uuv6KI0nMAz2nCaiX5zfjhBwgiAIiU2uDYdqpO3aFN7';
-const _AC_API_KEY_ADMIN = 'al-nyjAdPGnueqmclTNKUamVXSNPC3UGhturPGJxeVsFpu';
-const API_KEY_RO = _AC_API_KEY_RO;
-// API key de escritura — se inyecta tras login admin (nunca embebida)
-let _adminApiKey = null;
-
-// ═══════════════════════════════════════════════════════════════
 // STARTUP EQUITY OVERRIDES — admin-managed equity % per startup
 // Overrides the hardcoded equity in STARTUPS object
-// Persisted en MongoDB (con fallback a localStorage + PRESET)
+// Persisted in localStorage
 // ═══════════════════════════════════════════════════════════════
 const EQUITY_STORAGE_KEY = 'angelclub_startup_equity_v1';
 let STARTUP_EQUITY = {}; // startupKey -> equity string e.g. "3.5%"
@@ -2936,52 +2925,25 @@ const STARTUP_EQUITY_PRESET = {
   "zapiens.ai": "0.0000%"
 };
 
-async function loadEquity() {
-  // 1. Base: preset embebido en el HTML (funciona offline)
-  STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET);
-  // 2. Intentar cargar desde MongoDB (cross-device, tiempo real)
+function loadEquity() {
   try {
-    const apiKey = API_KEY_RO || _adminApiKey;
-    if (apiKey) {
-      const res = await fetch(API_BASE + '/equity', {
-        headers: { 'x-api-key': apiKey }
-      });
-      if (res.ok) {
-        const remote = await res.json();
-        Object.assign(STARTUP_EQUITY, remote);
-        return;
-      }
-    }
-  } catch(e) { /* fallback silencioso */ }
-  // 3. Fallback: localStorage (ediciones locales pendientes)
-  try {
+    // 1. Start from preset values embedded in this HTML (cross-device)
+    STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET);
+    // 2. Merge localStorage overrides (same-device edits not yet downloaded)
     const raw = localStorage.getItem(EQUITY_STORAGE_KEY);
     const local = raw ? JSON.parse(raw) : {};
     Object.assign(STARTUP_EQUITY, local);
-  } catch(e) {}
+  } catch(e) { STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET); }
 }
 
-async function saveEquity(startupKey, value) {
+function saveEquity(startupKey, value) {
   const clean = value.trim().replace(/[^0-9.]/g, '');
-  const equity = clean && parseFloat(clean) >= 0
-    ? parseFloat(clean).toFixed(4) + '%'
-    : null;
-  // Actualizar en memoria local inmediatamente (UX optimista)
-  if (equity) STARTUP_EQUITY[startupKey] = equity;
-  else delete STARTUP_EQUITY[startupKey];
-  // Persistir en MongoDB
-  try {
-    const res = await fetch(API_BASE + '/equity', {
-      method: 'PUT',
-      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: startupKey, value: equity })
-    });
-    if (!res.ok) throw new Error('API ' + res.status);
-  } catch(e) {
-    // Fallback: guardar en localStorage
-    try { localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(STARTUP_EQUITY)); } catch(e2) {}
-    console.warn('saveEquity fallback localStorage:', e);
+  if (clean && parseFloat(clean) >= 0) {
+    STARTUP_EQUITY[startupKey] = parseFloat(clean).toFixed(4) + '%';
+  } else {
+    delete STARTUP_EQUITY[startupKey];
   }
+  try { localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(STARTUP_EQUITY)); } catch(e) {}
 }
 
 // Returns effective equity for a startup key (override > hardcoded)
@@ -3004,7 +2966,8 @@ function getInvestorEquity(startupKey, investorAmount, clubCapital) {
   return { pct: investorEq, str: formatted + '%', clubEq: eq };
 }
 
-loadEquity(); // async — carga desde MongoDB con fallback a preset/localStorage
+loadEquity(); // async — carga equity desde MongoDB
+_loadPasswordsFromMongo(); // async — carga contraseñas cross-device desde MongoDB
 
 // ═══════════════════════════════════════════════════════════════
 // REGISTRO DE ACCESOS — persiste en localStorage
@@ -3023,23 +2986,9 @@ function loadRatings() {
 function saveRatings() {
   try { localStorage.setItem(RATINGS_KEY, JSON.stringify(RATINGS_LOG)); } catch(e) {}
 }
-async function addRating(email, name, stars, comment) {
-  const entry = { email, name, stars, comment: comment || '', date: new Date().toISOString() };
-  RATINGS_LOG.unshift(entry);
+function addRating(email, name, stars, comment) {
+  RATINGS_LOG.unshift({ email, name, stars, comment: comment || '', date: new Date().toISOString() });
   if (RATINGS_LOG.length > 200) RATINGS_LOG = RATINGS_LOG.slice(0, 200);
-  // Persistir en MongoDB
-  try {
-    const apiKey = API_KEY_RO || _adminApiKey;
-    if (apiKey) {
-      await fetch(API_BASE + '/ratings', {
-        method: 'POST',
-        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-      });
-      return;
-    }
-  } catch(e) { console.warn('addRating fallback localStorage:', e); }
-  // Fallback localStorage
   saveRatings();
 }
 loadRatings();
@@ -3078,17 +3027,6 @@ function registerAccess(investor) {
   log.unshift(entry);               // newest first
   if (log.length > 500) log.length = 500; // cap at 500 entries
   saveAccessLog(log);
-  // Persistir en MongoDB
-  try {
-    const apiKey = API_KEY_RO || _adminApiKey;
-    if (apiKey) {
-      fetch(API_BASE + '/access_logs', {
-        method: 'POST',
-        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-      }).catch(e => console.warn('registerAccess MongoDB:', e));
-    }
-  } catch(e) {}
 }
 
 function renderAccessLog(entries) {
@@ -3570,7 +3508,7 @@ function setLoginMode(mode) {
   document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
   document.getElementById('investor-step2').style.display  = 'none';
   document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
-  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.4</span>';
+  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.5</span>';
   document.getElementById('login-sub').textContent = isAdmin
     ? 'Acceso exclusivo para el equipo de AngelClub'
     : 'Introduce tu correo electrónico para acceder';
@@ -3736,22 +3674,41 @@ const PRESET_PASSWORDS = {
 };
 
 function _pwKey(email) { return 'AC_INV_PW_' + email.toLowerCase(); }
+// Cache en memoria de contraseñas cargadas desde MongoDB
+let _pwCache = {};
+let _pwCacheLoaded = false;
+
+async function _loadPasswordsFromMongo() {
+  if (_pwCacheLoaded) return;
+  try {
+    const apiKey = API_KEY_RO || _adminApiKey;
+    if (!apiKey) return;
+    const res = await fetch(API_BASE + '/investors', {
+      headers: { 'x-api-key': apiKey }
+    });
+    if (res.ok) {
+      _pwCache = await res.json();
+      _pwCacheLoaded = true;
+    }
+  } catch(e) { /* fallback silencioso */ }
+}
+
 function _getStoredPwHash(email) {
   const key = email.toLowerCase();
-  // 1. Check localStorage first (most recent, device-local)
+  // 1. MongoDB cache (cross-device, tiempo real)
+  if (_pwCache[key]) return _pwCache[key];
+  // 2. localStorage (fallback device-local)
   try {
     const local = localStorage.getItem(_pwKey(key));
     if (local) return local;
   } catch(e) {}
-  // 2. Fall back to PRESET_PASSWORDS (admin-embedded, cross-device)
+  // 3. PRESET_PASSWORDS (legacy embebido en HTML)
   return PRESET_PASSWORDS[key] || null;
 }
 function _setStoredPwHash(email, hash) {
-  try {
-    localStorage.setItem(_pwKey(email), hash);
-    // Verify it was actually stored
-    return localStorage.getItem(_pwKey(email)) === hash;
-  } catch(e) { return false; }
+  _pwCache[email.toLowerCase()] = hash;
+  try { localStorage.setItem(_pwKey(email), hash); } catch(e) {}
+  return true;
 }
 
 
@@ -3966,7 +3923,7 @@ function showDashboard() {
   // Topbar
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('admin-badge').style.display = 'none';
-  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.4</span>';
+  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.5</span>';
   document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
 
   const inv = currentInvestor;
@@ -4348,12 +4305,25 @@ async function adminConfirmSetPassword() {
   try { hash = await _sha256(pass); } catch(e) {
     msg.textContent = '❌ Error al generar hash.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
   }
-  const ok = _setStoredPwHash(email, hash);
-  if (!ok) {
-    msg.textContent = '⚠️ No se pudo guardar (localStorage bloqueado).'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; return;
+  // Guardar en MongoDB (cross-device, tiempo real)
+  let savedToMongo = false;
+  try {
+    const res = await fetch(API_BASE + '/investors', {
+      method: 'PUT',
+      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, passwordHash: hash })
+    });
+    if (res.ok) { savedToMongo = true; _setStoredPwHash(email, hash); }
+  } catch(e) { console.warn('adminConfirmSetPassword MongoDB:', e); }
+
+  if (!savedToMongo) {
+    _setStoredPwHash(email, hash);
+    msg.textContent = '⚠️ Guardado localmente (MongoDB no disponible). Exporta el HTML para distribuir.';
+    msg.style.color = 'var(--amber)'; msg.style.display = 'inline';
+  } else {
+    msg.textContent = '✅ Contraseña guardada. El inversor ya puede acceder desde cualquier dispositivo.';
+    msg.style.color = '#388E3C'; msg.style.display = 'inline';
   }
-  msg.textContent = '✓ Contraseña asignada. Ahora exporta y actualiza el HTML.';
-  msg.style.color = '#388E3C'; msg.style.display = 'inline';
   emailInp.value = '';
   passInp.value  = '';
   adminRenderPasswordsTable();
@@ -4369,7 +4339,7 @@ function adminClearPassword() {
   if (msg) msg.style.display = 'none';
 }
 
-function adminConfirmClearPassword() {
+async function adminConfirmClearPassword() {
   const inp   = document.getElementById('admin-clear-pw-email');
   const msg   = document.getElementById('admin-clear-pw-msg');
   if (!inp) return;
@@ -4378,20 +4348,29 @@ function adminConfirmClearPassword() {
     if (msg) { msg.textContent = '⚠️ Introduce un email.'; msg.style.color = 'var(--red)'; msg.style.display = 'inline'; }
     return;
   }
-  // Remove from localStorage
+  // Eliminar de MongoDB
+  let deletedFromMongo = false;
+  try {
+    const res = await fetch(API_BASE + '/investors', {
+      method: 'DELETE',
+      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    if (res.ok) deletedFromMongo = true;
+  } catch(e) { console.warn('adminConfirmClearPassword MongoDB:', e); }
   try { localStorage.removeItem(_pwKey(email)); } catch(e) {}
+  delete _pwCache[email];
   if (msg) {
-    msg.textContent = `✓ Contraseña local de ${email} eliminada. Actualiza también PRESET_PASSWORDS en el HTML si estaba exportada.`;
-    msg.style.color = 'var(--blue-bright)';
-    msg.style.display = 'inline';
+    msg.textContent = deletedFromMongo
+      ? `✅ Contraseña de ${email} eliminada de MongoDB.`
+      : `✓ Contraseña local eliminada (MongoDB no disponible).`;
+    msg.style.color = 'var(--blue-bright)'; msg.style.display = 'inline';
   }
   if (inp) inp.value = '';
   adminRenderPasswordsTable();
 }
 
 function showAdminDashboard() {
-  // Inyectar API key de admin desde variable de entorno embebida
-  try { if (typeof _AC_API_KEY_ADMIN !== 'undefined') _adminApiKey = _AC_API_KEY_ADMIN; } catch(e) {}
   if (!_validateSession('admin')) return;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
@@ -4896,7 +4875,7 @@ function sendContactForm() {
     feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.4`);
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.5`);
   window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
   document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
