@@ -3859,6 +3859,7 @@ async function doLogin() {
     errEl.style.display = 'block'; return;
   }
 
+  await _loadPasswordsFromMongo(); // asegurar que MongoDB está cargado antes de verificar
   const storedHash = _getStoredPwHash(emailInput);
   if (!storedHash) {
     errEl.textContent = '⚠️ Aún no tienes acceso activado. Contacta con el equipo para que te asignen una contraseña.';
