@@ -3824,6 +3824,7 @@ async function doLogin() {
 
   // ── STEP 2: verificar contraseña ─────────────────────────────
   if (_pendingLoginRecord) {
+    await _loadPasswordsFromMongo(); // asegurar que MongoDB está cargado
     const record     = _pendingLoginRecord;
     const storedHash = _getStoredPwHash(record.email);
     const ep = document.getElementById('inv-enter-pass').value;
