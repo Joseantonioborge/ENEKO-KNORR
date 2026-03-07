@@ -2884,7 +2884,9 @@ loadUpdates();
 // ═══════════════════════════════════════════════════════════════
 const API_BASE = 'https://angelclub-api.vercel.app/api';
 // API key de solo lectura — embebida en el HTML (inversores)
-const API_KEY_RO = (function(){ try { return _AC_API_KEY_RO || ''; } catch(e){ return ''; } })();
+const _AC_API_KEY_RO = 'al-Uuv6KI0nMAz2nCaiX5zfjhBwgiAIiU2uDYdqpO3aFN7';
+const _AC_API_KEY_ADMIN = 'al-nyjAdPGnueqmclTNKUamVXSNPC3UGhturPGJxeVsFpu';
+const API_KEY_RO = _AC_API_KEY_RO;
 // API key de escritura — se inyecta tras login admin (nunca embebida)
 let _adminApiKey = null;
 
