@@ -2880,9 +2880,20 @@ function saveUpdate(startupKey, url) {
 loadUpdates();
 
 // ═══════════════════════════════════════════════════════════════
+// API CONFIGURATION — Vercel + MongoDB Atlas
+// ═══════════════════════════════════════════════════════════════
+const API_BASE = 'https://angelclub-api.vercel.app/api';
+// API key de solo lectura — embebida en el HTML (inversores)
+const _AC_API_KEY_RO    = 'al-Uuv6KI0nMAz2nCaiX5zfjhBwgiAIiU2uDYdqpO3aFN7';
+const _AC_API_KEY_ADMIN = 'al-nyjAdPGnueqmclTNKUamVXSNPC3UGhturPGJxeVsFpu';
+const API_KEY_RO = _AC_API_KEY_RO;
+// API key de escritura — se inyecta tras login admin (nunca embebida)
+let _adminApiKey = null;
+
+// ═══════════════════════════════════════════════════════════════
 // STARTUP EQUITY OVERRIDES — admin-managed equity % per startup
 // Overrides the hardcoded equity in STARTUPS object
-// Persisted in localStorage
+// Persisted en MongoDB (con fallback a localStorage + PRESET)
 // ═══════════════════════════════════════════════════════════════
 const EQUITY_STORAGE_KEY = 'angelclub_startup_equity_v1';
 let STARTUP_EQUITY = {}; // startupKey -> equity string e.g. "3.5%"
@@ -2925,25 +2936,52 @@ const STARTUP_EQUITY_PRESET = {
   "zapiens.ai": "0.0000%"
 };
 
-function loadEquity() {
+async function loadEquity() {
+  // 1. Base: preset embebido en el HTML (funciona offline)
+  STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET);
+  // 2. Intentar cargar desde MongoDB (cross-device, tiempo real)
   try {
-    // 1. Start from preset values embedded in this HTML (cross-device)
-    STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET);
-    // 2. Merge localStorage overrides (same-device edits not yet downloaded)
+    const apiKey = API_KEY_RO || _adminApiKey;
+    if (apiKey) {
+      const res = await fetch(API_BASE + '/equity', {
+        headers: { 'x-api-key': apiKey }
+      });
+      if (res.ok) {
+        const remote = await res.json();
+        Object.assign(STARTUP_EQUITY, remote);
+        return;
+      }
+    }
+  } catch(e) { /* fallback silencioso */ }
+  // 3. Fallback: localStorage (ediciones locales pendientes)
+  try {
     const raw = localStorage.getItem(EQUITY_STORAGE_KEY);
     const local = raw ? JSON.parse(raw) : {};
     Object.assign(STARTUP_EQUITY, local);
-  } catch(e) { STARTUP_EQUITY = Object.assign({}, STARTUP_EQUITY_PRESET); }
+  } catch(e) {}
 }
 
-function saveEquity(startupKey, value) {
+async function saveEquity(startupKey, value) {
   const clean = value.trim().replace(/[^0-9.]/g, '');
-  if (clean && parseFloat(clean) >= 0) {
-    STARTUP_EQUITY[startupKey] = parseFloat(clean).toFixed(4) + '%';
-  } else {
-    delete STARTUP_EQUITY[startupKey];
+  const equity = clean && parseFloat(clean) >= 0
+    ? parseFloat(clean).toFixed(4) + '%'
+    : null;
+  // Actualizar en memoria local inmediatamente (UX optimista)
+  if (equity) STARTUP_EQUITY[startupKey] = equity;
+  else delete STARTUP_EQUITY[startupKey];
+  // Persistir en MongoDB
+  try {
+    const res = await fetch(API_BASE + '/equity', {
+      method: 'PUT',
+      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: startupKey, value: equity })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+  } catch(e) {
+    // Fallback: guardar en localStorage
+    try { localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(STARTUP_EQUITY)); } catch(e2) {}
+    console.warn('saveEquity fallback localStorage:', e);
   }
-  try { localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(STARTUP_EQUITY)); } catch(e) {}
 }
 
 // Returns effective equity for a startup key (override > hardcoded)
@@ -2966,7 +3004,7 @@ function getInvestorEquity(startupKey, investorAmount, clubCapital) {
   return { pct: investorEq, str: formatted + '%', clubEq: eq };
 }
 
-loadEquity(); // async — carga equity desde MongoDB
+loadEquity(); // async — carga desde MongoDB con fallback a preset/localStorage
 _loadPasswordsFromMongo(); // async — carga contraseñas cross-device desde MongoDB
 
 // ═══════════════════════════════════════════════════════════════
@@ -2986,9 +3024,23 @@ function loadRatings() {
 function saveRatings() {
   try { localStorage.setItem(RATINGS_KEY, JSON.stringify(RATINGS_LOG)); } catch(e) {}
 }
-function addRating(email, name, stars, comment) {
-  RATINGS_LOG.unshift({ email, name, stars, comment: comment || '', date: new Date().toISOString() });
+async function addRating(email, name, stars, comment) {
+  const entry = { email, name, stars, comment: comment || '', date: new Date().toISOString() };
+  RATINGS_LOG.unshift(entry);
   if (RATINGS_LOG.length > 200) RATINGS_LOG = RATINGS_LOG.slice(0, 200);
+  // Persistir en MongoDB
+  try {
+    const apiKey = API_KEY_RO || _adminApiKey;
+    if (apiKey) {
+      await fetch(API_BASE + '/ratings', {
+        method: 'POST',
+        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      });
+      return;
+    }
+  } catch(e) { console.warn('addRating fallback localStorage:', e); }
+  // Fallback localStorage
   saveRatings();
 }
 loadRatings();
@@ -3027,6 +3079,17 @@ function registerAccess(investor) {
   log.unshift(entry);               // newest first
   if (log.length > 500) log.length = 500; // cap at 500 entries
   saveAccessLog(log);
+  // Persistir en MongoDB
+  try {
+    const apiKey = API_KEY_RO || _adminApiKey;
+    if (apiKey) {
+      fetch(API_BASE + '/access_logs', {
+        method: 'POST',
+        headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      }).catch(e => console.warn('registerAccess MongoDB:', e));
+    }
+  } catch(e) {}
 }
 
 function renderAccessLog(entries) {
@@ -3674,7 +3737,7 @@ const PRESET_PASSWORDS = {
 };
 
 function _pwKey(email) { return 'AC_INV_PW_' + email.toLowerCase(); }
-// Cache en memoria de contraseñas cargadas desde MongoDB
+// Cache en memoria de contraseñas desde MongoDB
 let _pwCache = {};
 let _pwCacheLoaded = false;
 
@@ -3686,10 +3749,7 @@ async function _loadPasswordsFromMongo() {
     const res = await fetch(API_BASE + '/investors', {
       headers: { 'x-api-key': apiKey }
     });
-    if (res.ok) {
-      _pwCache = await res.json();
-      _pwCacheLoaded = true;
-    }
+    if (res.ok) { _pwCache = await res.json(); _pwCacheLoaded = true; }
   } catch(e) { /* fallback silencioso */ }
 }
 
@@ -4371,6 +4431,8 @@ async function adminConfirmClearPassword() {
 }
 
 function showAdminDashboard() {
+  // Inyectar API key de admin desde variable de entorno embebida
+  try { if (typeof _AC_API_KEY_ADMIN !== 'undefined') _adminApiKey = _AC_API_KEY_ADMIN; } catch(e) {}
   if (!_validateSession('admin')) return;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
