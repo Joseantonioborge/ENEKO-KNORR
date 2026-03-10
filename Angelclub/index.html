@@ -3003,21 +3003,17 @@ function getEffectiveStatus(startupKey) {
 
 // Saves startup status override to MongoDB
 async function saveStartupStatus(startupKey, newStatus) {
-  // Actualizar en memoria inmediatamente (UX optimista)
   STARTUP_STATUS_OVERRIDE[startupKey] = newStatus;
-  // Enviar a MongoDB
   try {
     if (!_adminApiKey) throw new Error('_adminApiKey no disponible');
-    const payload = { key: startupKey, statusOverride: newStatus };
-    console.log('[saveStartupStatus] PUT payload:', JSON.stringify(payload));
     const res = await fetch(API_BASE + '/equity', {
       method: 'PUT',
       headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ key: startupKey, statusOverride: newStatus })
     });
     const json = await res.json().catch(() => ({}));
-    console.log('[saveStartupStatus] respuesta:', res.status, JSON.stringify(json));
-    if (!res.ok) throw new Error('API ' + res.status + ' ' + JSON.stringify(json));
+    console.log('[saveStartupStatus]', res.status, JSON.stringify(json));
+    if (!res.ok) throw new Error('API ' + res.status);
     return true;
   } catch(e) {
     console.error('[saveStartupStatus] ERROR:', e.message);
@@ -3261,18 +3257,17 @@ async function adminToggleStatus(startupKey) {
   const current = getEffectiveStatus(startupKey);
   const newStatus = current === 'fail' ? 'active' : 'fail';
   const ok = await saveStartupStatus(startupKey, newStatus);
-  // Re-render panel para reflejar el cambio
   const allStartups = Object.entries(STARTUPS).map(([key,s])=>({...s,key})).sort((a,b)=>a.name.localeCompare(b.name));
   renderAdminEquityPanel(allStartups);
   setTimeout(() => {
-    const msg = document.getElementById(`status-msg-${startupKey}`);
+    const msg = document.getElementById('status-msg-' + startupKey);
     if (msg) {
-      msg.textContent = ok ? '✅ Estado guardado en MongoDB' : '⚠️ Error al guardar (ver consola)';
+      msg.textContent = ok ? '✅ Guardado en MongoDB' : '⚠️ Error al guardar';
       msg.style.color = ok ? 'var(--green)' : 'var(--red)';
       msg.style.display = 'inline';
-      setTimeout(() => msg.style.display='none', 3000);
+      setTimeout(() => msg.style.display = 'none', 3000);
     }
-  }, 50);
+  }, 100);
 }
 
 function adminSaveEquity(startupKey, startupName) {
