@@ -19,7 +19,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portal Inversor v3.7</title>
+<title>AngelClub — Portal Inversor v3.8</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -587,7 +587,7 @@
       <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
     </div>
 
-    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.7</span></div>
+    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.8</span></div>
     <div id="login-sub" class="login-sub">Introduce tu correo electrónico para continuar</div>
 
     <!-- INVESTOR FIELDS — STEP 1: email -->
@@ -675,7 +675,7 @@
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.7</span></div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.8</span></div>
       </div>
     </div>
     <div class="topbar-right">
@@ -1275,7 +1275,7 @@ var _ORIGINAL_HTML_SRC = '<!DOCTYPE html>\n' + document.documentElement.outerHTM
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════
-// SECURITY LAYER v3.7
+// SECURITY LAYER v3.8
 // ═══════════════════════════════════════════════════════════════
 
 // ── SHA-256 (pure JS, no dependencies) ─────────────────────────
@@ -2897,6 +2897,7 @@ let _adminApiKey = null;
 // ═══════════════════════════════════════════════════════════════
 const EQUITY_STORAGE_KEY = 'angelclub_startup_equity_v1';
 let STARTUP_EQUITY = {}; // startupKey -> equity string e.g. "3.5%"
+let STARTUP_STATUS_OVERRIDE = {}; // startupKey -> 'active'|'fail' (override de MongoDB)
 
 // STARTUP_EQUITY_PRESET: admin-managed equity % embedded in HTML.
 // Edited by adminDownloadHtml() — do NOT modify manually.
@@ -2948,7 +2949,13 @@ async function loadEquity() {
       });
       if (res.ok) {
         const remote = await res.json();
-        Object.assign(STARTUP_EQUITY, remote);
+        // Soporte formato nuevo { equities, statuses } y legacy { key: "X%" }
+        if (remote.equities || remote.statuses) {
+          if (remote.equities) Object.assign(STARTUP_EQUITY, remote.equities);
+          if (remote.statuses) Object.assign(STARTUP_STATUS_OVERRIDE, remote.statuses);
+        } else {
+          Object.assign(STARTUP_EQUITY, remote); // legacy
+        }
         return;
       }
     }
@@ -2987,6 +2994,26 @@ async function saveEquity(startupKey, value) {
 // Returns effective equity for a startup key (override > hardcoded)
 function getEffectiveEquity(startupKey) {
   return STARTUP_EQUITY[startupKey] || STARTUPS[startupKey]?.equity || '—';
+}
+
+// Returns effective status for a startup key (MongoDB override > hardcoded)
+function getEffectiveStatus(startupKey) {
+  return STARTUP_STATUS_OVERRIDE[startupKey] || STARTUPS[startupKey]?.status || 'active';
+}
+
+// Saves startup status override to MongoDB
+async function saveStartupStatus(startupKey, newStatus) {
+  STARTUP_STATUS_OVERRIDE[startupKey] = newStatus;
+  try {
+    const res = await fetch(API_BASE + '/equity', {
+      method: 'PUT',
+      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: startupKey, statusOverride: newStatus })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+  } catch(e) {
+    console.warn('saveStartupStatus fallback:', e);
+  }
 }
 
 // Returns investor's individual equity % = (investorAmount / clubCapital) * clubEquity%
@@ -3181,6 +3208,7 @@ function renderAdminEquityPanel(allStartups) {
     const effective = override || hardcoded;
     const isOverridden = !!override;
 
+    const curStatus = getEffectiveStatus(p.key);
     const card = document.createElement('div');
     card.className = 'eq-card';
     card.innerHTML = `
@@ -3205,9 +3233,32 @@ function renderAdminEquityPanel(allStartups) {
         💾 Guardar equity
       </button>
       <div class="eq-saved-msg" id="eq-msg-${p.key}">✓ Equity actualizado</div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--muted);">Estado:</span>
+        <button id="status-btn-${p.key}" onclick="adminToggleStatus('${p.key}')"
+          style="font-size:11px;padding:3px 10px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-weight:600;
+            ${curStatus==='fail' ? 'background:rgba(198,40,40,0.12);color:var(--red);border:1px solid rgba(198,40,40,0.3);' : 'background:rgba(30,136,229,0.10);color:var(--blue-bright);border:1px solid rgba(30,136,229,0.25);'}">
+          ${curStatus==='fail' ? '❌ FAIL' : '● ACTIVA'}
+        </button>
+        <span style="font-size:10px;color:var(--muted);">clic para cambiar</span>
+        <div class="eq-saved-msg" id="status-msg-${p.key}" style="display:none;margin:0;font-size:10px;">✓ Estado guardado</div>
+      </div>
     `;
     grid.appendChild(card);
   });
+}
+
+async function adminToggleStatus(startupKey) {
+  const current = getEffectiveStatus(startupKey);
+  const newStatus = current === 'fail' ? 'active' : 'fail';
+  await saveStartupStatus(startupKey, newStatus);
+  // Re-render panel para reflejar el cambio
+  const allStartups = Object.entries(STARTUPS).map(([key,s])=>({...s,key})).sort((a,b)=>a.name.localeCompare(b.name));
+  renderAdminEquityPanel(allStartups);
+  setTimeout(() => {
+    const msg = document.getElementById(`status-msg-${startupKey}`);
+    if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display='none', 2500); }
+  }, 50);
 }
 
 function adminSaveEquity(startupKey, startupName) {
@@ -3571,7 +3622,7 @@ function setLoginMode(mode) {
   document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
   document.getElementById('investor-step2').style.display  = 'none';
   document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
-  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.7</span>';
+  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.8</span>';
   document.getElementById('login-sub').textContent = isAdmin
     ? 'Acceso exclusivo para el equipo de AngelClub'
     : 'Introduce tu correo electrónico para acceder';
@@ -3985,7 +4036,7 @@ function showDashboard() {
   // Topbar
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('admin-badge').style.display = 'none';
-  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.7</span>';
+  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.8</span>';
   document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
 
   const inv = currentInvestor;
@@ -4011,7 +4062,7 @@ function showDashboard() {
   const portfolio = [];
   inv.investments.forEach((investorAmount, key) => {
     const s = STARTUPS[key];
-    if (s) portfolio.push({ ...s, key, investorAmount });
+    if (s) portfolio.push({ ...s, key, investorAmount, status: getEffectiveStatus(key) });
   });
   portfolio.sort((a,b) => (b.investorAmount||0) - (a.investorAmount||0));
 
@@ -4463,7 +4514,7 @@ function showAdminDashboard() {
   if (sharedThs && sharedThs.length >= 8) { sharedThs[7].textContent = 'Update'; sharedThs[7].style.color = '#A855F7'; }
 
   // All startups as portfolio
-  const allStartups = Object.entries(STARTUPS).map(([key, s]) => ({ ...s, key, investorAmount: s.capital }));
+  const allStartups = Object.entries(STARTUPS).map(([key, s]) => ({ ...s, key, investorAmount: s.capital, status: getEffectiveStatus(key) }));
   allStartups.sort((a,b) => b.capital - a.capital);
 
   const totalCapital = allStartups.reduce((s,p) => s+p.capital, 0);
@@ -4939,7 +4990,7 @@ function sendContactForm() {
     feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.7`);
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.8`);
   window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
   document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
@@ -4974,7 +5025,8 @@ window.filterAdminTable = filterAdminTable;
 window.filterAccessLog  = filterAccessLog;
 window.clearAccessLog   = clearAccessLog;
 window.adminSaveUpdate  = adminSaveUpdate;
-window.adminSaveEquity  = adminSaveEquity;
+window.adminSaveEquity    = adminSaveEquity;
+window.adminToggleStatus  = adminToggleStatus;
 window.exportToExcel    = exportToExcel;
 
 // ── Auto-restore session on page load/refresh ───────────────────
