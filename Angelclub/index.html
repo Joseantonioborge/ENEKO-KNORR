@@ -19,7 +19,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AngelClub — Portal Inversor v3.8</title>
+<title>AngelClub — Portal Inversor v3.9</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -587,7 +587,7 @@
       <button id="tab-admin" onclick="setLoginMode('admin')" style="flex:1;padding:9px 0;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);">⚙️ Administrador</button>
     </div>
 
-    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.8</span></div>
+    <div id="login-title" class="login-title">Portal del Inversor <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.9</span></div>
     <div id="login-sub" class="login-sub">Introduce tu correo electrónico para continuar</div>
 
     <!-- INVESTOR FIELDS — STEP 1: email -->
@@ -675,7 +675,7 @@
       <div class="logo-icon">A</div>
       <div>
         <div class="logo-text">ANGEL<span>CLUB</span></div>
-        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.8</span></div>
+        <div id="topbar-subtitle" style="font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;">Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.9</span></div>
       </div>
     </div>
     <div class="topbar-right">
@@ -1275,7 +1275,7 @@ var _ORIGINAL_HTML_SRC = '<!DOCTYPE html>\n' + document.documentElement.outerHTM
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════
-// SECURITY LAYER v3.8
+// SECURITY LAYER v3.9
 // ═══════════════════════════════════════════════════════════════
 
 // ── SHA-256 (pure JS, no dependencies) ─────────────────────────
@@ -2868,13 +2868,23 @@ function loadUpdates() {
   } catch(e) { STARTUP_UPDATES = {}; }
 }
 
-function saveUpdate(startupKey, url) {
-  if (url && url.trim()) {
-    STARTUP_UPDATES[startupKey] = url.trim();
+async function saveUpdate(startupKey, url) {
+  const trimmedUrl = url ? url.trim() : '';
+  if (trimmedUrl) {
+    STARTUP_UPDATES[startupKey] = trimmedUrl;
   } else {
     delete STARTUP_UPDATES[startupKey];
   }
   try { localStorage.setItem(UPDATES_STORAGE_KEY, JSON.stringify(STARTUP_UPDATES)); } catch(e) {}
+  // v3.9 — persistir también en MongoDB
+  try {
+    if (!_adminApiKey) return;
+    await fetch(API_BASE + '/equity', {
+      method: 'PUT',
+      headers: { 'x-api-key': _adminApiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: startupKey, updateLinkOverride: trimmedUrl })
+    });
+  } catch(e) { console.warn('[saveUpdate] MongoDB sync error:', e.message); }
 }
 
 loadUpdates();
@@ -2950,9 +2960,10 @@ async function loadEquity() {
       if (res.ok) {
         const remote = await res.json();
         // Soporte formato nuevo { equities, statuses } y legacy { key: "X%" }
-        if (remote.equities || remote.statuses) {
+        if (remote.equities || remote.statuses || remote.updateLinks) {
           if (remote.equities) Object.assign(STARTUP_EQUITY, remote.equities);
           if (remote.statuses) Object.assign(STARTUP_STATUS_OVERRIDE, remote.statuses);
+          if (remote.updateLinks) Object.assign(STARTUP_UPDATES, remote.updateLinks); // v3.9
         } else {
           Object.assign(STARTUP_EQUITY, remote); // legacy
         }
@@ -3606,21 +3617,24 @@ function renderAdminUpdatesPanel(allStartups) {
   });
 }
 
-function adminSaveUpdate(startupKey, startupName) {
+async function adminSaveUpdate(startupKey, startupName) {
   const input = document.getElementById(`upd-input-${startupKey}`);
   if (!input) return;
   const url = input.value.trim();
-  saveUpdate(startupKey, url);
+  // v3.9 — await para que MongoDB se actualice antes de re-render
+  await saveUpdate(startupKey, url);
 
   // Re-render the card to reflect new state
   const allStartups = Object.entries(STARTUPS).map(([key,s])=>({...s,key})).sort((a,b)=>a.name.localeCompare(b.name));
   renderAdminUpdatesPanel(allStartups);
 
-  // Show saved message briefly
-  setTimeout(() => {
-    const msg = document.getElementById(`upd-msg-${startupKey}`);
-    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display='none', 2500); }
-  }, 50);
+  // Show saved message briefly (ahora incluye feedback MongoDB)
+  const msg = document.getElementById(`upd-msg-${startupKey}`);
+  if (msg) {
+    msg.textContent = '✅ Guardado en MongoDB';
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; msg.textContent = '✓ Guardado correctamente'; }, 3000);
+  }
 }
 let loginMode = 'investor';
 
@@ -3631,7 +3645,7 @@ function setLoginMode(mode) {
   document.getElementById('investor-fields').style.display = isAdmin ? 'none' : 'block';
   document.getElementById('investor-step2').style.display  = 'none';
   document.getElementById('admin-fields').style.display    = isAdmin ? 'block' : 'none';
-  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.8</span>';
+  document.getElementById('login-title').innerHTML = isAdmin ? 'Acceso Administrador' : 'Portal del Inversor <span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;color:var(--gold);letter-spacing:0.10em;background:rgba(230,168,23,0.12);padding:2px 8px;border-radius:6px;border:1px solid rgba(230,168,23,0.35);">v3.9</span>';
   document.getElementById('login-sub').textContent = isAdmin
     ? 'Acceso exclusivo para el equipo de AngelClub'
     : 'Introduce tu correo electrónico para acceder';
@@ -4045,7 +4059,7 @@ function showDashboard() {
   // Topbar
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('admin-badge').style.display = 'none';
-  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.8</span>';
+  document.getElementById('topbar-subtitle').innerHTML = 'Portal Inversor <span style="letter-spacing:0.08em;font-weight:600;color:var(--gold);background:rgba(230,168,23,0.13);padding:1px 7px;border-radius:5px;border:1px solid rgba(230,168,23,0.30);">v3.9</span>';
   document.getElementById('topbar-view-label').textContent = 'Mi Portfolio';
 
   const inv = currentInvestor;
@@ -4999,7 +5013,7 @@ function sendContactForm() {
     feedback.className = 'cf-feedback error'; feedback.textContent = '⚠️ Por favor, completa todos los campos.'; feedback.style.display='block'; return;
   }
   const subject = encodeURIComponent(`[AngelClub] Solicitud de información — ${project}`);
-  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.8`);
+  const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nProyecto: ${project}\nConsulta: ${type}\n\nMensaje:\n${message}\n\n—\nEnviado desde Portal Inversor AngelClub v3.9`);
   window.location.href = `mailto:equipo@angelclub.es?subject=${subject}&body=${body}`;
   btn.disabled = true;
   document.getElementById('cf-btn-text').textContent = '✓ Abriendo correo…';
