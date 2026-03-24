@@ -193,7 +193,7 @@ select.if{cursor:pointer}
 <nav class="sidebar" id="sidebar">
   <div class="sb-logo">
     <div class="sb-wm">sta<b>bo</b>lut</div>
-    <div class="sb-badge">$10M Round · 2026–2029</div>
+    <div class="sb-badge">Proyecciones 2026–2029</div>
   </div>
   <div class="sb-nav">
     <div class="nav-sep">Principal</div>
@@ -222,7 +222,7 @@ select.if{cursor:pointer}
       <button class="hbg" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
       <div>
         <h1 id="page-title">📊 Overview Dashboard</h1>
-        <div class="tsub">Escenario $10M Round · <span id="hdate"></span></div>
+        <div class="tsub">Proyecciones Financieras · <span id="hdate"></span></div>
       </div>
     </div>
     <div class="tr">
@@ -402,6 +402,7 @@ select.if{cursor:pointer}
             <option value="safe">SAFE (Simple Agreement for Future Equity)</option>
             <option value="convertible">Nota Convertible</option>
             <option value="participativo">Préstamo Participativo</option>
+            <option value="equity">Equity — Ampliación de Capital (Acciones)</option>
           </select></div>
         <div id="inv-convertible-fields" style="display:none">
           <div class="ig" style="grid-template-columns:1fr 1fr;margin-bottom:8px">
@@ -423,6 +424,18 @@ select.if{cursor:pointer}
             <div class="igrp"><label class="ilbl">Tipo Variable (% s/Beneficio)</label>
               <div class="iw"><span class="ipfx">%</span>
                 <input class="if pfx" id="inv-var-rate" type="number" value="3" min="0" max="20" step=".5" oninput="invVarRate=parseFloat(this.value)||3;recalcAll()">
+              </div></div>
+          </div>
+        </div>
+        <div id="inv-equity-fields" style="display:none">
+          <div class="ig" style="grid-template-columns:1fr 1fr;margin-bottom:8px">
+            <div class="igrp"><label class="ilbl">% Equity / Dilución</label>
+              <div class="iw"><span class="ipfx">%</span>
+                <input class="if pfx" id="inv-equity-pct" type="number" value="20" min="0" max="100" step=".5" oninput="invEquityPct=parseFloat(this.value)||20;recalcAll()">
+              </div></div>
+            <div class="igrp"><label class="ilbl">Valoración Pre-Money ($K)</label>
+              <div class="iw"><span class="ipfx">$</span>
+                <input class="if pfx" id="inv-premoney" type="number" value="40000" min="0" step="1000" oninput="invPreMoney=parseFloat(this.value)||40000;recalcAll()">
               </div></div>
           </div>
         </div>
@@ -474,7 +487,7 @@ select.if{cursor:pointer}
 
   <div class="footer">
     <span>© 2026 Stabolut Financial Model v3.2 · Confidencial</span>
-    <span>$000s · Escenario $10M Round · <span id="fdate"></span></span>
+    <span>$000s · Proyecciones Financieras · <span id="fdate"></span></span>
   </div>
 </div><!-- /main -->
 </div><!-- /layout -->
@@ -516,6 +529,8 @@ let invInterestRate=8; // % annual — convertible note
 let invMaturityQ=8;    // quarter index for conversion (default Q1 2028)
 let invFixedRate=5;    // % annual fixed — participativo
 let invVarRate=3;      // % applied to positive net income — participativo
+let invEquityPct=20;   // % equity / dilución — equity model (informativo)
+let invPreMoney=40000; // $000s valoración pre-money — equity model (informativo)
 
 /* ════════════════════════════════════════════════
    COMPUTED
@@ -541,7 +556,7 @@ function invCapFlow(){
 }
 function interestExpense(){
   const ie=Array(16).fill(0);
-  if(invModel==='safe'||invAmount<=0) return ie;
+  if(invModel==='safe'||invModel==='equity'||invAmount<=0) return ie;
   const ni=netInc();
   for(let i=invQuarter;i<16;i++){
     if(invModel==='convertible'){
@@ -893,7 +908,7 @@ function renderPL(){
     {l:'APR (%)',              d:APR.map(v=>(v*100).toFixed(0)+'%'), cf:()=>'',raw:true},
     {l:'✅ Protocol Revenue',  d:r,  cf:()=>'p'},
     {l:'Total OpEx',           d:o,  cf:()=>'n'},
-    ...(invModel!=='safe'&&invAmount>0?[{l:'💸 Gastos Financieros',d:ie.map(v=>-v),cf:()=>'n'}]:[]),
+    ...(invModel!=='safe'&&invModel!=='equity'&&invAmount>0?[{l:'💸 Gastos Financieros',d:ie.map(v=>-v),cf:()=>'n'}]:[]),
     {l:'📊 NET INCOME',        d:n,  cf:v=>nc(v), bold:true},
     {l:'Capital Raise',        d:cap,cf:v=>v?'pu':''},
     {l:'M&amp;A',              d:MA, cf:()=>'n'},
@@ -1104,7 +1119,7 @@ function renderDashKPIs(){
     <div class="kc cp"><span class="ki">💎</span>
       <div class="kl">AuM/TVL Total 2026</div>
       <div class="kv">${fmt(y0a)}</div>
-      <div class="kd pos">↑ Escenario $10M</div></div>
+      <div class="kd pos">↑ Proyecciones 2026–2029</div></div>
     <div class="kc cg"><span class="ki">📈</span>
       <div class="kl">Protocol Revenue 2026</div>
       <div class="kv">${fmt(y0r)}</div>
@@ -1120,7 +1135,7 @@ function renderDashKPIs(){
     <div class="kc ct"><span class="ki">💵</span>
       <div class="kl">Cash Balance Q4 2026</div>
       <div class="kv">${fmt(cb[3])}</div>
-      <div class="kd ${cb[3]>=0?'pos':'neg'}">${invAmount>0?'+ '+(['safe','convertible','participativo'].includes(invModel)?{safe:'SAFE',convertible:'Nota Conv.',participativo:'Prest. Part.'}[invModel]:'Capital')+ ' $'+Math.round(invAmount/1000)+'M':''}</div></div>
+      <div class="kd ${cb[3]>=0?'pos':'neg'}">${invAmount>0?'+ '+({safe:'SAFE',convertible:'Nota Conv.',participativo:'Prest. Part.',equity:'Equity'}[invModel]||'Capital')+' $'+Math.round(invAmount/1000)+'M':''}</div></div>
     <div class="kc cp"><span class="ki">👤</span>
       <div class="kl">Usuarios Q4 2026</div>
       <div class="kv">${u[3].toLocaleString()}</div>
@@ -1142,8 +1157,10 @@ function updateInvModelUI(){
   const model=document.getElementById('inv-model')?.value||invModel;
   const cf=document.getElementById('inv-convertible-fields');
   const pf=document.getElementById('inv-participativo-fields');
+  const ef=document.getElementById('inv-equity-fields');
   if(cf) cf.style.display=model==='convertible'?'block':'none';
   if(pf) pf.style.display=model==='participativo'?'block':'none';
+  if(ef) ef.style.display=model==='equity'?'block':'none';
   const infos={
     safe:`<div class="card-t">ℹ️ SAFE — Información</div>
       <div style="font-size:12px;color:var(--g7);line-height:1.9">
@@ -1171,6 +1188,16 @@ function updateInvModelUI(){
         <p>• Computa como fondos propios a efectos de capital</p>
         <p>• Intereses íntegramente deducibles fiscalmente</p>
         <p>💡 Instrumento ENISA, CDTI y Fond-ICO en España</p>
+      </div>`,
+    equity:`<div class="card-t">ℹ️ Equity (Acciones) — Información</div>
+      <div style="font-size:12px;color:var(--g7);line-height:1.9">
+        <p>📋 <b>Ampliación de Capital — Emisión de Acciones</b></p>
+        <p>• Sin intereses ni obligación de devolución</p>
+        <p>• No genera gastos financieros en P&amp;G</p>
+        <p>• <b>No figura como pasivo</b> en el Balance</p>
+        <p>• Entra en Patrimonio Neto como Prima de Emisión</p>
+        <p>• Produce dilución en los socios existentes</p>
+        <p>💡 Valoración post-money = pre-money + capital captado</p>
       </div>`
   };
   const ic=document.getElementById('inv-model-info');
@@ -1182,13 +1209,18 @@ function renderInvestmentSummary(){
   const totalInv=cap.reduce((s,v)=>s+v,0);
   const totalInt=ie.reduce((s,v)=>s+v,0);
   const maxCash=Math.max(...cb),finalCash=cb[15];
-  const modelNames={safe:'SAFE',convertible:'Nota Convertible',participativo:'Préstamo Participativo'};
+  const modelNames={safe:'SAFE',convertible:'Nota Convertible',participativo:'Préstamo Participativo',equity:'Equity (Acciones)'};
+  const extraRows=invModel==='equity'?[
+    ['Dilución inversores',invEquityPct.toFixed(1)+'%','pu'],
+    ['Valoración post-money',fmt(invPreMoney+invAmount),'p']
+  ]:[];
   const imp=document.getElementById('inv-impact');
   if(imp) imp.innerHTML=`
     <div style="display:grid;gap:4px">
       ${[
         ['Modelo seleccionado',modelNames[invModel],'pu'],
         ['Capital captado',fmt(totalInv),'p'],
+        ...extraRows,
         ['Total gastos financieros',totalInt?fmt(totalInt):'—',totalInt?'n':''],
         ['Cash máximo 2026–2029',fmt(maxCash),'p'],
         ['Cash final Q4 2029',fmt(finalCash),finalCash>=0?'p':'n']
@@ -1237,25 +1269,28 @@ function renderBalanceSheet(){
     // PASIVO CORRIENTE
     const ap=Math.round(o[qe]*0.33);
     const totalCL=ap;
-    // PASIVO NO CORRIENTE — investment liability
+    // PASIVO NO CORRIENTE — investment liability (equity -> 0, va a PN)
     const raised=cap.slice(0,qe+1).reduce((s,v)=>s+v,0);
     let finLiab=0;
     if(invModel==='safe') finLiab=raised;
     else if(invModel==='convertible'){
       if(qe<invMaturityQ){ const acc=ie.slice(0,qe+1).reduce((s,v)=>s+v,0); finLiab=raised+acc; }
     } else if(invModel==='participativo') finLiab=raised;
+    // equity: finLiab=0, el capital se refleja en Prima de Emisión (PN)
+    const equityPremium=invModel==='equity'?raised:0;
     const totalNCL=finLiab;
     const totalL=totalCL+totalNCL;
     // PATRIMONIO NETO (plug)
     const totalPN=totalA-totalL;
     const retPrior=y>0?yr.slice(0,y).reduce((s,_,py)=>s+aSum(n,py),0):0;
     const curNI=aSum(n,y);
-    return {cash,ar,otherCA,totalCA,intangibles,totalNCA,totalA,ap,totalCL,finLiab,totalNCL,totalL,totalPN,retPrior,curNI};
+    return {cash,ar,otherCA,totalCA,intangibles,totalNCA,totalA,ap,totalCL,finLiab,totalNCL,totalL,totalPN,retPrior,curNI,equityPremium};
   });
 
   const hdr=yr.map(y=>`<th>${y}</th>`).join('');
   bsh.innerHTML=`<tr><th>Partida ($000s)</th>${hdr}</tr>`;
-  const invLabel={safe:'Financiación SAFE',convertible:'Deuda Convertible',participativo:'Préstamo Participativo'}[invModel];
+  const invLabel={safe:'Financiación SAFE',convertible:'Deuda Convertible',participativo:'Préstamo Participativo'}[invModel]||'—';
+  const isEquity=invModel==='equity';
   let h='';
   h+=`<tr style="background:var(--pup)"><td colspan="5"><strong>ACTIVO</strong></td></tr>`;
   h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Activo Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
@@ -1271,12 +1306,17 @@ function renderBalanceSheet(){
   h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Pasivo Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
   h+=`<tr><td style="padding-left:32px">Proveedores (ctas. pagar)</td>${Y.map(d=>`<td class="n">${fmtK(d.ap)}</td>`).join('')}</tr>`;
   h+=`<tr class="rt"><td style="padding-left:18px">Total Pasivo Corriente</td>${Y.map(d=>`<td class="n">${fmtK(d.totalCL)}</td>`).join('')}</tr>`;
-  h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Pasivo No Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
-  h+=`<tr><td style="padding-left:32px">${invLabel}</td>${Y.map(d=>`<td class="${d.finLiab>0?'n':''}">${d.finLiab>0?fmtK(d.finLiab):'—'}</td>`).join('')}</tr>`;
-  h+=`<tr class="rt"><td style="padding-left:18px">Total Pasivo No Corriente</td>${Y.map(d=>`<td class="${d.totalNCL>0?'n':''}">${d.totalNCL>0?fmtK(d.totalNCL):'—'}</td>`).join('')}</tr>`;
-  h+=`<tr style="background:var(--g2)"><td><strong>TOTAL PASIVO</strong></td>${Y.map(d=>`<td class="n"><strong>${fmtK(d.totalL)}</strong></td>`).join('')}</tr>`;
+  if(!isEquity){
+    h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Pasivo No Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+    h+=`<tr><td style="padding-left:32px">${invLabel}</td>${Y.map(d=>`<td class="${d.finLiab>0?'n':''}">${d.finLiab>0?fmtK(d.finLiab):'—'}</td>`).join('')}</tr>`;
+    h+=`<tr class="rt"><td style="padding-left:18px">Total Pasivo No Corriente</td>${Y.map(d=>`<td class="${d.totalNCL>0?'n':''}">${d.totalNCL>0?fmtK(d.totalNCL):'—'}</td>`).join('')}</tr>`;
+  }
+  h+=`<tr style="background:var(--g2)"><td><strong>TOTAL PASIVO</strong></td>${Y.map(d=>`<td class="${isEquity?'':'n'}"><strong>${fmtK(d.totalL)}</strong></td>`).join('')}</tr>`;
   h+=`<tr style="background:var(--pup)"><td colspan="5"><strong>PATRIMONIO NETO</strong></td></tr>`;
   h+=`<tr><td style="padding-left:32px">Capital social</td>${Y.map(()=>`<td>${fmtK(100)}</td>`).join('')}</tr>`;
+  if(isEquity){
+    h+=`<tr><td style="padding-left:32px">Prima de emisión (acciones)</td>${Y.map(d=>`<td class="${d.equityPremium>0?'p':''}">${d.equityPremium>0?fmtK(d.equityPremium):'—'}</td>`).join('')}</tr>`;
+  }
   h+=`<tr><td style="padding-left:32px">Resultados acumulados</td>${Y.map(d=>`<td class="${nc(d.retPrior)}">${fmtK(d.retPrior)}</td>`).join('')}</tr>`;
   h+=`<tr><td style="padding-left:32px">Resultado del ejercicio</td>${Y.map(d=>`<td class="${nc(d.curNI)}">${fmtK(d.curNI)}</td>`).join('')}</tr>`;
   h+=`<tr class="rt" style="background:var(--g2)"><td><strong>TOTAL PATRIMONIO NETO</strong></td>${Y.map(d=>`<td class="${nc(d.totalPN)}"><strong>${fmtK(d.totalPN)}</strong></td>`).join('')}</tr>`;
@@ -1318,7 +1358,7 @@ function renderPandL(){
   h+=`<tr style="background:var(--pup)"><td><strong>✅ EBITDA</strong></td>${Y.map(d=>`<td class="${nc(d.ebitda)}"><strong>${fmtK(d.ebitda)}</strong></td>`).join('')}</tr>`;
   h+=`<tr><td style="padding-left:14px">(-) Amortizaciones</td>${Y.map(d=>`<td class="${d.da?'n':''}">${d.da?'('+fmtK(d.da)+')':'—'}</td>`).join('')}</tr>`;
   h+=`<tr class="rt"><td><strong>EBIT (Res. Explotación)</strong></td>${Y.map(d=>`<td class="${nc(d.ebit)}"><strong>${fmtK(d.ebit)}</strong></td>`).join('')}</tr>`;
-  if(invModel!=='safe'&&invAmount>0){
+  if(invModel!=='safe'&&invModel!=='equity'&&invAmount>0){
     h+=`<tr><td style="padding-left:14px">(-) Gastos Financieros</td>${Y.map(d=>`<td class="${d.int?'n':''}">${d.int?'('+fmtK(d.int)+')':'—'}</td>`).join('')}</tr>`;
   }
   h+=`<tr class="rt"><td><strong>Resultado antes Impuestos</strong></td>${Y.map(d=>`<td class="${nc(d.ebt)}"><strong>${fmtK(d.ebt)}</strong></td>`).join('')}</tr>`;
@@ -1341,7 +1381,7 @@ function renderPandL(){
   }
   qh+=`<tr class="rt"><td><strong>Total OpEx</strong></td>${o.map(v=>`<td class="n"><strong>${fmtK(v)}</strong></td>`).join('')}</tr>`;
   qh+=`<tr style="background:var(--pup)"><td><strong>EBITDA</strong></td>${r.map((v,i)=>`<td class="${nc(v-o[i])}"><strong>${fmtK(v-o[i])}</strong></td>`).join('')}</tr>`;
-  if(invModel!=='safe'&&invAmount>0){
+  if(invModel!=='safe'&&invModel!=='equity'&&invAmount>0){
     qh+=`<tr><td style="padding-left:18px">(-) Gastos Financieros</td>${ie.map(v=>`<td class="${v?'n':''}">${v?'('+fmtK(v)+')':'—'}</td>`).join('')}</tr>`;
   }
   qh+=`<tr><td style="padding-left:18px">(-) IS (${Math.round(tES*100)}%)</td>${tax_q.map(v=>`<td class="${v?'n':''}">${v?'('+fmtK(v)+')':'—'}</td>`).join('')}</tr>`;
@@ -1372,7 +1412,7 @@ function recalcAll(){
 ════════════════════════════════════════════════ */
 function doExportCSV(){
   const r=revenue(),o=opex(),n=netInc(),cb=cashBal(),a=aum(),u=users();
-  let s='Stabolut Financial Model — $10M Round\n\n';
+  let s='Stabolut — Proyecciones Financieras\n\n';
   s+='Metric,'+QQ.join(',')+'\n';
   s+=`Users,${u.join(',')}\n`;
   s+=`AuM/TVL ($K),${a.join(',')}\n`;
@@ -1400,7 +1440,7 @@ function doExportExcel(){
   const wb=XLSX.utils.book_new();
 
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
-    ['STABOLUT — FINANCIAL MODEL · $10M Round'],
+    ['STABOLUT — PROYECCIONES FINANCIERAS'],
     ['Generado: '+new Date().toLocaleDateString('es-ES')],[],
     ['Metric ($000s)',...QQ],
     ['Users',...u],['AuM/TVL',...a],
