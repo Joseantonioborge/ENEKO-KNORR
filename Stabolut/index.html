@@ -204,6 +204,10 @@ select.if{cursor:pointer}
     <div class="nav-sep">Análisis</div>
     <button class="nb" data-page="kpis"><span class="ic">🎯</span>KPIs Estratégicos</button>
     <button class="nb" data-page="forecast"><span class="ic">📈</span>Forecast 5 Años</button>
+    <div class="nav-sep">Financiero</div>
+    <button class="nb" data-page="investment"><span class="ic">💼</span>Inversión Capital</button>
+    <button class="nb" data-page="balancesheet"><span class="ic">⚖️</span>Balance Sheet</button>
+    <button class="nb" data-page="pandl"><span class="ic">📋</span>P&amp;G</button>
     <div class="nav-sep">Exportar</div>
     <button class="nb" onclick="doExportExcel()"><span class="ic">📥</span>Excel (.xlsx)</button>
     <button class="nb" onclick="doExportCSV()"><span class="ic">📄</span>CSV</button>
@@ -378,6 +382,96 @@ select.if{cursor:pointer}
     <div class="card" style="padding:0"><div class="tw"><table><thead id="fc-h"></thead><tbody id="fc-b"></tbody></table></div></div>
   </div>
 
+  <!-- ════ PAGE: INVESTMENT ════ -->
+  <div id="page-investment" class="page">
+    <div class="alert">💼 <strong>Estructura de Capital:</strong> Configura el importe y modelo jurídico de la inversión. Los cambios se reflejan automáticamente en el Overview, Balance Sheet y P&amp;G.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-bottom:18px">
+      <div class="card dash">
+        <div class="card-t">💼 Configuración de la Inversión</div>
+        <div class="ig" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
+          <div class="igrp"><label class="ilbl">Importe ($000s)</label>
+            <div class="iw"><span class="ipfx">$</span>
+              <input class="if pfx" id="inv-amount" type="number" value="10000" min="0" step="500" oninput="invAmount=parseFloat(this.value)||0;recalcAll()">
+            </div></div>
+          <div class="igrp"><label class="ilbl">Trimestre entrada</label>
+            <select class="if" id="inv-quarter" onchange="invQuarter=parseInt(this.value);recalcAll()"></select>
+          </div>
+        </div>
+        <div class="igrp" style="margin-bottom:12px"><label class="ilbl">Modelo de Inversión</label>
+          <select class="if" id="inv-model" onchange="invModel=this.value;updateInvModelUI();recalcAll()">
+            <option value="safe">SAFE (Simple Agreement for Future Equity)</option>
+            <option value="convertible">Nota Convertible</option>
+            <option value="participativo">Préstamo Participativo</option>
+          </select></div>
+        <div id="inv-convertible-fields" style="display:none">
+          <div class="ig" style="grid-template-columns:1fr 1fr;margin-bottom:8px">
+            <div class="igrp"><label class="ilbl">Tipo Interés Anual (%)</label>
+              <div class="iw"><span class="ipfx">%</span>
+                <input class="if pfx" id="inv-ir" type="number" value="8" min="0" max="30" step=".5" oninput="invInterestRate=parseFloat(this.value)||8;recalcAll()">
+              </div></div>
+            <div class="igrp"><label class="ilbl">Trimestre Conversión</label>
+              <select class="if" id="inv-maturity" onchange="invMaturityQ=parseInt(this.value);recalcAll()"></select>
+            </div>
+          </div>
+        </div>
+        <div id="inv-participativo-fields" style="display:none">
+          <div class="ig" style="grid-template-columns:1fr 1fr;margin-bottom:8px">
+            <div class="igrp"><label class="ilbl">Tipo Fijo Anual (%)</label>
+              <div class="iw"><span class="ipfx">%</span>
+                <input class="if pfx" id="inv-fixed-rate" type="number" value="5" min="0" max="20" step=".5" oninput="invFixedRate=parseFloat(this.value)||5;recalcAll()">
+              </div></div>
+            <div class="igrp"><label class="ilbl">Tipo Variable (% s/Beneficio)</label>
+              <div class="iw"><span class="ipfx">%</span>
+                <input class="if pfx" id="inv-var-rate" type="number" value="3" min="0" max="20" step=".5" oninput="invVarRate=parseFloat(this.value)||3;recalcAll()">
+              </div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="inv-model-info"></div>
+      <div class="card">
+        <div class="card-t">📊 Impacto en Previsiones</div>
+        <div id="inv-impact"></div>
+      </div>
+    </div>
+    <div class="st">💰 Flujo de Caja por Inversión</div>
+    <div class="card" style="padding:0;margin-bottom:18px">
+      <div class="tw"><table><thead id="inv-cf-h"></thead><tbody id="inv-cf-b"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE: BALANCE SHEET ════ -->
+  <div id="page-balancesheet" class="page">
+    <div class="alert">⚖️ <strong>Balance de Situación:</strong> Generado a partir de las proyecciones del modelo. Formato NPGC (España). Datos a fin de cada ejercicio fiscal.</div>
+    <div class="st">⚖️ Balance de Situación — Anual ($000s)</div>
+    <div class="card" style="padding:0;margin-bottom:18px">
+      <div class="tw"><table><thead id="bs-h"></thead><tbody id="bs-b"></tbody></table></div>
+    </div>
+    <div class="rnote">📋 Tesorería calculada desde el modelo de flujo de caja. Cuentas a cobrar/pagar estimadas al 50%/33% del último trimestre. Patrimonio Neto = Activo Total − Pasivo Total.</div>
+  </div>
+
+  <!-- ════ PAGE: P&G ════ -->
+  <div id="page-pandl" class="page">
+    <div class="alert">📋 <strong>Cuenta de Pérdidas y Ganancias:</strong> Formato PGC (España). Incluye gastos financieros del modelo de inversión configurado.</div>
+    <div class="st">📋 P&amp;G Anual — Cuenta de Resultados ($000s)</div>
+    <div class="card" style="padding:0;margin-bottom:18px">
+      <div class="tw"><table><thead id="pg-h"></thead><tbody id="pg-b"></tbody></table></div>
+    </div>
+    <div class="st">📋 P&amp;G Trimestral Detallado ($000s)</div>
+    <div class="card" style="padding:0;margin-bottom:18px">
+      <div class="tw"><table><thead id="pg-q-h"></thead><tbody id="pg-q-b"></tbody></table></div>
+    </div>
+    <div class="cg2">
+      <div class="cc">
+        <div class="ct" style="margin-bottom:13px">📈 EBITDA vs Resultado Neto ($000s)</div>
+        <div class="cw"><canvas id="cPG"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="ct" style="margin-bottom:13px">📊 Márgenes Anuales (%)</div>
+        <div class="cw"><canvas id="cPGMargin"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">
     <span>© 2026 Stabolut Financial Model v3.2 · Confidencial</span>
     <span>$000s · Escenario $10M Round · <span id="fdate"></span></span>
@@ -414,6 +508,15 @@ const BC={
 let uDelta=Array(16).fill(0);
 let cAdj  =Array(16).fill(0);
 
+// investment / capital structure state
+let invAmount=10000;   // $000s total
+let invModel='safe';   // 'safe'|'convertible'|'participativo'
+let invQuarter=0;      // quarter index (0=Q1 2026)
+let invInterestRate=8; // % annual — convertible note
+let invMaturityQ=8;    // quarter index for conversion (default Q1 2028)
+let invFixedRate=5;    // % annual fixed — participativo
+let invVarRate=3;      // % applied to positive net income — participativo
+
 /* ════════════════════════════════════════════════
    COMPUTED
 ════════════════════════════════════════════════ */
@@ -423,9 +526,38 @@ const revenue =()=>aum().map((a,i)=>Math.round(a*APR[i]*0.20/4));
 const opex    =()=>QQ.map((_,i)=>Object.values(BC).reduce((s,a)=>s+a[i],0)+cAdj[i]);
 const netInc  =()=>{ const r=revenue(),o=opex(); return r.map((v,i)=>v-o[i]); };
 const cashBal =()=>{
-  const n=netInc(); let p=0; return n.map((v,i)=>{ p+=v+CAP[i]+MA[i]; return Math.round(p); });
+  const n=adjNetInc(),cap=invCapFlow(); let p=0;
+  return n.map((v,i)=>{ p+=v+cap[i]+MA[i]; return Math.round(p); });
 };
 const aSum=(a,y)=>a.slice(y*4,y*4+4).reduce((s,v)=>s+v,0);
+
+/* ════════════════════════════════════════════════
+   INVESTMENT COMPUTED
+════════════════════════════════════════════════ */
+function invCapFlow(){
+  const f=Array(16).fill(0);
+  if(invAmount>0) f[Math.max(0,Math.min(invQuarter,15))]=invAmount;
+  return f;
+}
+function interestExpense(){
+  const ie=Array(16).fill(0);
+  if(invModel==='safe'||invAmount<=0) return ie;
+  const ni=netInc();
+  for(let i=invQuarter;i<16;i++){
+    if(invModel==='convertible'){
+      if(i<invMaturityQ) ie[i]=Math.round(invAmount*invInterestRate/100/4);
+    } else if(invModel==='participativo'){
+      const fp=Math.round(invAmount*invFixedRate/100/4);
+      const vp=ni[i]>0?Math.round(ni[i]*invVarRate/100):0;
+      ie[i]=fp+vp;
+    }
+  }
+  return ie;
+}
+function adjNetInc(){
+  const n=netInc(),ie=interestExpense();
+  return n.map((v,i)=>v-ie[i]);
+}
 
 /* ════════════════════════════════════════════════
    FORMAT
@@ -447,9 +579,11 @@ function nc(v){ return v>0?'p':v<0?'n':''; }  // css class suffix
    NAVIGATION
 ════════════════════════════════════════════════ */
 const TITLES={
-  dashboard:'📊 Overview Dashboard', users:'👥 Usuarios / Clientes',
-  costs:'💰 Costes Operativos',       taxes:'🏛️ Calculadora Fiscal',
-  kpis:'🎯 KPIs Estratégicos',        forecast:'📈 Forecast 5 Años'
+  dashboard:'📊 Overview Dashboard',   users:'👥 Usuarios / Clientes',
+  costs:'💰 Costes Operativos',         taxes:'🏛️ Calculadora Fiscal',
+  kpis:'🎯 KPIs Estratégicos',          forecast:'📈 Forecast 5 Años',
+  investment:'💼 Inversión Capital',    balancesheet:'⚖️ Balance Sheet',
+  pandl:'📋 P&G — Cuenta de Resultados'
 };
 let curPage='dashboard';
 
@@ -520,6 +654,7 @@ function drawChartsFor(id){
   if(id==='kpis')      { drawEbitda(); drawGrowth(); }
   if(id==='taxes')     { recalcTax(); }          // recalcTax calls drawTax internally
   if(id==='forecast')  { drawForecast(); }
+  if(id==='pandl')     { drawPG(); drawPGMargin(); }
 }
 
 function drawMain(){
@@ -691,22 +826,78 @@ function drawForecast(){
 }
 
 /* ════════════════════════════════════════════════
+   P&G CHARTS
+════════════════════════════════════════════════ */
+function drawPG(){
+  kill('cPG');
+  const r=revenue(),o=opex(),ie=interestExpense();
+  const yr=['2026','2027','2028','2029'];
+  const tES=parseFloat(document.getElementById('tx-es-c')?.value||'25')/100||.25;
+  const Y=yr.map((_,y)=>{
+    const rev=aSum(r,y),opT=aSum(o,y),ebitda=rev-opT;
+    const int=aSum(ie,y),ebt=ebitda-int;
+    const tax=ebt>0?Math.round(ebt*tES):0;
+    return {ebitda,ni:ebt-tax};
+  });
+  CH['cPG']=new Chart(document.getElementById('cPG'),{
+    type:'bar',
+    data:{labels:yr,datasets:[
+      {label:'EBITDA $K',data:Y.map(d=>d.ebitda),
+        backgroundColor:Y.map(d=>d.ebitda>=0?C.grA:C.reA),
+        borderColor:Y.map(d=>d.ebitda>=0?C.gr:C.re),borderWidth:2,borderRadius:6,order:2},
+      {label:'Resultado Neto $K',data:Y.map(d=>d.ni),
+        type:'line',borderColor:C.pu,backgroundColor:'transparent',
+        tension:.4,pointBackgroundColor:Y.map(d=>d.ni>=0?C.pu:C.re),pointRadius:6,order:1}
+    ]},
+    options:{...mkOpts(),interaction:{mode:'index',intersect:false}}
+  });
+}
+
+function drawPGMargin(){
+  kill('cPGMargin');
+  const r=revenue(),o=opex(),ie=interestExpense();
+  const yr=['2026','2027','2028','2029'];
+  const tES=parseFloat(document.getElementById('tx-es-c')?.value||'25')/100||.25;
+  const Y=yr.map((_,y)=>{
+    const rev=aSum(r,y),opT=aSum(o,y),ebitda=rev-opT;
+    const int=aSum(ie,y),ebt=ebitda-int;
+    const tax=ebt>0?Math.round(ebt*tES):0,ni=ebt-tax;
+    return {
+      ebitdaM:rev>0?+(ebitda/rev*100).toFixed(1):0,
+      niM:rev>0?+(ni/rev*100).toFixed(1):0
+    };
+  });
+  CH['cPGMargin']=new Chart(document.getElementById('cPGMargin'),{
+    type:'line',
+    data:{labels:yr,datasets:[
+      {label:'Margen EBITDA %',data:Y.map(d=>d.ebitdaM),
+        borderColor:C.gr,backgroundColor:C.grA,fill:false,tension:.4,pointRadius:5},
+      {label:'Margen Neto %',data:Y.map(d=>d.niM),
+        borderColor:C.pu,backgroundColor:C.puA,fill:false,tension:.4,pointRadius:5}
+    ]},
+    options:mkOptsPct()
+  });
+}
+
+/* ════════════════════════════════════════════════
    TABLE RENDERERS
 ════════════════════════════════════════════════ */
 function renderPL(){
-  const r=revenue(),o=opex(),n=netInc(),cb=cashBal(),a=aum(),u=users();
+  const r=revenue(),o=opex(),n=adjNetInc(),cb=cashBal(),a=aum(),u=users();
+  const ie=interestExpense(),cap=invCapFlow();
   const th=QQ.map(q=>`<th>${q.replace(' ','<br>')}</th>`).join('');
   document.getElementById('pl-h').innerHTML=`<tr><th>Partida ($000s)</th>${th}</tr>`;
   const rows=[
-    {l:'👥 Usuarios',      d:u,  cf:()=>''},
-    {l:'💎 AuM / TVL',     d:a,  cf:()=>'pu'},
-    {l:'APR (%)',           d:APR.map(v=>(v*100).toFixed(0)+'%'), cf:()=>'',raw:true},
-    {l:'✅ Protocol Revenue',d:r, cf:()=>'p'},
-    {l:'Total OpEx',        d:o,  cf:()=>'n'},
-    {l:'📊 NET INCOME',     d:n,  cf:v=>nc(v), bold:true},
-    {l:'Capital Raise',     d:CAP,cf:v=>v?'pu':''},
-    {l:'M&amp;A',           d:MA, cf:()=>'n'},
-    {l:'💵 Cash Balance',   d:cb, cf:v=>nc(v), bold:true}
+    {l:'👥 Usuarios',         d:u,  cf:()=>''},
+    {l:'💎 AuM / TVL',        d:a,  cf:()=>'pu'},
+    {l:'APR (%)',              d:APR.map(v=>(v*100).toFixed(0)+'%'), cf:()=>'',raw:true},
+    {l:'✅ Protocol Revenue',  d:r,  cf:()=>'p'},
+    {l:'Total OpEx',           d:o,  cf:()=>'n'},
+    ...(invModel!=='safe'&&invAmount>0?[{l:'💸 Gastos Financieros',d:ie.map(v=>-v),cf:()=>'n'}]:[]),
+    {l:'📊 NET INCOME',        d:n,  cf:v=>nc(v), bold:true},
+    {l:'Capital Raise',        d:cap,cf:v=>v?'pu':''},
+    {l:'M&amp;A',              d:MA, cf:()=>'n'},
+    {l:'💵 Cash Balance',      d:cb, cf:v=>nc(v), bold:true}
   ];
   document.getElementById('pl-b').innerHTML=rows.map(row=>{
     const cells=row.d.map((v,i)=>{
@@ -929,11 +1120,233 @@ function renderDashKPIs(){
     <div class="kc ct"><span class="ki">💵</span>
       <div class="kl">Cash Balance Q4 2026</div>
       <div class="kv">${fmt(cb[3])}</div>
-      <div class="kd ${cb[3]>=0?'pos':'neg'}">+ Capital raise $10M</div></div>
+      <div class="kd ${cb[3]>=0?'pos':'neg'}">${invAmount>0?'+ '+(['safe','convertible','participativo'].includes(invModel)?{safe:'SAFE',convertible:'Nota Conv.',participativo:'Prest. Part.'}[invModel]:'Capital')+ ' $'+Math.round(invAmount/1000)+'M':''}</div></div>
     <div class="kc cp"><span class="ki">👤</span>
       <div class="kl">Usuarios Q4 2026</div>
       <div class="kv">${u[3].toLocaleString()}</div>
       <div class="kd pos">Breakeven: ${bk>=0?QQ[bk]:'TBD'}</div></div>`;
+}
+
+/* ════════════════════════════════════════════════
+   INVESTMENT PAGE
+════════════════════════════════════════════════ */
+function buildInvestmentInputs(){
+  const qsel=document.getElementById('inv-quarter');
+  if(qsel) qsel.innerHTML=QQ.map((q,i)=>`<option value="${i}"${i===invQuarter?' selected':''}>${q}</option>`).join('');
+  const msel=document.getElementById('inv-maturity');
+  if(msel) msel.innerHTML=QQ.map((q,i)=>`<option value="${i}"${i===invMaturityQ?' selected':''}>${q}</option>`).join('');
+  updateInvModelUI();
+}
+
+function updateInvModelUI(){
+  const model=document.getElementById('inv-model')?.value||invModel;
+  const cf=document.getElementById('inv-convertible-fields');
+  const pf=document.getElementById('inv-participativo-fields');
+  if(cf) cf.style.display=model==='convertible'?'block':'none';
+  if(pf) pf.style.display=model==='participativo'?'block':'none';
+  const infos={
+    safe:`<div class="card-t">ℹ️ SAFE — Información</div>
+      <div style="font-size:12px;color:var(--g7);line-height:1.9">
+        <p>📋 <b>Simple Agreement for Future Equity</b></p>
+        <p>• Sin intereses ni vencimiento fijo</p>
+        <p>• Se convierte en equity en la siguiente ronda</p>
+        <p>• No genera gastos financieros en P&amp;G</p>
+        <p>• Figura como pasivo hasta conversión en Balance</p>
+        <p>🇪🇸 En España puede equipararse a "préstamo participativo" o "deuda convertible" a efectos fiscales</p>
+      </div>`,
+    convertible:`<div class="card-t">ℹ️ Nota Convertible — Información</div>
+      <div style="font-size:12px;color:var(--g7);line-height:1.9">
+        <p>📋 <b>Convertible Note / Bono Convertible</b></p>
+        <p>• Deuda + intereses hasta conversión</p>
+        <p>• Intereses reducen el Resultado antes de IS</p>
+        <p>• Figura como pasivo financiero en Balance</p>
+        <p>• Al vencer, convierte en equity (acciones)</p>
+        <p>💡 Tipo de mercado habitual: 6–10% para early-stage</p>
+      </div>`,
+    participativo:`<div class="card-t">ℹ️ Préstamo Participativo — Información</div>
+      <div style="font-size:12px;color:var(--g7);line-height:1.9">
+        <p>📋 <b>Préstamo Participativo (RDL 7/1996, art.20)</b></p>
+        <p>• Interés fijo + variable según beneficio</p>
+        <p>• No se convierte en equity (deuda permanente)</p>
+        <p>• Computa como fondos propios a efectos de capital</p>
+        <p>• Intereses íntegramente deducibles fiscalmente</p>
+        <p>💡 Instrumento ENISA, CDTI y Fond-ICO en España</p>
+      </div>`
+  };
+  const ic=document.getElementById('inv-model-info');
+  if(ic) ic.innerHTML=infos[model]||infos['safe'];
+}
+
+function renderInvestmentSummary(){
+  const cb=cashBal(),cap=invCapFlow(),ie=interestExpense();
+  const totalInv=cap.reduce((s,v)=>s+v,0);
+  const totalInt=ie.reduce((s,v)=>s+v,0);
+  const maxCash=Math.max(...cb),finalCash=cb[15];
+  const modelNames={safe:'SAFE',convertible:'Nota Convertible',participativo:'Préstamo Participativo'};
+  const imp=document.getElementById('inv-impact');
+  if(imp) imp.innerHTML=`
+    <div style="display:grid;gap:4px">
+      ${[
+        ['Modelo seleccionado',modelNames[invModel],'pu'],
+        ['Capital captado',fmt(totalInv),'p'],
+        ['Total gastos financieros',totalInt?fmt(totalInt):'—',totalInt?'n':''],
+        ['Cash máximo 2026–2029',fmt(maxCash),'p'],
+        ['Cash final Q4 2029',fmt(finalCash),finalCash>=0?'p':'n']
+      ].map(([k,v,cl])=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--g2)">
+        <span style="color:var(--g7)">${k}</span>
+        <span class="${cl}" style="font-weight:700">${v}</span>
+      </div>`).join('')}
+    </div>`;
+  const qh=document.getElementById('inv-cf-h');
+  const qb=document.getElementById('inv-cf-b');
+  if(!qh||!qb) return;
+  const th=QQ.map(q=>`<th>${q.replace(' ','<br>')}</th>`).join('');
+  qh.innerHTML=`<tr><th>Concepto ($000s)</th>${th}</tr>`;
+  qb.innerHTML=[
+    {l:'💰 Capital Inyectado',d:cap,cf:v=>v?'p':''},
+    {l:'💸 Gastos Financieros',d:ie.map(v=>-v),cf:v=>v<0?'n':''},
+    {l:'💵 Cash Balance (acum.)',d:cb,cf:v=>nc(v),bold:true}
+  ].map(row=>{
+    const cells=row.d.map(v=>`<td class="${row.cf(v)}">${v!==0?fmtK(v):'—'}</td>`).join('');
+    return `<tr${row.bold?' style="font-weight:700"':''}><td>${row.l}</td>${cells}</tr>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════
+   BALANCE SHEET
+════════════════════════════════════════════════ */
+function renderBalanceSheet(){
+  const bsh=document.getElementById('bs-h');
+  const bsb=document.getElementById('bs-b');
+  if(!bsh||!bsb) return;
+  const cb=cashBal(),r=revenue(),o=opex(),n=adjNetInc(),ie=interestExpense(),cap=invCapFlow();
+  const yr=['2026','2027','2028','2029'];
+
+  const Y=yr.map((_,y)=>{
+    const qe=y*4+3;
+    // ACTIVO CORRIENTE
+    const cash=cb[qe];
+    const ar=Math.round(r[qe]*0.5);
+    const otherCA=150;
+    const totalCA=cash+ar+otherCA;
+    // ACTIVO NO CORRIENTE
+    const engCum=[0,1,2,3,4].slice(0,y+1).reduce((s,yi)=>s+aSum(BC['Engineering & Dev'],yi),0);
+    const intangibles=Math.max(0,Math.round(engCum*0.1*(1-y*0.15)));
+    const totalNCA=intangibles;
+    const totalA=totalCA+totalNCA;
+    // PASIVO CORRIENTE
+    const ap=Math.round(o[qe]*0.33);
+    const totalCL=ap;
+    // PASIVO NO CORRIENTE — investment liability
+    const raised=cap.slice(0,qe+1).reduce((s,v)=>s+v,0);
+    let finLiab=0;
+    if(invModel==='safe') finLiab=raised;
+    else if(invModel==='convertible'){
+      if(qe<invMaturityQ){ const acc=ie.slice(0,qe+1).reduce((s,v)=>s+v,0); finLiab=raised+acc; }
+    } else if(invModel==='participativo') finLiab=raised;
+    const totalNCL=finLiab;
+    const totalL=totalCL+totalNCL;
+    // PATRIMONIO NETO (plug)
+    const totalPN=totalA-totalL;
+    const retPrior=y>0?yr.slice(0,y).reduce((s,_,py)=>s+aSum(n,py),0):0;
+    const curNI=aSum(n,y);
+    return {cash,ar,otherCA,totalCA,intangibles,totalNCA,totalA,ap,totalCL,finLiab,totalNCL,totalL,totalPN,retPrior,curNI};
+  });
+
+  const hdr=yr.map(y=>`<th>${y}</th>`).join('');
+  bsh.innerHTML=`<tr><th>Partida ($000s)</th>${hdr}</tr>`;
+  const invLabel={safe:'Financiación SAFE',convertible:'Deuda Convertible',participativo:'Préstamo Participativo'}[invModel];
+  let h='';
+  h+=`<tr style="background:var(--pup)"><td colspan="5"><strong>ACTIVO</strong></td></tr>`;
+  h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Activo Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Tesorería y equiv.</td>${Y.map(d=>`<td class="${d.cash>=0?'p':'n'}">${fmtK(d.cash)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Clientes (ctas. cobrar)</td>${Y.map(d=>`<td>${fmtK(d.ar)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Otros activos corrientes</td>${Y.map(d=>`<td>${fmtK(d.otherCA)}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt"><td style="padding-left:18px">Total Activo Corriente</td>${Y.map(d=>`<td class="pu">${fmtK(d.totalCA)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Activo No Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Inmovilizado intangible</td>${Y.map(d=>`<td>${d.intangibles?fmtK(d.intangibles):'—'}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt"><td style="padding-left:18px">Total Activo No Corriente</td>${Y.map(d=>`<td class="pu">${d.totalNCA?fmtK(d.totalNCA):'—'}</td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--g2)"><td><strong>TOTAL ACTIVO</strong></td>${Y.map(d=>`<td class="pu"><strong>${fmtK(d.totalA)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--pup)"><td colspan="5"><strong>PASIVO</strong></td></tr>`;
+  h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Pasivo Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Proveedores (ctas. pagar)</td>${Y.map(d=>`<td class="n">${fmtK(d.ap)}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt"><td style="padding-left:18px">Total Pasivo Corriente</td>${Y.map(d=>`<td class="n">${fmtK(d.totalCL)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:18px;font-weight:600;color:var(--g7)">Pasivo No Corriente</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">${invLabel}</td>${Y.map(d=>`<td class="${d.finLiab>0?'n':''}">${d.finLiab>0?fmtK(d.finLiab):'—'}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt"><td style="padding-left:18px">Total Pasivo No Corriente</td>${Y.map(d=>`<td class="${d.totalNCL>0?'n':''}">${d.totalNCL>0?fmtK(d.totalNCL):'—'}</td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--g2)"><td><strong>TOTAL PASIVO</strong></td>${Y.map(d=>`<td class="n"><strong>${fmtK(d.totalL)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--pup)"><td colspan="5"><strong>PATRIMONIO NETO</strong></td></tr>`;
+  h+=`<tr><td style="padding-left:32px">Capital social</td>${Y.map(()=>`<td>${fmtK(100)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Resultados acumulados</td>${Y.map(d=>`<td class="${nc(d.retPrior)}">${fmtK(d.retPrior)}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:32px">Resultado del ejercicio</td>${Y.map(d=>`<td class="${nc(d.curNI)}">${fmtK(d.curNI)}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt" style="background:var(--g2)"><td><strong>TOTAL PATRIMONIO NETO</strong></td>${Y.map(d=>`<td class="${nc(d.totalPN)}"><strong>${fmtK(d.totalPN)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr style="border-top:3px double var(--pu);background:var(--g1)"><td><strong>PASIVO + PATRIMONIO NETO</strong></td>${Y.map(d=>`<td class="pu"><strong>${fmtK(d.totalL+d.totalPN)}</strong></td>`).join('')}</tr>`;
+  bsb.innerHTML=h;
+}
+
+/* ════════════════════════════════════════════════
+   P&G — CUENTA DE PÉRDIDAS Y GANANCIAS
+════════════════════════════════════════════════ */
+function renderPandL(){
+  const pgh=document.getElementById('pg-h'),pgb=document.getElementById('pg-b');
+  const pqqh=document.getElementById('pg-q-h'),pqqb=document.getElementById('pg-q-b');
+  if(!pgh||!pgb||!pqqh||!pqqb) return;
+  const r=revenue(),o=opex(),ie=interestExpense();
+  const yr=['2026','2027','2028','2029'];
+  const tES=parseFloat(document.getElementById('tx-es-c')?.value||'25')/100||.25;
+
+  // Annual data
+  const Y=yr.map((_,y)=>{
+    const rev=aSum(r,y),opT=aSum(o,y),ebitda=rev-opT;
+    const da=Math.round(aSum(BC['Engineering & Dev'],y)*0.05);
+    const ebit=ebitda-da,int=aSum(ie,y),ebt=ebit-int;
+    const tax=ebt>0?Math.round(ebt*tES):0,ni=ebt-tax;
+    const opDet={};
+    for(const[k,v] of Object.entries(BC)) opDet[k]=aSum(v,y);
+    return {rev,opT,ebitda,da,ebit,int,ebt,tax,ni,opDet};
+  });
+
+  const hdr=yr.map(y=>`<th>${y}</th>`).join('');
+  pgh.innerHTML=`<tr><th>Concepto ($000s)</th>${hdr}</tr>`;
+  let h='';
+  h+=`<tr style="background:var(--grp)"><td><strong>Ingresos de explotación</strong></td>${Y.map(d=>`<td class="p"><strong>${fmtK(d.rev)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--rep)"><td style="padding-left:14px;font-style:italic;color:var(--g7)">Gastos de explotación</td>${yr.map(()=>'<td></td>').join('')}</tr>`;
+  for(const k of Object.keys(BC)){
+    h+=`<tr><td style="padding-left:28px">${k}</td>${Y.map(d=>`<td class="n">${fmtK(d.opDet[k])}</td>`).join('')}</tr>`;
+  }
+  h+=`<tr class="rt"><td><strong>Total Gastos Explotación</strong></td>${Y.map(d=>`<td class="n"><strong>${fmtK(d.opT)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--pup)"><td><strong>✅ EBITDA</strong></td>${Y.map(d=>`<td class="${nc(d.ebitda)}"><strong>${fmtK(d.ebitda)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:14px">(-) Amortizaciones</td>${Y.map(d=>`<td class="${d.da?'n':''}">${d.da?'('+fmtK(d.da)+')':'—'}</td>`).join('')}</tr>`;
+  h+=`<tr class="rt"><td><strong>EBIT (Res. Explotación)</strong></td>${Y.map(d=>`<td class="${nc(d.ebit)}"><strong>${fmtK(d.ebit)}</strong></td>`).join('')}</tr>`;
+  if(invModel!=='safe'&&invAmount>0){
+    h+=`<tr><td style="padding-left:14px">(-) Gastos Financieros</td>${Y.map(d=>`<td class="${d.int?'n':''}">${d.int?'('+fmtK(d.int)+')':'—'}</td>`).join('')}</tr>`;
+  }
+  h+=`<tr class="rt"><td><strong>Resultado antes Impuestos</strong></td>${Y.map(d=>`<td class="${nc(d.ebt)}"><strong>${fmtK(d.ebt)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:14px">(-) IS (${Math.round(tES*100)}%)</td>${Y.map(d=>`<td class="${d.tax?'n':''}">${d.tax?'('+fmtK(d.tax)+')':'—'}</td>`).join('')}</tr>`;
+  h+=`<tr style="background:var(--g2)"><td><strong>📊 RESULTADO DEL EJERCICIO</strong></td>${Y.map(d=>`<td class="${nc(d.ni)}"><strong>${fmtK(d.ni)}</strong></td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:14px">Margen EBITDA (%)</td>${Y.map(d=>`<td class="${nc(d.ebitda)}">${d.rev>0?(d.ebitda/d.rev*100).toFixed(1)+'%':'N/A'}</td>`).join('')}</tr>`;
+  h+=`<tr><td style="padding-left:14px">Margen Neto (%)</td>${Y.map(d=>`<td class="${nc(d.ni)}">${d.rev>0?(d.ni/d.rev*100).toFixed(1)+'%':'N/A'}</td>`).join('')}</tr>`;
+  pgb.innerHTML=h;
+
+  // Quarterly table
+  const th=QQ.map(q=>`<th>${q.replace(' ','<br>')}</th>`).join('');
+  pqqh.innerHTML=`<tr><th>Concepto ($000s)</th>${th}</tr>`;
+  const ebt_q=r.map((v,i)=>v-o[i]-ie[i]);
+  const tax_q=ebt_q.map(v=>v>0?Math.round(v*tES):0);
+  const ni_q=ebt_q.map((v,i)=>v-tax_q[i]);
+  let qh='';
+  qh+=`<tr style="background:var(--grp)"><td><strong>Ingresos</strong></td>${r.map(v=>`<td class="p"><strong>${fmtK(v)}</strong></td>`).join('')}</tr>`;
+  for(const[k,v] of Object.entries(BC)){
+    qh+=`<tr><td style="padding-left:18px">${k}</td>${v.map(x=>`<td class="n">${fmtK(x)}</td>`).join('')}</tr>`;
+  }
+  qh+=`<tr class="rt"><td><strong>Total OpEx</strong></td>${o.map(v=>`<td class="n"><strong>${fmtK(v)}</strong></td>`).join('')}</tr>`;
+  qh+=`<tr style="background:var(--pup)"><td><strong>EBITDA</strong></td>${r.map((v,i)=>`<td class="${nc(v-o[i])}"><strong>${fmtK(v-o[i])}</strong></td>`).join('')}</tr>`;
+  if(invModel!=='safe'&&invAmount>0){
+    qh+=`<tr><td style="padding-left:18px">(-) Gastos Financieros</td>${ie.map(v=>`<td class="${v?'n':''}">${v?'('+fmtK(v)+')':'—'}</td>`).join('')}</tr>`;
+  }
+  qh+=`<tr><td style="padding-left:18px">(-) IS (${Math.round(tES*100)}%)</td>${tax_q.map(v=>`<td class="${v?'n':''}">${v?'('+fmtK(v)+')':'—'}</td>`).join('')}</tr>`;
+  qh+=`<tr style="background:var(--g2)"><td><strong>Resultado Neto</strong></td>${ni_q.map(v=>`<td class="${nc(v)}"><strong>${fmtK(v)}</strong></td>`).join('')}</tr>`;
+  pqqb.innerHTML=qh;
 }
 
 /* ════════════════════════════════════════════════
@@ -947,6 +1360,9 @@ function recalcAll(){
   renderKPIsPage();
   renderForecastPage();
   recalcTax();
+  renderInvestmentSummary();
+  renderBalanceSheet();
+  renderPandL();
   // Redraw charts for current visible page
   requestAnimationFrame(()=>drawChartsFor(curPage));
 }
@@ -1026,6 +1442,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   buildUserInputs();
   buildCostInputs();
+  buildInvestmentInputs();
 
   // Render all data tables
   renderDashKPIs();
@@ -1035,6 +1452,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderKPIsPage();
   renderForecastPage();
   recalcTax();
+  renderInvestmentSummary();
+  renderBalanceSheet();
+  renderPandL();
 
   // Draw dashboard charts after two animation frames
   // (ensures CSS layout is fully calculated, canvas has real dimensions)
