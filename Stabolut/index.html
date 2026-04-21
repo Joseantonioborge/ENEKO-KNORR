@@ -294,11 +294,11 @@ select.if{cursor:pointer}
 
   <!-- ════ PAGE: COSTS ════ -->
   <div id="page-costs" class="page">
-    <div class="alert">✏️ <strong>Ajuste por Partida:</strong> Modifica el importe anual de cada partida de costes. Los cambios se distribuyen equitativamente en los 4 trimestres del año y recalculan todo el modelo.</div>
+    <div class="alert">✏️ <strong>Edición directa de costes:</strong> Los valores mostrados son los actuales del modelo. Modifica cualquier cifra anual para sustituirla directamente en la tabla. Borra el campo o ponlo a 0 para restaurar el valor original.</div>
     <div class="card dash" style="margin-bottom:18px">
       <div class="card-t">💸 Ajuste de Costes por Partida y Año ($000s)</div>
       <div id="cost-inp"></div>
-      <div class="rnote">ℹ️ Positivo = gasto adicional. Negativo = ahorro. El ajuste anual se reparte uniformemente en los 4 trimestres correspondientes.</div>
+      <div class="rnote">ℹ️ El valor introducido sustituye directamente la cifra anual de esa partida. Se distribuye de forma uniforme en los 4 trimestres del año. Las partidas modificadas se marcan con ✏️.</div>
       <div class="acts">
         <button class="btn bp" onclick="recalcAll()">🔄 Recalcular Todo</button>
         <button class="btn bg" onclick="resetCosts()">↩ Limpiar Ajustes</button>
@@ -523,9 +523,10 @@ const BC={
 
 // mutable state
 let uDelta=Array(16).fill(0);
-// bcAdj: per-category annual adjustments { categoryName: [adj2026, adj2027, adj2028, adj2029] }
-let bcAdj={};
-Object.keys(BC).forEach(k=>bcAdj[k]=[0,0,0,0]);
+// bcOverride: per-category annual overrides { categoryName: [val2026|null, val2027|null, val2028|null, val2029|null] }
+// null = use base BC value; number = replace the annual total for that year (distributed evenly /4 per quarter)
+let bcOverride={};
+Object.keys(BC).forEach(k=>bcOverride[k]=[null,null,null,null]);
 
 // investment / capital structure state
 let invAmount=10000;   // $000s total
@@ -544,7 +545,7 @@ let invPreMoney=40000; // $000s valoración pre-money — equity model (informat
 const users   =()=>BU.map((v,i)=>Math.max(0,v+uDelta[i]));
 const aum     =()=>users().map((v,i)=>BU[i]>0?Math.round(BA[i]*(v/BU[i])):0);
 const revenue =()=>aum().map((a,i)=>Math.round(a*APR[i]*0.20/4));
-const opex    =()=>QQ.map((_,i)=>{ const yr=Math.floor(i/4); return Object.entries(BC).reduce((s,[k,a])=>s+a[i]+(bcAdj[k]?bcAdj[k][yr]/4:0),0); });
+const opex    =()=>QQ.map((_,i)=>{ const yr=Math.floor(i/4); return Object.entries(BC).reduce((s,[k,a])=>{ const ov=bcOverride[k]&&bcOverride[k][yr]!==null?bcOverride[k][yr]/4:a[i]; return s+ov; },0); });
 const netInc  =()=>{ const r=revenue(),o=opex(); return r.map((v,i)=>v-o[i]); };
 const cashBal =()=>{
   const n=adjNetInc(),cap=invCapFlow(); let p=0;
@@ -720,7 +721,7 @@ function drawAuMQ(){
   });
 }
 
-
+function drawCosts(){
   kill('cCosts');
   const labels=Object.keys(BC);
   const vals=labels.map(k=>aSum(BC[k],0));
@@ -949,28 +950,20 @@ function renderCostsTable(){
   document.getElementById('cost-h').innerHTML=`<tr><th>Partida ($000s)</th>${th}<th>Tot 26</th><th>Tot 27</th><th>Tot 28</th><th>Tot 29</th></tr>`;
   let html='';
   for(const[k,v] of Object.entries(BC)){
-    const adj=bcAdj[k]||[0,0,0,0];
-    const hasAdj=adj.some(a=>a!==0);
-    // Adjusted quarterly values
-    const adjQ=v.map((x,i)=>{ const yr=Math.floor(i/4); return x+(adj[yr]/4); });
-    const cells=adjQ.map((x,i)=>{
-      const diff=adj[Math.floor(i/4)]/4;
-      const cls=diff>0?'n':diff<0?'p':'';
-      return `<td class="${cls}">${fmtK(x)}</td>`;
+    const ov=bcOverride[k]||[null,null,null,null];
+    const cells=v.map((x,i)=>{
+      const yr=Math.floor(i/4);
+      const val=ov[yr]!==null?ov[yr]/4:x;
+      const modified=ov[yr]!==null;
+      return `<td class="${modified?'pu':''}" style="${modified?'font-weight:600':''}">${fmtK(val)}</td>`;
     }).join('');
     const tots=[0,1,2,3].map(y=>{
-      const base=aSum(v,y), adjY=adj[y];
-      const cls=adjY>0?'n':adjY<0?'p':'';
-      return `<td class="${cls}">${fmtK(base+adjY)}</td>`;
+      const val=ov[y]!==null?ov[y]:aSum(v,y);
+      const modified=ov[y]!==null;
+      return `<td class="${modified?'pu':'n'}" style="${modified?'font-weight:700':''}">${fmtK(val)}</td>`;
     }).join('');
-    html+=`<tr><td>${k}${hasAdj?' <span style="font-size:10px;color:var(--pu)">✏️</span>':''}</td>${cells}${tots}</tr>`;
-    if(hasAdj){
-      const adjCells=adj.map((a,y)=>[0,1,2,3].map(q=>{
-        const val=a/4; return `<td class="${val>0?'n':val<0?'p':''}" style="font-size:10px">${val!==0?fmtK(val):'—'}</td>`;
-      }).join('')).join('');
-      const adjTots=adj.map((a,y)=>`<td class="${a>0?'n':a<0?'p':''}" style="font-size:10px;font-style:italic">${a!==0?fmtK(a):'—'}</td>`).join('');
-      html+=`<tr style="background:var(--pup)"><td style="padding-left:18px;font-style:italic;font-size:11px;color:var(--pu)">↳ Ajuste ${k}</td>${adjCells}${adjTots}</tr>`;
-    }
+    const hasOv=ov.some(v=>v!==null);
+    html+=`<tr${hasOv?' style="background:var(--pup)"':''}><td>${k}${hasOv?' <span style="font-size:10px;color:var(--pu)">✏️</span>':''}</td>${cells}${tots}</tr>`;
   }
   const tc=o.map(v=>`<td class="n"><strong>${fmtK(v)}</strong></td>`).join('');
   const tt=[0,1,2,3].map(y=>`<td class="n"><strong>${fmtK(aSum(o,y))}</strong></td>`).join('');
@@ -1134,29 +1127,49 @@ function buildCostInputs(){
   const icons={'Engineering & Dev':'⚙️','BD & Partnerships':'🤝','Marketing & Growth':'📣','Compliance & Legal':'⚖️','Ops & Infra':'🖥️','G&A':'🏢'};
   document.getElementById('cost-inp').innerHTML=cats.map(cat=>{
     const safeId=cat.replace(/[^a-zA-Z0-9]/g,'_');
-    const baseVals=yrs.map((_,y)=>aSum(BC[cat],y));
+    const ov=bcOverride[cat]||[null,null,null,null];
     return `<div class="card" style="margin-bottom:14px;padding:16px 18px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <span style="font-size:17px">${icons[cat]||'📌'}</span>
         <span style="font-weight:700;font-size:13px;color:var(--g9)">${cat}</span>
-        <span style="font-size:11px;color:var(--g5);margin-left:auto">Base: ${yrs.map((_,y)=>fmtK(baseVals[y])).join(' · ')}</span>
+        <span style="font-size:11px;color:var(--g5);margin-left:auto">Edita cualquier año para sustituir la cifra en la tabla</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-        ${yrs.map((yr,y)=>`
-          <div class="igrp">
-            <label class="ilbl">Ajuste ${yr} ($K)</label>
+        ${yrs.map((yr,y)=>{
+          const baseVal=aSum(BC[cat],y);
+          const curVal=ov[y]!==null?ov[y]:baseVal;
+          const isModified=ov[y]!==null;
+          return `<div class="igrp">
+            <label class="ilbl" style="${isModified?'color:var(--pu);font-weight:700':''}">${yr}${isModified?' ✏️':''}</label>
             <div class="iw"><span class="ipfx">$</span>
-              <input class="if pfx" id="ci_${safeId}_${y}" type="number" value="${bcAdj[cat][y]||0}" step="10"
-                oninput="bcAdj['${cat}'][${y}]=parseFloat(this.value)||0;recalcAll()">
+              <input class="if pfx" id="ci_${safeId}_${y}" type="number" value="${curVal}" step="10"
+                style="${isModified?'border-color:var(--pu);background:var(--pup)':''}"
+                oninput="updateCostOverride(${cats.indexOf(cat)},${y},this.value)"
+                onblur="if(this.value===''||parseFloat(this.value)===0)resetCostCell(${cats.indexOf(cat)},${y})">
             </div>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   }).join('');
 }
 
+function updateCostOverride(catIdx,yr,val){
+  const k=Object.keys(BC)[catIdx];
+  const parsed=parseFloat(val);
+  bcOverride[k][yr]=isNaN(parsed)?null:parsed;
+  recalcAll();
+}
+
+function resetCostCell(catIdx,yr){
+  const k=Object.keys(BC)[catIdx];
+  bcOverride[k][yr]=null;
+  buildCostInputs();
+  recalcAll();
+}
+
 function resetUsers(){ uDelta=Array(16).fill(0); buildUserInputs(); recalcAll(); }
-function resetCosts(){ Object.keys(BC).forEach(k=>bcAdj[k]=[0,0,0,0]); buildCostInputs(); recalcAll(); }
+function resetCosts(){ Object.keys(BC).forEach(k=>bcOverride[k]=[null,null,null,null]); buildCostInputs(); recalcAll(); }
 
 /* ════════════════════════════════════════════════
    MASTER KPI CARDS
@@ -1502,9 +1515,9 @@ function doExportExcel(){
 
   const cs=[['Cost Item ($000s)',...QQ,'Total 26','Total 27','Total 28','Total 29']];
   for(const[k,v] of Object.entries(BC)){
-    const adj=bcAdj[k]||[0,0,0,0];
-    const adjQ=v.map((x,i)=>x+(adj[Math.floor(i/4)]/4));
-    cs.push([k,...adjQ,...[0,1,2,3].map(y=>aSum(adjQ,y))]);
+    const ov=bcOverride[k]||[null,null,null,null];
+    const effQ=v.map((x,i)=>{ const yr=Math.floor(i/4); return ov[yr]!==null?ov[yr]/4:x; });
+    cs.push([k,...effQ,...[0,1,2,3].map(y=>aSum(effQ,y))]);
   }
   cs.push(['TOTAL OpEx',...o,...[0,1,2,3].map(y=>aSum(o,y))]);
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cs),'Costes');
