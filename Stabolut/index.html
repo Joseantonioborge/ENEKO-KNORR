@@ -198,7 +198,7 @@ select.if{cursor:pointer}
   <div class="sb-nav">
     <div class="nav-sep">Principal</div>
     <button class="nb active" data-page="dashboard"><span class="ic">📊</span>Dashboard</button>
-    <button class="nb" data-page="users"><span class="ic">👥</span>Usuarios / Clientes</button>
+    <button class="nb" data-page="users"><span class="ic">💎</span>AuM / TVL</button>
     <button class="nb" data-page="costs"><span class="ic">💰</span>Costes Operativos</button>
     <button class="nb" data-page="taxes"><span class="ic">🏛️</span>Impuestos</button>
     <div class="nav-sep">Análisis</div>
@@ -264,17 +264,21 @@ select.if{cursor:pointer}
 
   <!-- ════ PAGE: USERS ════ -->
   <div id="page-users" class="page">
-    <div class="alert">✏️ <strong>Modo edición:</strong> Modifica usuarios por trimestre. Los cambios recalculan todo el modelo (AuM proporcional, Revenue, Net Income, Cash Balance).</div>
+    <div class="alert">✏️ <strong>Modo edición:</strong> Modifica el número de usuarios por trimestre. El AuM/TVL se recalcula proporcionalmente y actualiza Revenue, Net Income y Cash Balance.</div>
     <div class="card dash" style="margin-bottom:18px">
-      <div class="card-t">👥 Usuarios por Trimestre — Entrada Manual</div>
+      <div class="card-t">💎 AuM / TVL — Entrada Manual de Usuarios por Trimestre</div>
       <div class="ig" id="user-inp"></div>
-      <div class="rnote">🔄 Cada cambio actualiza el modelo completo. El AuM se recalcula proporcionalmente a los usuarios introducidos.</div>
+      <div class="rnote">🔄 Cada cambio actualiza el modelo completo. El AuM/TVL se recalcula proporcionalmente a los usuarios introducidos.</div>
       <div class="acts">
         <button class="btn bp" onclick="recalcAll()">🔄 Recalcular Todo</button>
         <button class="btn bg" onclick="resetUsers()">↩ Restaurar Originales</button>
       </div>
     </div>
     <div class="cg2">
+      <div class="cc">
+        <div class="ct" style="margin-bottom:13px">💎 AuM / TVL por Trimestre ($K)</div>
+        <div class="cw"><canvas id="cAumQ"></canvas></div>
+      </div>
       <div class="cc">
         <div class="ct" style="margin-bottom:13px">👤 Usuarios por Trimestre</div>
         <div class="cw"><canvas id="cUsers"></canvas></div>
@@ -284,17 +288,17 @@ select.if{cursor:pointer}
         <div class="cw"><canvas id="cAumU"></canvas></div>
       </div>
     </div>
-    <div class="st">📊 Tabla Usuarios &amp; AuM</div>
+    <div class="st">📊 Tabla AuM / TVL &amp; Usuarios</div>
     <div class="card" style="padding:0"><div class="tw"><table><thead id="usr-h"></thead><tbody id="usr-b"></tbody></table></div></div>
   </div>
 
   <!-- ════ PAGE: COSTS ════ -->
   <div id="page-costs" class="page">
-    <div class="alert">✏️ <strong>Ajuste de Gastos:</strong> Introduce ajustes adicionales (+) o ahorros (-) sobre el OpEx base. Valores en $000s.</div>
+    <div class="alert">✏️ <strong>Ajuste por Partida:</strong> Modifica el importe anual de cada partida de costes. Los cambios se distribuyen equitativamente en los 4 trimestres del año y recalculan todo el modelo.</div>
     <div class="card dash" style="margin-bottom:18px">
-      <div class="card-t">💸 Ajuste Manual de Gastos por Trimestre ($000s)</div>
-      <div class="ig" id="cost-inp"></div>
-      <div class="rnote">ℹ️ Positivo = gasto extra. Negativo = ahorro. Se suma al OpEx base y recalcula Net Income y Cash.</div>
+      <div class="card-t">💸 Ajuste de Costes por Partida y Año ($000s)</div>
+      <div id="cost-inp"></div>
+      <div class="rnote">ℹ️ Positivo = gasto adicional. Negativo = ahorro. El ajuste anual se reparte uniformemente en los 4 trimestres correspondientes.</div>
       <div class="acts">
         <button class="btn bp" onclick="recalcAll()">🔄 Recalcular Todo</button>
         <button class="btn bg" onclick="resetCosts()">↩ Limpiar Ajustes</button>
@@ -519,7 +523,9 @@ const BC={
 
 // mutable state
 let uDelta=Array(16).fill(0);
-let cAdj  =Array(16).fill(0);
+// bcAdj: per-category annual adjustments { categoryName: [adj2026, adj2027, adj2028, adj2029] }
+let bcAdj={};
+Object.keys(BC).forEach(k=>bcAdj[k]=[0,0,0,0]);
 
 // investment / capital structure state
 let invAmount=10000;   // $000s total
@@ -538,7 +544,7 @@ let invPreMoney=40000; // $000s valoración pre-money — equity model (informat
 const users   =()=>BU.map((v,i)=>Math.max(0,v+uDelta[i]));
 const aum     =()=>users().map((v,i)=>BU[i]>0?Math.round(BA[i]*(v/BU[i])):0);
 const revenue =()=>aum().map((a,i)=>Math.round(a*APR[i]*0.20/4));
-const opex    =()=>QQ.map((_,i)=>Object.values(BC).reduce((s,a)=>s+a[i],0)+cAdj[i]);
+const opex    =()=>QQ.map((_,i)=>{ const yr=Math.floor(i/4); return Object.entries(BC).reduce((s,[k,a])=>s+a[i]+(bcAdj[k]?bcAdj[k][yr]/4:0),0); });
 const netInc  =()=>{ const r=revenue(),o=opex(); return r.map((v,i)=>v-o[i]); };
 const cashBal =()=>{
   const n=adjNetInc(),cap=invCapFlow(); let p=0;
@@ -594,7 +600,7 @@ function nc(v){ return v>0?'p':v<0?'n':''; }  // css class suffix
    NAVIGATION
 ════════════════════════════════════════════════ */
 const TITLES={
-  dashboard:'📊 Overview Dashboard',   users:'👥 Usuarios / Clientes',
+  dashboard:'📊 Overview Dashboard',   users:'💎 AuM / TVL',
   costs:'💰 Costes Operativos',         taxes:'🏛️ Calculadora Fiscal',
   kpis:'🎯 KPIs Estratégicos',          forecast:'📈 Forecast 5 Años',
   investment:'💼 Inversión Capital',    balancesheet:'⚖️ Balance Sheet',
@@ -665,7 +671,7 @@ const QL=QQ.map(q=>q.split(' '));
 /* ── Draw all charts for a given page tab ── */
 function drawChartsFor(id){
   if(id==='dashboard'){ drawMain(); drawAuM(); drawCosts(); drawCash(); }
-  if(id==='users')     { drawUsers(); drawAuMU(); }
+  if(id==='users')     { drawAuMQ(); drawUsers(); drawAuMU(); }
   if(id==='kpis')      { drawEbitda(); drawGrowth(); }
   if(id==='taxes')     { recalcTax(); }          // recalcTax calls drawTax internally
   if(id==='forecast')  { drawForecast(); }
@@ -701,7 +707,20 @@ function drawAuM(){
   });
 }
 
-function drawCosts(){
+function drawAuMQ(){
+  kill('cAumQ');
+  const a=aum();
+  CH['cAumQ']=new Chart(document.getElementById('cAumQ'),{
+    type:'bar',
+    data:{labels:QL,datasets:[{
+      label:'AuM/TVL $K',data:a,
+      backgroundColor:C.puA,borderColor:C.pu,borderWidth:2,borderRadius:6
+    }]},
+    options:mkOpts()
+  });
+}
+
+
   kill('cCosts');
   const labels=Object.keys(BC);
   const vals=labels.map(k=>aSum(BC[k],0));
@@ -930,13 +949,29 @@ function renderCostsTable(){
   document.getElementById('cost-h').innerHTML=`<tr><th>Partida ($000s)</th>${th}<th>Tot 26</th><th>Tot 27</th><th>Tot 28</th><th>Tot 29</th></tr>`;
   let html='';
   for(const[k,v] of Object.entries(BC)){
-    const cells=v.map(x=>`<td>${fmtK(x)}</td>`).join('');
-    const tots=[0,1,2,3].map(y=>`<td class="n">${fmtK(aSum(v,y))}</td>`).join('');
-    html+=`<tr><td>${k}</td>${cells}${tots}</tr>`;
+    const adj=bcAdj[k]||[0,0,0,0];
+    const hasAdj=adj.some(a=>a!==0);
+    // Adjusted quarterly values
+    const adjQ=v.map((x,i)=>{ const yr=Math.floor(i/4); return x+(adj[yr]/4); });
+    const cells=adjQ.map((x,i)=>{
+      const diff=adj[Math.floor(i/4)]/4;
+      const cls=diff>0?'n':diff<0?'p':'';
+      return `<td class="${cls}">${fmtK(x)}</td>`;
+    }).join('');
+    const tots=[0,1,2,3].map(y=>{
+      const base=aSum(v,y), adjY=adj[y];
+      const cls=adjY>0?'n':adjY<0?'p':'';
+      return `<td class="${cls}">${fmtK(base+adjY)}</td>`;
+    }).join('');
+    html+=`<tr><td>${k}${hasAdj?' <span style="font-size:10px;color:var(--pu)">✏️</span>':''}</td>${cells}${tots}</tr>`;
+    if(hasAdj){
+      const adjCells=adj.map((a,y)=>[0,1,2,3].map(q=>{
+        const val=a/4; return `<td class="${val>0?'n':val<0?'p':''}" style="font-size:10px">${val!==0?fmtK(val):'—'}</td>`;
+      }).join('')).join('');
+      const adjTots=adj.map((a,y)=>`<td class="${a>0?'n':a<0?'p':''}" style="font-size:10px;font-style:italic">${a!==0?fmtK(a):'—'}</td>`).join('');
+      html+=`<tr style="background:var(--pup)"><td style="padding-left:18px;font-style:italic;font-size:11px;color:var(--pu)">↳ Ajuste ${k}</td>${adjCells}${adjTots}</tr>`;
+    }
   }
-  const ac=cAdj.map((v,i)=>`<td class="${v>0?'n':v<0?'p':''}">${v!==0?fmtK(v):'—'}</td>`).join('');
-  const at=[0,1,2,3].map(y=>`<td class="${aSum(cAdj,y)>0?'n':aSum(cAdj,y)<0?'p':''}">${aSum(cAdj,y)!==0?fmtK(aSum(cAdj,y)):'—'}</td>`).join('');
-  html+=`<tr style="background:var(--pup)"><td>✏️ Ajustes Manuales</td>${ac}${at}</tr>`;
   const tc=o.map(v=>`<td class="n"><strong>${fmtK(v)}</strong></td>`).join('');
   const tt=[0,1,2,3].map(y=>`<td class="n"><strong>${fmtK(aSum(o,y))}</strong></td>`).join('');
   html+=`<tr class="rt"><td>TOTAL OpEx</td>${tc}${tt}</tr>`;
@@ -948,8 +983,8 @@ function renderUsersTable(){
   const th=QQ.map(q=>`<th>${q.replace(' ','<br>')}</th>`).join('');
   document.getElementById('usr-h').innerHTML=`<tr><th>Métrica</th>${th}</tr>`;
   document.getElementById('usr-b').innerHTML=[
-    {l:'👥 Usuarios',      d:u, fn:v=>v.toLocaleString(), cf:()=>''},
     {l:'💎 AuM/TVL ($K)',  d:a, fn:fmtK, cf:()=>'pu'},
+    {l:'👥 Usuarios',      d:u, fn:v=>v.toLocaleString(), cf:()=>''},
     {l:'📈 Revenue ($K)',  d:r, fn:fmtK, cf:()=>'p'}
   ].map(row=>`<tr><td>${row.l}</td>${row.d.map(v=>`<td class="${row.cf(v)}">${row.fn(v)}</td>`).join('')}</tr>`).join('');
 }
@@ -1094,18 +1129,34 @@ function buildUserInputs(){
 }
 
 function buildCostInputs(){
-  document.getElementById('cost-inp').innerHTML=QQ.map((q,i)=>`
-    <div class="igrp">
-      <label class="ilbl">${q}</label>
-      <div class="iw"><span class="ipfx">$</span>
-        <input class="if pfx" id="ci${i}" type="number" value="${cAdj[i]}" step="10"
-          oninput="cAdj[${i}]=parseFloat(this.value)||0;recalcAll()">
+  const cats=Object.keys(BC);
+  const yrs=['2026','2027','2028','2029'];
+  const icons={'Engineering & Dev':'⚙️','BD & Partnerships':'🤝','Marketing & Growth':'📣','Compliance & Legal':'⚖️','Ops & Infra':'🖥️','G&A':'🏢'};
+  document.getElementById('cost-inp').innerHTML=cats.map(cat=>{
+    const safeId=cat.replace(/[^a-zA-Z0-9]/g,'_');
+    const baseVals=yrs.map((_,y)=>aSum(BC[cat],y));
+    return `<div class="card" style="margin-bottom:14px;padding:16px 18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:17px">${icons[cat]||'📌'}</span>
+        <span style="font-weight:700;font-size:13px;color:var(--g9)">${cat}</span>
+        <span style="font-size:11px;color:var(--g5);margin-left:auto">Base: ${yrs.map((_,y)=>fmtK(baseVals[y])).join(' · ')}</span>
       </div>
-    </div>`).join('');
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        ${yrs.map((yr,y)=>`
+          <div class="igrp">
+            <label class="ilbl">Ajuste ${yr} ($K)</label>
+            <div class="iw"><span class="ipfx">$</span>
+              <input class="if pfx" id="ci_${safeId}_${y}" type="number" value="${bcAdj[cat][y]||0}" step="10"
+                oninput="bcAdj['${cat}'][${y}]=parseFloat(this.value)||0;recalcAll()">
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function resetUsers(){ uDelta=Array(16).fill(0); buildUserInputs(); recalcAll(); }
-function resetCosts(){ cAdj=Array(16).fill(0);   buildCostInputs(); recalcAll(); }
+function resetCosts(){ Object.keys(BC).forEach(k=>bcAdj[k]=[0,0,0,0]); buildCostInputs(); recalcAll(); }
 
 /* ════════════════════════════════════════════════
    MASTER KPI CARDS
@@ -1450,8 +1501,11 @@ function doExportExcel(){
   ]),'P&L Trimestral');
 
   const cs=[['Cost Item ($000s)',...QQ,'Total 26','Total 27','Total 28','Total 29']];
-  for(const[k,v] of Object.entries(BC)) cs.push([k,...v,...[0,1,2,3].map(y=>aSum(v,y))]);
-  cs.push(['Ajustes Manuales',...cAdj,...[0,1,2,3].map(y=>aSum(cAdj,y))]);
+  for(const[k,v] of Object.entries(BC)){
+    const adj=bcAdj[k]||[0,0,0,0];
+    const adjQ=v.map((x,i)=>x+(adj[Math.floor(i/4)]/4));
+    cs.push([k,...adjQ,...[0,1,2,3].map(y=>aSum(adjQ,y))]);
+  }
   cs.push(['TOTAL OpEx',...o,...[0,1,2,3].map(y=>aSum(o,y))]);
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cs),'Costes');
 
