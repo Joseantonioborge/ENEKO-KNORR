@@ -1472,6 +1472,181 @@ function recalcAll(){
 }
 
 /* ════════════════════════════════════════════════
+   TRADUCCIONES — EXPORT
+   _T[key] = [castellano, english]
+════════════════════════════════════════════════ */
+const _T={
+  /* Modal UI */
+  mPdfTitle:['Generar Informe PDF','Generate PDF Report'],
+  mPdfSub:['Selecciona idioma y orientación','Select language and orientation'],
+  mXlTitle:['Descargar Excel','Download Excel'],
+  mXlSub:['Selecciona el idioma del archivo','Select file language'],
+  mLangEs:['🇪🇸 Castellano','🇪🇸 Castellano'],
+  mLangEn:['🇬🇧 English','🇬🇧 English'],
+  mVertical:['Vertical','Portrait'],
+  mHorizontal:['Horizontal','Landscape'],
+  mCancel:['Cancelar','Cancel'],
+  mGenerate:['Generar Excel','Generate Excel'],
+  mRendering:['Renderizando gráficos · Por favor espera','Rendering charts · Please wait'],
+  mGenerating:['Generando informe','Generating report'],
+  /* Cover */
+  coverSub:['Financial Model · Proyecciones 2026–2029','Financial Model · 2026–2029 Projections'],
+  coverTitle:['Informe Financiero<br>para Inversores','Financial Report<br>for Investors'],
+  coverDesc:['Proyecciones financieras · DeFi / Asset Management Protocol','Financial projections · DeFi / Asset Management Protocol'],
+  confidential:['CONFIDENCIAL — Solo para uso de potenciales inversores autorizados','CONFIDENTIAL — For authorized potential investors only'],
+  generated:['Generado:','Generated:'],
+  /* KPI boxes */
+  kBreakeven:['Breakeven','Breakeven'],
+  kBreakevenSub:['Primer trimestre positivo','First positive quarter'],
+  kUsers29:['Usuarios 2029','Users 2029'],
+  kCagrAnnual:[' anual',' annual'],
+  kRevenueCagr:['Revenue CAGR','Revenue CAGR'],
+  kAuMCagr:['AuM CAGR','AuM CAGR'],
+  kCashMax:['Cash Max','Peak Cash'],
+  kCashMaxSub:['En ','In '],
+  kNetIncome:['Net Income 2028','Net Income 2028'],
+  kProfit:['Año de beneficio','Profitable year'],
+  kInProgress:['Inversión en curso','Investment phase'],
+  kRevenue27:['Revenue 2027','Revenue 2027'],
+  kRevenueSub:['Protocol Revenue ($000s)','Protocol Revenue ($000s)'],
+  kAuMPeak:['AuM/TVL Peak 2029','AuM/TVL Peak 2029'],
+  kAuMSub:['Assets Under Management','Assets Under Management'],
+  /* Section titles */
+  sExecSummary:['Resumen Ejecutivo','Executive Summary'],
+  sModelSub:['Stabolut Financial Model · $000s','Stabolut Financial Model · $000s'],
+  sAuMTitle:['AuM / TVL & Usuarios','AuM / TVL & Users'],
+  sAuMSub:['Assets Under Management · Total Value Locked','Assets Under Management · Total Value Locked'],
+  sCostsTitle:['Estructura de Costes','Cost Structure'],
+  sCostsSub:['OpEx Desglosado · $000s','Detailed OpEx · $000s'],
+  sCashTitle:['Cash Flow & Net Income','Cash Flow & Net Income'],
+  sCashSub:['Posición de Tesorería · $000s','Treasury Position · $000s'],
+  sForecastTitle:['Forecast 5 Años — 2026–2030','5-Year Forecast — 2026–2030'],
+  sForecastSub:['Proyección estratégica · $000s','Strategic projection · $000s'],
+  /* Chart section titles */
+  tKpiAnuales:['📊 KPIs Anuales — Proyección 2026–2030','📊 Annual KPIs — 2026–2030 Projection'],
+  tKpiSub:['Todos los importes en $000s','All amounts in $000s'],
+  tRevVsOpex:['📈 Revenue vs OpEx vs Net Income','📈 Revenue vs OpEx vs Net Income'],
+  tRevVsOpexSub:['Evolución trimestral 2026–2029','Quarterly evolution 2026–2029'],
+  tAuMQ:['💎 AuM/TVL Trimestral ($000s)','💎 Quarterly AuM/TVL ($000s)'],
+  tUsersG:['👥 Crecimiento de Usuarios','👥 User Growth'],
+  tAuMTable:['📊 Tabla AuM/TVL, Usuarios & Revenue — Trimestral completo ($000s)','📊 AuM/TVL, Users & Revenue — Full quarterly ($000s)'],
+  tCostDist:['💰 Distribución de Costes 2026','💰 2026 Cost Distribution'],
+  tCostDistSub:['Porcentaje sobre OpEx total','As % of total OpEx'],
+  tOpexAnual:['📊 OpEx Anual por Partida ($000s) y % sobre total','📊 Annual OpEx by Line Item ($000s) and % of total'],
+  tCashEvol:['💵 Cash Balance Acumulado','💵 Cumulative Cash Balance'],
+  tPLResumen:['📋 P&L Anual Resumido ($000s)','📋 Annual P&L Summary ($000s)'],
+  tPLFull:['📋 P&L Trimestral Completo — 16 trimestres ($000s)','📋 Full Quarterly P&L — 16 quarters ($000s)'],
+  tPLTrim:['📋 P&L Trimestral ($000s)','📋 Quarterly P&L ($000s)'],
+  tAnnualRevNI:['📈 Revenue & Net Income Anual','📈 Annual Revenue & Net Income'],
+  tAnnualRevNISub:['Proyección 2026–2030E','2026–2030E Projection'],
+  tNetMargin:['📊 Margen Neto (%)','📊 Net Margin (%)'],
+  tForecastTable:['📋 Tabla Resumen Anual 2026–2030E','📋 Annual Summary 2026–2030E'],
+  /* Table row labels */
+  rPartida:['Partida ($000s)','Item ($000s)'],
+  rConcept:['Concepto ($000s)','Item ($000s)'],
+  rPartidaH:['Partida','Item'],
+  rRevenue:['Protocol Revenue','Protocol Revenue'],
+  rOpex:['Total OpEx','Total OpEx'],
+  rEBITDA:['EBITDA','EBITDA'],
+  rEBITDAM:['Margen EBITDA','EBITDA Margin'],
+  rMgEBITDA:['Mg EBITDA','EBITDA Mg'],
+  rNetIncome:['Net Income','Net Income'],
+  rCashYE:['Cash Balance YE','Cash Balance YE'],
+  rCashYE2:['Cash YE','Cash YE'],
+  rAuMPeak:['AuM/TVL Peak ($K)','AuM/TVL Peak ($K)'],
+  rAuMPeak2:['AuM Peak','AuM Peak'],
+  rUsersPeak:['Usuarios Peak','Peak Users'],
+  rUsers2:['Usuarios','Users'],
+  rCapRaise:['Capital Raise','Capital Raise'],
+  rRevRow:['Revenue','Revenue'],
+  rOpexRow:['OpEx','OpEx'],
+  rCashRow:['Cash Balance','Cash Balance'],
+  rAuMRow:['💎 AuM/TVL ($K)','💎 AuM/TVL ($K)'],
+  rUsersRow:['👥 Usuarios','👥 Users'],
+  rRevenueKRow:['Revenue ($K)','Revenue ($K)'],
+  rMetrica:['Métrica','Metric'],
+  /* Chart labels */
+  cRevenue:['Revenue $K','Revenue $K'],
+  cOpex:['OpEx $K','OpEx $K'],
+  cNetIncome:['Net Income $K','Net Income $K'],
+  cAuM:['AuM/TVL $K','AuM/TVL $K'],
+  cUsers:['Usuarios','Users'],
+  cCash:['Cash Balance $K','Cash Balance $K'],
+  cNetMargin:['Margen Neto %','Net Margin %'],
+  /* Disclaimer & footer */
+  disclaimer:[
+    '<strong style="color:#7B2FBE">⚠️ Aviso Legal:</strong> Este documento contiene proyecciones financieras elaboradas con fines informativos para potenciales inversores. Las proyecciones se basan en hipótesis que pueden no materializarse. Los resultados reales pueden diferir. No constituye asesoramiento financiero ni oferta de inversión. <strong>CONFIDENCIAL.</strong>',
+    '<strong style="color:#7B2FBE">⚠️ Legal Disclaimer:</strong> This document contains financial projections prepared for informational purposes for potential investors. Projections are based on assumptions that may not materialize. Actual results may differ materially. This does not constitute financial advice or an investment offer. <strong>CONFIDENTIAL.</strong>'
+  ],
+  copyright:['© 2026 Stabolut · Todos los derechos reservados','© 2026 Stabolut · All rights reserved'],
+  /* Excel sheet names */
+  xlSheet1:['📊 Resumen Ejecutivo','📊 Executive Summary'],
+  xlSheet2:['📋 P&L Trimestral','📋 Quarterly P&L'],
+  xlSheet3:['💎 AuM & TVL','💎 AuM & TVL'],
+  xlSheet4:['💰 Costes Operativos','💰 Operating Costs'],
+  xlSheet5:['💵 Cash & Balance','💵 Cash & Balance'],
+  /* Excel content */
+  xlTitle:['STABOLUT — MODELO FINANCIERO · PROYECCIONES 2026–2029','STABOLUT — FINANCIAL MODEL · 2026–2029 PROJECTIONS'],
+  xlGenerated:['Informe generado:','Report generated:'],
+  xlConfidential:['CONFIDENCIAL — Solo para uso de potenciales inversores','CONFIDENTIAL — For authorized potential investors only'],
+  xlKpiSection:['═══ KPIs ANUALES ($000s) ═══','═══ ANNUAL KPIs ($000s) ═══'],
+  xlAuMSection:['═══ AuM / TVL & USUARIOS ═══','═══ AuM / TVL & USERS ═══'],
+  xlKeyMetrics:['═══ MÉTRICAS CLAVE ═══','═══ KEY METRICS ═══'],
+  xlBreakeven:['Breakeven Quarter','Breakeven Quarter'],
+  xlRevCagr:['Revenue CAGR 2026→2029','Revenue CAGR 2026→2029'],
+  xlAuMCagr:['AuM CAGR 2026→2029','AuM CAGR 2026→2029'],
+  xlUsrCagr:['Usuarios CAGR 2026→2029','User CAGR 2026→2029'],
+  xlCapital:['Inversión Capital','Capital Investment'],
+  xlCashMax:['Cash máximo 2026-2029','Peak Cash 2026-2029'],
+  xlPartida:['Partida ($000s)','Item ($000s)'],
+  xlRevenue:['Protocol Revenue','Protocol Revenue'],
+  xlOpex:['Total OpEx','Total OpEx'],
+  xlEBITDA:['EBITDA','EBITDA'],
+  xlEBITDAM:['Margen EBITDA (%)','EBITDA Margin (%)'],
+  xlNetIncome:['Net Income','Net Income'],
+  xlCashYE:['Cash Balance YE','Cash Balance YE'],
+  xlAuMPeak:['AuM/TVL Peak ($K)','AuM/TVL Peak ($K)'],
+  xlUsersPeak:['Usuarios Peak','Peak Users'],
+  xlCAGR:['CAGR 26→29','CAGR 26→29'],
+  xlPLTitle:['STABOLUT — P&L TRIMESTRAL COMPLETO ($000s)','STABOLUT — FULL QUARTERLY P&L ($000s)'],
+  xlUsersEff:['👥 Usuarios Efectivos','👥 Active Users'],
+  xlRevAll:['✅ PROTOCOL REVENUE','✅ PROTOCOL REVENUE'],
+  xlNetIncAll:['📊 NET INCOME','📊 NET INCOME'],
+  xlCashAll:['💵 CASH BALANCE','💵 CASH BALANCE'],
+  xlMARow:['M&A','M&A'],
+  xlAuMTitle:['STABOLUT — AuM / TVL & USUARIOS ($000s)','STABOLUT — AuM / TVL & USERS ($000s)'],
+  xlAuMperUser:['AuM por Usuario ($K)','AuM per User ($K)'],
+  xlAPRApplied:['APR Aplicada (%)','Applied APR (%)'],
+  xlRevRunRate:['Revenue Run-Rate Anual ($K)','Annual Revenue Run-Rate ($K)'],
+  xlRevMargin:['Margen Revenue/AuM (%)','Revenue/AuM Margin (%)'],
+  xlNotes:['NOTAS:','NOTES:'],
+  xlNote1:['AuM/TVL calculado proporcionalmente a usuarios vs base proyectada','AuM/TVL calculated proportionally to users vs projected base'],
+  xlNote2:['Revenue = AuM × APR × 20% protocolo / 4 trimestres','Revenue = AuM × APR × 20% protocol / 4 quarters'],
+  xlCostsTitle:['STABOLUT — COSTES OPERATIVOS DESGLOSADOS ($000s)','STABOLUT — DETAILED OPERATING COSTS ($000s)'],
+  xlVariation:['VARIACIÓN vs BASE ORIGINAL','VARIATION vs ORIGINAL BASE'],
+  xlNoMods:['(vacío = sin modificaciones aplicadas)','(empty = no modifications applied)'],
+  xlDelta:[' — delta anual',' — annual delta'],
+  xlCashTitle:['STABOLUT — CASH FLOW & BALANCE ($000s)','STABOLUT — CASH FLOW & BALANCE ($000s)'],
+  xlCashFlow:['FLUJO DE CAJA TRIMESTRAL','QUARTERLY CASH FLOW'],
+  xlCapRaise:['(+) Capital Raise','(+) Capital Raise'],
+  xlMAOther:['(+/-) M&A / Otros','(+/-) M&A / Other'],
+  xlFinExp:['(-) Gastos Financieros','(-) Financial Expenses'],
+  xlCashAccum:['💵 CASH BALANCE (acumulado)','💵 CASH BALANCE (cumulative)'],
+  xlBalanceSheet:['BALANCE DE SITUACIÓN (fin de ejercicio)','BALANCE SHEET (year end)'],
+  xlCurrentA:['  Activo Corriente','  Current Assets'],
+  xlNonCurrentA:['  Activo No Corriente','  Non-Current Assets'],
+  xlTotalA:['TOTAL ACTIVO','TOTAL ASSETS'],
+  xlCurrentL:['  Pasivo Corriente','  Current Liabilities'],
+  xlNonCurrentL:['  Pasivo No Corriente','  Non-Current Liabilities'],
+  xlTotalL:['TOTAL PASIVO','TOTAL LIABILITIES'],
+  xlEquity:['PATRIMONIO NETO','SHAREHOLDERS EQUITY'],
+  xlTotalLE:['PASIVO + PN','LIABILITIES + EQUITY'],
+};
+// Translation helper: t(key) picks [0]=ES or [1]=EN based on current lang
+let _lang='es'; // updated by modal selection
+const _t=k=>_T[k]?_T[k][_lang==='en'?1:0]:(k||'');
+
+/* ════════════════════════════════════════════════
    EXPORT — CSV
 ════════════════════════════════════════════════ */
 function doExportCSV(){
@@ -1500,6 +1675,89 @@ function doExportCSV(){
 ════════════════════════════════════════════════ */
 function doExportExcel(){
   if(typeof XLSX==='undefined'){ alert('La librería Excel no está disponible. Verifica la conexión a internet.'); return; }
+  _showLangModal('excel');
+}
+
+function _showLangModal(type){
+  const isExcel=type==='excel';
+  let selLang='es';
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,5,20,.82);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:DM Sans,sans-serif';
+  const svgPortrait=`<svg width="44" height="58" viewBox="0 0 44 58" fill="none"><rect x="1" y="1" width="42" height="56" rx="5" fill="#F3EAFB" stroke="#7B2FBE" stroke-width="2"/><rect x="7" y="9" width="30" height="4" rx="2" fill="#7B2FBE"/><rect x="7" y="17" width="30" height="3" rx="1.5" fill="#C9A5F0"/><rect x="7" y="23" width="22" height="3" rx="1.5" fill="#C9A5F0"/><rect x="7" y="31" width="30" height="10" rx="3" fill="#E0C8F5"/><rect x="7" y="45" width="30" height="3" rx="1.5" fill="#C9A5F0"/></svg>`;
+  const svgLandscape=`<svg width="58" height="44" viewBox="0 0 58 44" fill="none"><rect x="1" y="1" width="56" height="42" rx="5" fill="#F8F9FA" stroke="#C9A5F0" stroke-width="2"/><rect x="7" y="7" width="20" height="30" rx="3" fill="#E0C8F5"/><rect x="31" y="7" width="20" height="4" rx="2" fill="#7B2FBE"/><rect x="31" y="15" width="20" height="3" rx="1.5" fill="#C9A5F0"/><rect x="31" y="21" width="14" height="3" rx="1.5" fill="#C9A5F0"/><rect x="31" y="27" width="20" height="3" rx="1.5" fill="#C9A5F0"/></svg>`;
+  const svgXls=`<svg width="44" height="44" viewBox="0 0 44 44" fill="none"><rect x="1" y="1" width="42" height="42" rx="7" fill="#E8F8EF" stroke="#27AE60" stroke-width="2"/><path d="M10 14h24M10 22h24M10 30h24M18 10v24M26 10v24" stroke="#27AE60" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:20px;padding:32px 36px;max-width:${isExcel?'400px':'500px'};width:90%;box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">${isExcel?'📥':'🖨️'}</div>
+      <div style="font-size:18px;font-weight:800;color:#1A202C;margin-bottom:4px" id="m-title">${isExcel?_T.mXlTitle[0]:_T.mPdfTitle[0]}</div>
+      <div style="font-size:12px;color:#8892A0;margin-bottom:22px" id="m-sub">${isExcel?_T.mXlSub[0]:_T.mPdfSub[0]}</div>
+
+      <!-- Idioma -->
+      <div style="display:flex;gap:10px;margin-bottom:${isExcel?'22px':'20px'};justify-content:center">
+        <button id="lang-es" onclick="_setModalLang('es',this)" style="display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;border:2px solid #7B2FBE;background:#F3EAFB;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#7B2FBE">🇪🇸 Castellano</button>
+        <button id="lang-en" onclick="_setModalLang('en',this)" style="display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;border:2px solid #EEF0F3;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#8892A0">🇬🇧 English</button>
+      </div>
+
+      ${isExcel?`
+      <!-- Botón Excel -->
+      <button onclick="_doExportExcelLang()" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;border:2px solid #27AE60;border-radius:14px;padding:18px;background:#E8F8EF;cursor:pointer;font-family:inherit;margin-bottom:16px">
+        ${svgXls}
+        <div style="font-weight:700;font-size:13px;color:#1A202C" id="xl-btn-label">Generar Excel</div>
+        <div style="font-size:11px;color:#8892A0">.xlsx · Stabolut Financial Model</div>
+      </button>`:`
+      <!-- Orientación PDF -->
+      <div style="font-size:11px;font-weight:700;color:#8892A0;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Orientación</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <button id="btn-portrait" onclick="_doPrint('portrait',selLang)" style="border:2px solid #7B2FBE;border-radius:14px;padding:18px 12px;cursor:pointer;background:#F3EAFB;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:inherit">
+          ${svgPortrait}
+          <div style="font-weight:700;font-size:13px;color:#1A202C" id="pdf-p-lbl">Vertical</div>
+          <div style="font-size:11px;color:#8892A0">A4 Portrait</div>
+        </button>
+        <button id="btn-landscape" onclick="_doPrint('landscape',selLang)" style="border:2px solid #EEF0F3;border-radius:14px;padding:18px 12px;cursor:pointer;background:#fff;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:inherit">
+          ${svgLandscape}
+          <div style="font-weight:700;font-size:13px;color:#1A202C" id="pdf-l-lbl">Horizontal</div>
+          <div style="font-size:11px;color:#8892A0">A4 Landscape</div>
+        </button>
+      </div>`}
+
+      <button onclick="this.closest('[style*=fixed]').remove()" style="border:none;background:#F8F9FA;color:#8892A0;font-size:12px;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:inherit" id="m-cancel">Cancelar</button>
+    </div>`;
+
+  // Make selLang accessible from onclick
+  window._modalLang='es';
+  window._setModalLang=(lang,btn)=>{
+    window._modalLang=lang;
+    modal.querySelectorAll('[id^=lang-]').forEach(b=>{
+      b.style.borderColor='#EEF0F3'; b.style.background='#fff'; b.style.color='#8892A0'; b.style.fontWeight='600';
+    });
+    btn.style.borderColor='#7B2FBE'; btn.style.background='#F3EAFB'; btn.style.color='#7B2FBE'; btn.style.fontWeight='700';
+    // Update labels
+    const li=lang==='en'?1:0;
+    const mTitle=modal.querySelector('#m-title'); if(mTitle) mTitle.textContent=isExcel?_T.mXlTitle[li]:_T.mPdfTitle[li];
+    const mSub=modal.querySelector('#m-sub'); if(mSub) mSub.textContent=isExcel?_T.mXlSub[li]:_T.mPdfSub[li];
+    const mCancel=modal.querySelector('#m-cancel'); if(mCancel) mCancel.textContent=_T.mCancel[li];
+    const xlBtn=modal.querySelector('#xl-btn-label'); if(xlBtn) xlBtn.textContent=_T.mGenerate[li];
+    const pP=modal.querySelector('#pdf-p-lbl'); if(pP) pP.textContent=_T.mVertical[li];
+    const pL=modal.querySelector('#pdf-l-lbl'); if(pL) pL.textContent=_T.mHorizontal[li];
+  };
+  window._doExportExcelLang=()=>{ modal.remove(); _doExportExcel(window._modalLang); };
+  // Override the portrait/landscape buttons to use window._modalLang
+  if(!isExcel){
+    const bp=modal.querySelector('#btn-portrait'); if(bp) bp.onclick=()=>_doPrint('portrait',window._modalLang);
+    const bl=modal.querySelector('#btn-landscape'); if(bl) bl.onclick=()=>_doPrint('landscape',window._modalLang);
+  }
+  // Hover for orientation buttons
+  modal.querySelectorAll('#btn-portrait,#btn-landscape').forEach(b=>{
+    b.addEventListener('mouseenter',()=>{b.style.background='#F3EAFB';b.style.borderColor='#7B2FBE';});
+    b.addEventListener('mouseleave',()=>{b.style.background=b.id==='btn-portrait'?'#F3EAFB':'#fff';b.style.borderColor=b.id==='btn-portrait'?'#7B2FBE':'#EEF0F3';});
+  });
+  document.body.appendChild(modal);
+}
+
+function _doExportExcel(lang){
+  _lang=lang;
+  const t=k=>_t(k);
   const r=revenue(),o=opex(),n=netInc(),cb=cashBal(),a=aum(),u=users();
   const ie=interestExpense(),cap=invCapFlow();
   const wb=XLSX.utils.book_new();
@@ -1508,250 +1766,184 @@ function doExportExcel(){
   const rev30=Math.round(Y[3].rev*1.30),opx30=Math.round(Y[3].opx*1.05),net30=rev30-opx30,csh30=cb[15]+net30+MA[15];
   const bk=n.findIndex(v=>v>0);
   const cagr=(end,start,y)=>start>0?((Math.pow(end/start,1/y)-1)*100).toFixed(1)+'%':'—';
-  const pct=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'N/A';
+  const pct=(v,tot)=>tot>0?(v/tot*100).toFixed(1)+'%':'N/A';
+  const modelNames={safe:'SAFE',convertible:lang==='en'?'Convertible Note':'Nota Convertible',participativo:lang==='en'?'Participating Loan':'Préstamo Participativo',equity:'Equity'};
 
-  // ── HOJA 1: RESUMEN EJECUTIVO ──
+  // ── HOJA 1: RESUMEN ──
   const sh1=[
-    ['STABOLUT — FINANCIAL MODEL · PROYECCIONES 2026–2029'],
-    ['Informe generado: '+new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})],
-    ['CONFIDENCIAL — Solo para uso de potenciales inversores'],
-    [],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  KPIs ANUALES ($000s)','2026','2027','2028','2029','2030E','CAGR 26→29'],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  Protocol Revenue',Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],
-    ['  Total OpEx',-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,cagr(Y[3].opx,Y[0].opx,3)],
-    ['  EBITDA',Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,'—'],
-    ['  Margen EBITDA (%)',pct(Y[0].rev-Y[0].opx,Y[0].rev),pct(Y[1].rev-Y[1].opx,Y[1].rev),pct(Y[2].rev-Y[2].opx,Y[2].rev),pct(Y[3].rev-Y[3].opx,Y[3].rev),'—','—'],
-    ['  Net Income',Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,'—'],
-    ['  Cash Balance YE',Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,csh30,'—'],
-    [],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  AuM / TVL & USUARIOS','2026','2027','2028','2029','2030E','CAGR 26→29'],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  AuM/TVL Peak ($K)',Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],
-    ['  Usuarios Peak',Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],
-    [],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  MÉTRICAS CLAVE'],
-    ['═══════════════════════════════════════════════════════════'],
-    ['  Breakeven Quarter',bk>=0?QQ[bk]:'TBD'],
-    ['  Revenue CAGR 2026→2029',cagr(Y[3].rev,Y[0].rev,3)],
-    ['  AuM CAGR 2026→2029',cagr(Y[3].aum,Y[0].aum,3)],
-    ['  Usuarios CAGR 2026→2029',cagr(Y[3].usr,Y[0].usr,3)],
-    ['  Inversión Capital',(invAmount>0?'$'+invAmount.toLocaleString()+' K ('+{safe:'SAFE',convertible:'Nota Convertible',participativo:'Préstamo Part.',equity:'Equity'}[invModel]+')':'No configurada')],
-    ['  Cash máximo 2026-2029','$'+Math.max(...cb).toLocaleString()+' K ('+QQ[cb.indexOf(Math.max(...cb))]+')'],
+    [t('xlTitle')],[t('xlGenerated')+' '+new Date().toLocaleDateString(lang==='en'?'en-GB':'es-ES',{day:'2-digit',month:'long',year:'numeric'})],
+    [t('xlConfidential')],[],
+    [t('xlKpiSection')],
+    ['  '+t('xlPartida'),'2026','2027','2028','2029','2030E',t('xlCAGR')],
+    ['═'.repeat(50),...Array(6).fill('═')],
+    ['  '+t('xlRevenue'),Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],
+    ['  '+t('xlOpex'),-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,cagr(Y[3].opx,Y[0].opx,3)],
+    ['  '+t('xlEBITDA'),Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,'—'],
+    ['  '+t('xlEBITDAM'),pct(Y[0].rev-Y[0].opx,Y[0].rev),pct(Y[1].rev-Y[1].opx,Y[1].rev),pct(Y[2].rev-Y[2].opx,Y[2].rev),pct(Y[3].rev-Y[3].opx,Y[3].rev),'—','—'],
+    ['  '+t('xlNetIncome'),Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,'—'],
+    ['  '+t('xlCashYE'),Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,csh30,'—'],[],
+    [t('xlAuMSection')],
+    ['  '+t('xlAuMPeak'),Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],
+    ['  '+t('xlUsersPeak'),Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],[],
+    [t('xlKeyMetrics')],
+    [t('xlBreakeven'),bk>=0?QQ[bk]:'TBD'],
+    [t('xlRevCagr'),cagr(Y[3].rev,Y[0].rev,3)],
+    [t('xlAuMCagr'),cagr(Y[3].aum,Y[0].aum,3)],
+    [t('xlUsrCagr'),cagr(Y[3].usr,Y[0].usr,3)],
+    [t('xlCapital'),invAmount>0?'$'+invAmount.toLocaleString()+' K ('+modelNames[invModel]+')': (lang==='en'?'Not configured':'No configurada')],
+    [t('xlCashMax'),'$'+Math.max(...cb).toLocaleString()+' K ('+QQ[cb.indexOf(Math.max(...cb))]+')'],
   ];
   const ws1=XLSX.utils.aoa_to_sheet(sh1);
-  ws1['!cols']=[{wch:35},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
+  ws1['!cols']=[{wch:38},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
   ws1['!merges']=[{s:{r:0,c:0},e:{r:0,c:6}}];
-  XLSX.utils.book_append_sheet(wb,ws1,'📊 Resumen Ejecutivo');
+  XLSX.utils.book_append_sheet(wb,ws1,t('xlSheet1'));
 
   // ── HOJA 2: P&L TRIMESTRAL ──
-  const qqShort=QQ.map(q=>q.replace(' ','\''));
+  const qqShort=QQ.map(q=>q.replace(' ',"'"));
   const totHdr=['Tot 26','Tot 27','Tot 28','Tot 29'];
-  const sh2=[
-    ['STABOLUT — P&L TRIMESTRAL COMPLETO ($000s)'],
-    [],
-    ['Partida',...qqShort,...totHdr],
-    ['─'.repeat(20),...Array(20).fill('─')],
-    ['👥 Usuarios',...u,...yrs.map((_,y)=>aSum(u,y))],
+  const sh2=[[t('xlPLTitle')],[],[t('xlPartida'),...qqShort,...totHdr],['─'.repeat(20),...Array(20).fill('─')],
+    [t('xlUsersEff'),...u,...yrs.map((_,y)=>aSum(u,y))],
     ['💎 AuM/TVL ($K)',...a,...yrs.map((_,y)=>aSum(a,y))],
     ['APR (%)',...APR.map(v=>(v*100).toFixed(0)+'%'),...yrs.map(()=>'—')],
     ['─'.repeat(20),...Array(20).fill('─')],
-    ['✅ PROTOCOL REVENUE',...r,...yrs.map((_,y)=>aSum(r,y))],
+    [t('xlRevAll'),...r,...yrs.map((_,y)=>aSum(r,y))],
     ['─'.repeat(20),...Array(20).fill('─')],
     ...Object.entries(BC).map(([k,v])=>{
       const ov=bcOverride[k]||[null,null,null,null];
-      const effQ=v.map((x,i)=>{ const yr=Math.floor(i/4); return ov[yr]!==null?ov[yr]/4:x; });
+      const effQ=v.map((x,i)=>{const yr=Math.floor(i/4);return ov[yr]!==null?ov[yr]/4:x;});
       return ['  '+k,...effQ,...yrs.map((_,y)=>aSum(effQ,y))];
     }),
     ['─'.repeat(20),...Array(20).fill('─')],
-    ['TOTAL OpEx',...o,...yrs.map((_,y)=>aSum(o,y))],
+    [t('xlOpex'),...o,...yrs.map((_,y)=>aSum(o,y))],
     ['─'.repeat(20),...Array(20).fill('─')],
-    ['📊 NET INCOME',...n,...yrs.map((_,y)=>aSum(n,y))],
-    ['  Capital Raise',...cap,...yrs.map((_,y)=>aSum(cap,y))],
-    ['  M&A',...MA,...yrs.map((_,y)=>aSum(MA,y))],
+    [t('xlNetIncAll'),...n,...yrs.map((_,y)=>aSum(n,y))],
+    ['  '+t('xlCapRaise'),...cap,...yrs.map((_,y)=>aSum(cap,y))],
+    ['  '+t('xlMARow'),...MA,...yrs.map((_,y)=>aSum(MA,y))],
     ['─'.repeat(20),...Array(20).fill('─')],
-    ['💵 CASH BALANCE',...cb,...yrs.map((_,y)=>cb[y*4+3])],
+    [t('xlCashAll'),...cb,...yrs.map((_,y)=>cb[y*4+3])],
   ];
   const ws2=XLSX.utils.aoa_to_sheet(sh2);
   ws2['!cols']=[{wch:28},...Array(20).fill({wch:9})];
   ws2['!merges']=[{s:{r:0,c:0},e:{r:0,c:20}}];
-  XLSX.utils.book_append_sheet(wb,ws2,'📋 P&L Trimestral');
+  XLSX.utils.book_append_sheet(wb,ws2,t('xlSheet2'));
 
   // ── HOJA 3: AuM / TVL ──
   const apu=u.map((v,i)=>BU[i]>0?+(BA[i]*(v/BU[i])/v).toFixed(1):0);
   const revAnn=r.map(v=>Math.round(v*4));
-  const sh3=[
-    ['STABOLUT — AuM / TVL & USUARIOS ($000s)'],
-    [],
-    ['Métrica',...qqShort,...totHdr],
-    ['─'.repeat(20),...Array(20).fill('─')],
-    ['👥 Usuarios Efectivos',...u,...yrs.map((_,y)=>Math.max(...u.slice(y*4,y*4+4)))],
+  const sh3=[[t('xlAuMTitle')],[],['Metric',...qqShort,...totHdr],['─'.repeat(20),...Array(20).fill('─')],
+    [t('xlUsersEff'),...u,...yrs.map((_,y)=>Math.max(...u.slice(y*4,y*4+4)))],
     ['💎 AuM/TVL ($K)',...a,...yrs.map((_,y)=>Math.max(...a.slice(y*4,y*4+4)))],
-    ['AuM por Usuario ($K)',...apu,...yrs.map((_,y)=>+(apu.slice(y*4,y*4+4).reduce((s,v)=>s+v,0)/4).toFixed(1))],
-    ['APR Aplicada (%)',...APR.map(v=>(v*100).toFixed(0)+'%'),...yrs.map(()=>'—')],
+    [t('xlAuMperUser'),...apu,...yrs.map((_,y)=>+(apu.slice(y*4,y*4+4).reduce((s,v)=>s+v,0)/4).toFixed(1))],
+    [t('xlAPRApplied'),...APR.map(v=>(v*100).toFixed(0)+'%'),...yrs.map(()=>'—')],
     ['─'.repeat(20),...Array(20).fill('─')],
     ['✅ Protocol Revenue ($K)',...r,...yrs.map((_,y)=>aSum(r,y))],
-    ['Revenue Run-Rate Anual ($K)',...revAnn,...yrs.map((_,y)=>Math.round(r[y*4+3]*4))],
-    ['Margen Revenue/AuM (%)',...a.map((v,i)=>v>0?((r[i]/v)*100).toFixed(2)+'%':'—'),...yrs.map(()=>'—')],
-    [],
-    ['─'.repeat(20),...Array(20).fill('─')],
-    ['NOTAS:'],
-    ['AuM/TVL calculado proporcionalmente a usuarios vs base proyectada'],
-    ['Revenue = AuM × APR × 20% protocolo / 4 trimestres'],
+    [t('xlRevRunRate'),...revAnn,...yrs.map((_,y)=>Math.round(r[y*4+3]*4))],
+    [t('xlRevMargin'),...a.map((v,i)=>v>0?((r[i]/v)*100).toFixed(2)+'%':'—'),...yrs.map(()=>'—')],
+    [],[],[t('xlNotes')],[t('xlNote1')],[t('xlNote2')],
   ];
   const ws3=XLSX.utils.aoa_to_sheet(sh3);
   ws3['!cols']=[{wch:30},...Array(20).fill({wch:9})];
   ws3['!merges']=[{s:{r:0,c:0},e:{r:0,c:20}}];
-  XLSX.utils.book_append_sheet(wb,ws3,'💎 AuM & TVL');
+  XLSX.utils.book_append_sheet(wb,ws3,t('xlSheet3'));
 
-  // ── HOJA 4: COSTES OPERATIVOS ──
-  const sh4=[
-    ['STABOLUT — COSTES OPERATIVOS DESGLOSADOS ($000s)'],
-    [],
-    ['Partida',...qqShort,...totHdr,'% OpEx 26','% OpEx 27','% OpEx 28','% OpEx 29'],
-    ['─'.repeat(20),...Array(24).fill('─')],
-  ];
+  // ── HOJA 4: COSTES ──
+  const sh4=[[t('xlCostsTitle')],[],[t('xlPartida'),...qqShort,...totHdr,'% 26','% 27','% 28','% 29'],['─'.repeat(20),...Array(24).fill('─')]];
   const opexByYear=yrs.map((_,y)=>aSum(o,y));
   for(const[k,v] of Object.entries(BC)){
     const ov=bcOverride[k]||[null,null,null,null];
-    const effQ=v.map((x,i)=>{ const yr=Math.floor(i/4); return ov[yr]!==null?ov[yr]/4:x; });
+    const effQ=v.map((x,i)=>{const yr=Math.floor(i/4);return ov[yr]!==null?ov[yr]/4:x;});
     const tots=yrs.map((_,y)=>aSum(effQ,y));
-    const pcts=tots.map((t,y)=>opexByYear[y]>0?(t/opexByYear[y]*100).toFixed(1)+'%':'—');
+    const pcts=tots.map((tv,y)=>opexByYear[y]>0?(tv/opexByYear[y]*100).toFixed(1)+'%':'—');
     sh4.push([k,...effQ,...tots,...pcts]);
   }
   sh4.push(['─'.repeat(20),...Array(24).fill('─')]);
-  sh4.push(['TOTAL OpEx',...o,...opexByYear,...yrs.map(()=>'100%')]);
-  sh4.push([]);
-  sh4.push(['VARIACIÓN vs BASE ORIGINAL']);
-  sh4.push(['(vacío = sin modificaciones aplicadas)']);
+  sh4.push([t('xlOpex'),...o,...opexByYear,...yrs.map(()=>'100%')]);
+  sh4.push([],[],[t('xlVariation')],[t('xlNoMods')]);
   for(const[k] of Object.entries(BC)){
     const ov=bcOverride[k]||[null,null,null,null];
     if(ov.some(v=>v!==null)){
       const base=yrs.map((_,y)=>aSum(BC[k],y));
       const eff=yrs.map((_,y)=>ov[y]!==null?ov[y]:base[y]);
       const delta=eff.map((v,y)=>v-base[y]);
-      sh4.push(['  ✏️ '+k+' — delta anual',...Array(16).fill(''),...delta,...yrs.map(()=>'')]);
+      sh4.push(['  ✏️ '+k+t('xlDelta'),...Array(16).fill(''),...delta,...yrs.map(()=>'')]);
     }
   }
   const ws4=XLSX.utils.aoa_to_sheet(sh4);
-  ws4['!cols']=[{wch:28},...Array(16).fill({wch:8}),...Array(4).fill({wch:10}),...Array(4).fill({wch:11})];
+  ws4['!cols']=[{wch:28},...Array(16).fill({wch:8}),...Array(4).fill({wch:10}),...Array(4).fill({wch:10})];
   ws4['!merges']=[{s:{r:0,c:0},e:{r:0,c:24}}];
-  XLSX.utils.book_append_sheet(wb,ws4,'💰 Costes Operativos');
+  XLSX.utils.book_append_sheet(wb,ws4,t('xlSheet4'));
 
   // ── HOJA 5: CASH & BALANCE ──
-  const sh5=[
-    ['STABOLUT — CASH FLOW & BALANCE ($000s)'],
-    [],
-    ['FLUJO DE CAJA TRIMESTRAL',...qqShort,...totHdr],
+  const sh5=[[t('xlCashTitle')],[],[t('xlCashFlow'),...qqShort,...totHdr],['─'.repeat(20),...Array(20).fill('─')],
+    [t('xlNetIncome'),...n,...yrs.map((_,y)=>aSum(n,y))],
+    [t('xlCapRaise'),...cap,...yrs.map((_,y)=>aSum(cap,y))],
+    [t('xlMAOther'),...MA,...yrs.map((_,y)=>aSum(MA,y))],
+    ...(invModel!=='safe'&&invModel!=='equity'&&invAmount>0?[[t('xlFinExp'),...ie.map(v=>-v),...yrs.map((_,y)=>-aSum(ie,y))]]:[]),
     ['─'.repeat(20),...Array(20).fill('─')],
-    ['Net Income',...n,...yrs.map((_,y)=>aSum(n,y))],
-    ['(+) Capital Raise',...cap,...yrs.map((_,y)=>aSum(cap,y))],
-    ['(+/-) M&A / Otros',...MA,...yrs.map((_,y)=>aSum(MA,y))],
-    ...(invModel!=='safe'&&invModel!=='equity'&&invAmount>0?[['(-) Gastos Financieros',...ie.map(v=>-v),...yrs.map((_,y)=>-aSum(ie,y))]]:[]),
-    ['─'.repeat(20),...Array(20).fill('─')],
-    ['💵 CASH BALANCE (acumulado)',...cb,...yrs.map((_,y)=>cb[y*4+3])],
-    [],
-    ['─'.repeat(20),...Array(20).fill('─')],
-    ['BALANCE DE SITUACIÓN (fin de ejercicio)','2026','2027','2028','2029'],
+    [t('xlCashAccum'),...cb,...yrs.map((_,y)=>cb[y*4+3])],
+    [],[],['─'.repeat(20),...Array(4).fill('─')],
+    [t('xlBalanceSheet'),'2026','2027','2028','2029'],
     ['─'.repeat(20),...Array(4).fill('─')],
   ];
-  // Rebuild balance data inline
   const bY=yrs.map((_,yi)=>{
-    const qe=yi*4+3;
-    const cash=cb[qe],ar=Math.round(r[qe]*0.5),otCA=150;
-    const totalCA=cash+ar+otCA;
-    const eng=BC['Engineering & Dev'];
-    const engCum=[0,1,2,3,4].slice(0,yi+1).reduce((s,y)=>s+aSum(eng,y),0);
+    const qe=yi*4+3,cash=cb[qe],ar=Math.round(r[qe]*0.5),otCA=150,totalCA=cash+ar+otCA;
+    const eng=BC['Engineering & Dev'],engCum=[0,1,2,3,4].slice(0,yi+1).reduce((s,y)=>s+aSum(eng,y),0);
     const intang=Math.max(0,Math.round(engCum*0.1*(1-yi*0.15)));
-    const totalA=totalCA+intang;
-    const ap=Math.round(o[qe]*0.33);
-    const raisedQ=cap.slice(0,qe+1).reduce((s,v)=>s+v,0);
-    const ieCum=ie.slice(0,qe+1).reduce((s,v)=>s+v,0);
+    const totalA=totalCA+intang,ap=Math.round(o[qe]*0.33);
+    const raisedQ=cap.slice(0,qe+1).reduce((s,v)=>s+v,0),ieCum=ie.slice(0,qe+1).reduce((s,v)=>s+v,0);
     let finLiab=0;
     if(invModel==='safe') finLiab=raisedQ;
     else if(invModel==='convertible'&&qe<invMaturityQ) finLiab=raisedQ+ieCum;
     else if(invModel==='participativo') finLiab=raisedQ;
-    const totalL=ap+finLiab;
-    const totalPN=totalA-totalL;
+    const totalL=ap+finLiab,totalPN=totalA-totalL;
     return {totalCA,intang,totalA,ap,finLiab,totalL,totalPN};
   });
-  sh5.push(['  Activo Corriente',...bY.map(d=>d.totalCA)]);
-  sh5.push(['  Activo No Corriente',...bY.map(d=>d.intang||0)]);
-  sh5.push(['TOTAL ACTIVO',...bY.map(d=>d.totalA)]);
-  sh5.push(['  Pasivo Corriente',...bY.map(d=>d.ap)]);
-  sh5.push(['  Pasivo No Corriente',...bY.map(d=>d.finLiab)]);
-  sh5.push(['TOTAL PASIVO',...bY.map(d=>d.totalL)]);
-  sh5.push(['PATRIMONIO NETO',...bY.map(d=>d.totalPN)]);
+  sh5.push([t('xlCurrentA'),...bY.map(d=>d.totalCA)]);
+  sh5.push([t('xlNonCurrentA'),...bY.map(d=>d.intang||0)]);
+  sh5.push([t('xlTotalA'),...bY.map(d=>d.totalA)]);
+  sh5.push([t('xlCurrentL'),...bY.map(d=>d.ap)]);
+  sh5.push([t('xlNonCurrentL'),...bY.map(d=>d.finLiab)]);
+  sh5.push([t('xlTotalL'),...bY.map(d=>d.totalL)]);
+  sh5.push([t('xlEquity'),...bY.map(d=>d.totalPN)]);
   sh5.push(['─'.repeat(20),...Array(4).fill('─')]);
-  sh5.push(['PASIVO + PN',...bY.map(d=>d.totalL+d.totalPN)]);
+  sh5.push([t('xlTotalLE'),...bY.map(d=>d.totalL+d.totalPN)]);
   const ws5=XLSX.utils.aoa_to_sheet(sh5);
   ws5['!cols']=[{wch:32},...Array(20).fill({wch:10})];
   ws5['!merges']=[{s:{r:0,c:0},e:{r:0,c:20}}];
-  XLSX.utils.book_append_sheet(wb,ws5,'💵 Cash & Balance');
+  XLSX.utils.book_append_sheet(wb,ws5,t('xlSheet5'));
 
   XLSX.writeFile(wb,'Stabolut_Financial_Model.xlsx');
 }
-
 /* ════════════════════════════════════════════════
    PDF / PRINT — INFORME INVERSOR
 ════════════════════════════════════════════════ */
-function doPrint(){
-  // ── Modal de selección de orientación ──
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(10,5,20,.82);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:DM Sans,sans-serif';
-  modal.innerHTML=`
-    <div style="background:#fff;border-radius:20px;padding:36px 40px;max-width:480px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center">
-      <div style="font-size:32px;margin-bottom:8px">🖨️</div>
-      <div style="font-size:19px;font-weight:800;color:#1A202C;margin-bottom:6px">Generar Informe PDF</div>
-      <div style="font-size:13px;color:#8892A0;margin-bottom:28px">Selecciona la orientación del documento</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px">
-        <button id="btn-portrait" onclick="_doPrint('portrait')" style="border:2px solid #7B2FBE;border-radius:14px;padding:20px 14px;cursor:pointer;background:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:10px">
-          <svg width="44" height="58" viewBox="0 0 44 58" fill="none"><rect x="1" y="1" width="42" height="56" rx="5" fill="#F3EAFB" stroke="#7B2FBE" stroke-width="2"/><rect x="7" y="9" width="30" height="4" rx="2" fill="#7B2FBE"/><rect x="7" y="17" width="30" height="3" rx="1.5" fill="#C9A5F0"/><rect x="7" y="23" width="22" height="3" rx="1.5" fill="#C9A5F0"/><rect x="7" y="31" width="30" height="10" rx="3" fill="#E0C8F5"/><rect x="7" y="45" width="30" height="3" rx="1.5" fill="#C9A5F0"/></svg>
-          <div style="font-weight:700;font-size:13px;color:#1A202C">Vertical</div>
-          <div style="font-size:11px;color:#8892A0">A4 Portrait</div>
-        </button>
-        <button id="btn-landscape" onclick="_doPrint('landscape')" style="border:2px solid #EEF0F3;border-radius:14px;padding:20px 14px;cursor:pointer;background:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:10px">
-          <svg width="58" height="44" viewBox="0 0 58 44" fill="none"><rect x="1" y="1" width="56" height="42" rx="5" fill="#F8F9FA" stroke="#C9A5F0" stroke-width="2"/><rect x="7" y="7" width="20" height="30" rx="3" fill="#E0C8F5"/><rect x="31" y="7" width="20" height="4" rx="2" fill="#7B2FBE"/><rect x="31" y="15" width="20" height="3" rx="1.5" fill="#C9A5F0"/><rect x="31" y="21" width="14" height="3" rx="1.5" fill="#C9A5F0"/><rect x="31" y="27" width="20" height="3" rx="1.5" fill="#C9A5F0"/></svg>
-          <div style="font-weight:700;font-size:13px;color:#1A202C">Horizontal</div>
-          <div style="font-size:11px;color:#8892A0">A4 Landscape</div>
-        </button>
-      </div>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="border:none;background:#F8F9FA;color:#8892A0;font-size:12px;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:inherit">Cancelar</button>
-    </div>`;
-  // Hover effects
-  modal.querySelectorAll('button[id^=btn]').forEach(b=>{
-    b.addEventListener('mouseenter',()=>{b.style.background='#F3EAFB';b.style.borderColor='#7B2FBE';});
-    b.addEventListener('mouseleave',()=>{b.style.background='#fff';b.style.borderColor=b.id==='btn-portrait'?'#7B2FBE':'#EEF0F3';});
-  });
-  document.body.appendChild(modal);
-}
+function doPrint(){ _showLangModal('pdf'); }
 
-async function _doPrint(orientation){
-  // Cerrar el modal de selección
+
+async function _doPrint(orientation,lang){
   document.querySelectorAll('[style*="position:fixed"][style*="9999"]').forEach(el=>el.remove());
-
+  _lang=lang||'es';
+  const li=_lang==='en'?1:0;
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(10,5,20,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;font-family:DM Sans,sans-serif;gap:14px';
-  overlay.innerHTML=`<div style="font-size:30px">⏳</div><div style="font-size:18px;font-weight:700">Generando informe ${orientation==='landscape'?'horizontal':'vertical'}...</div><div style="font-size:13px;color:rgba(255,255,255,.55)">Renderizando gráficos · Por favor espera</div>`;
+  overlay.innerHTML=`<div style="font-size:30px">⏳</div><div style="font-size:18px;font-weight:700">${_T.mGenerating[li]} ${orientation==='landscape'?_T.mHorizontal[li]:_T.mVertical[li]}...</div><div style="font-size:13px;color:rgba(255,255,255,.55)">${_T.mRendering[li]}</div>`;
   document.body.appendChild(overlay);
   await new Promise(r=>setTimeout(r,80));
   try{
-    const imgs=await _captureCharts(orientation);
-    const html=_buildPrintReport(imgs,orientation);
+    const imgs=await _captureCharts(orientation,lang);
+    const html=_buildPrintReport(imgs,orientation,lang);
     const win=window.open('','_blank');
-    if(!win){ alert('Activa las ventanas emergentes para generar el PDF.'); return; }
+    if(!win){ alert(lang==='en'?'Enable pop-ups to generate the PDF.':'Activa las ventanas emergentes para generar el PDF.'); return; }
     win.document.write(html);
     win.document.close();
     win.addEventListener('load',()=>setTimeout(()=>win.print(),700));
-  }catch(e){console.error(e);alert('Error generando el informe: '+e.message);}
+  }catch(e){console.error(e);alert((lang==='en'?'Error generating report: ':'Error generando el informe: ')+e.message);}
   finally{document.body.removeChild(overlay);}
 }
 
-async function _captureCharts(orientation){
+async function _captureCharts(orientation,lang){
   const landscape=orientation==='landscape';
+  const li=lang==='en'?1:0;
   const r=revenue(),o=opex(),n=netInc(),cb=cashBal(),a=aum(),u=users();
   const yrs=['2026','2027','2028','2029'];
   const Y=yrs.map((_,i)=>({rev:aSum(r,i),opx:aSum(o,i),net:aSum(n,i)}));
@@ -1776,19 +1968,19 @@ async function _captureCharts(orientation){
 
   // 1 — Revenue vs OpEx vs Net Income
   imgs.main=mkC('bar',{labels:QQ,datasets:[
-    {label:'Revenue $K',data:r,backgroundColor:COLS.grA,borderColor:COLS.gr,borderWidth:2,borderRadius:4,order:2},
-    {label:'OpEx $K',data:o.map(v=>-v),backgroundColor:COLS.reA,borderColor:COLS.re,borderWidth:2,borderRadius:4,order:2},
-    {label:'Net Income $K',data:n,type:'line',borderColor:COLS.pu,backgroundColor:COLS.puA,fill:true,tension:.4,pointBackgroundColor:n.map(v=>v>=0?COLS.gr:COLS.re),pointRadius:4,order:1}
+    {label:_T.cRevenue[li],data:r,backgroundColor:COLS.grA,borderColor:COLS.gr,borderWidth:2,borderRadius:4,order:2},
+    {label:_T.cOpex[li],data:o.map(v=>-v),backgroundColor:COLS.reA,borderColor:COLS.re,borderWidth:2,borderRadius:4,order:2},
+    {label:_T.cNetIncome[li],data:n,type:'line',borderColor:COLS.pu,backgroundColor:COLS.puA,fill:true,tension:.4,pointBackgroundColor:n.map(v=>v>=0?COLS.gr:COLS.re),pointRadius:4,order:1}
   ]},{scales:scl,interaction:{mode:'index',intersect:false}},CW,CH_main);
 
   // 2 — AuM/TVL
-  imgs.aum=mkC('line',{labels:QQ,datasets:[{label:'AuM/TVL $K',data:a,borderColor:COLS.pu,backgroundColor:COLS.puA,fill:true,tension:.4,pointRadius:3}]},{scales:scl},CW,CH_sec);
+  imgs.aum=mkC('line',{labels:QQ,datasets:[{label:_T.cAuM[li],data:a,borderColor:COLS.pu,backgroundColor:COLS.puA,fill:true,tension:.4,pointRadius:3}]},{scales:scl},CW,CH_sec);
 
   // 3 — Usuarios
-  imgs.users=mkC('bar',{labels:QQ,datasets:[{label:'Usuarios',data:u,backgroundColor:COLS.puA,borderColor:COLS.pu,borderWidth:2,borderRadius:6}]},{scales:{...scl,y:{...scl.y,ticks:{...scl.y.ticks,callback:v=>v.toLocaleString()}}}},CW,CH_sm);
+  imgs.users=mkC('bar',{labels:QQ,datasets:[{label:_T.cUsers[li],data:u,backgroundColor:COLS.puA,borderColor:COLS.pu,borderWidth:2,borderRadius:6}]},{scales:{...scl,y:{...scl.y,ticks:{...scl.y.ticks,callback:v=>v.toLocaleString()}}}},CW,CH_sm);
 
   // 4 — Cash Balance
-  imgs.cash=mkC('line',{labels:QQ,datasets:[{label:'Cash Balance $K',data:cb,borderColor:COLS.te,backgroundColor:COLS.teA,fill:true,tension:.4,pointBackgroundColor:cb.map(v=>v>=0?COLS.te:COLS.re),pointRadius:4}]},{scales:scl},CW,CH_sec);
+  imgs.cash=mkC('line',{labels:QQ,datasets:[{label:_T.cCash[li],data:cb,borderColor:COLS.te,backgroundColor:COLS.teA,fill:true,tension:.4,pointBackgroundColor:cb.map(v=>v>=0?COLS.te:COLS.re),pointRadius:4}]},{scales:scl},CW,CH_sec);
 
   // 5 — Costes donut (siempre cuadrado-ish)
   const costLbls=Object.keys(BC);
@@ -1798,20 +1990,23 @@ async function _captureCharts(orientation){
   // 6 — Resumen anual
   const sclY={x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:12}}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},callback:v=>'$'+Math.round(v).toLocaleString()}}};
   imgs.annual=mkC('bar',{labels:[...yrs,'2030E'],datasets:[
-    {label:'Revenue $K',data:[...Y.map(d=>d.rev),rev30],backgroundColor:COLS.grA,borderColor:COLS.gr,borderWidth:2,borderRadius:6,order:2},
-    {label:'Net Income $K',data:[...Y.map(d=>d.net),rev30-opx30],backgroundColor:[...Y.map(d=>d.net>=0?COLS.puA:COLS.reA),COLS.puA],borderColor:[...Y.map(d=>d.net>=0?COLS.pu:COLS.re),COLS.pu],borderWidth:2,borderRadius:6,order:2}
+    {label:_T.cRevenue[li],data:[...Y.map(d=>d.rev),rev30],backgroundColor:COLS.grA,borderColor:COLS.gr,borderWidth:2,borderRadius:6,order:2},
+    {label:_T.cNetIncome[li],data:[...Y.map(d=>d.net),rev30-opx30],backgroundColor:[...Y.map(d=>d.net>=0?COLS.puA:COLS.reA),COLS.puA],borderColor:[...Y.map(d=>d.net>=0?COLS.pu:COLS.re),COLS.pu],borderWidth:2,borderRadius:6,order:2}
   ]},{scales:sclY,interaction:{mode:'index',intersect:false}},landscape?600:680,landscape?250:280);
 
   // 7 — Margen neto
   const mrgn=yrs.map((_,i)=>{ const rv=Y[i].rev; return rv>0?+(Y[i].net/rv*100).toFixed(1):0; });
-  imgs.margin=mkC('bar',{labels:yrs,datasets:[{label:'Margen Neto %',data:mrgn,backgroundColor:mrgn.map(v=>v>=0?COLS.grA:COLS.reA),borderColor:mrgn.map(v=>v>=0?COLS.gr:COLS.re),borderWidth:2,borderRadius:8}]},{scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:12}}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},callback:v=>v+'%'}}},plugins:{legend:{labels:{font:{size:11}}}}},landscape?380:340,landscape?250:250);
+  imgs.margin=mkC('bar',{labels:yrs,datasets:[{label:_T.cNetMargin[li],data:mrgn,backgroundColor:mrgn.map(v=>v>=0?COLS.grA:COLS.reA),borderColor:mrgn.map(v=>v>=0?COLS.gr:COLS.re),borderWidth:2,borderRadius:8}]},{scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:12}}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},callback:v=>v+'%'}}},plugins:{legend:{labels:{font:{size:11}}}}},landscape?380:340,landscape?250:250);
 
   document.body.removeChild(wrap);
   return imgs;
 }
 
-function _buildPrintReport(imgs,orientation){
+function _buildPrintReport(imgs,orientation,lang){
   const landscape=orientation==='landscape';
+  const li=lang==='en'?1:0;
+  const t=k=>_T[k]?_T[k][li]:(k||'');
+  const dateStr=new Date().toLocaleDateString(lang==='en'?'en-GB':'es-ES',{day:'2-digit',month:'long',year:'numeric'});
   const r=revenue(),o=opex(),n=netInc(),cb=cashBal(),a=aum(),u=users();
   const ie=interestExpense(),cap=invCapFlow();
   const yrs=['2026','2027','2028','2029'];
@@ -1861,21 +2056,21 @@ img{max-width:100%;display:block}
 <div class="cover" style="background:linear-gradient(135deg,#0D0520 0%,#1a0a35 50%,#2d1060 100%);color:#fff;padding:60px 50px;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between">
   <div>
     <div style="font-size:42px;font-weight:900;letter-spacing:-2px;color:#fff">sta<span style="color:#9B59D0">bo</span>lut</div>
-    <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9B59D0;margin-top:8px">Financial Model · Proyecciones 2026–2029</div>
+    <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9B59D0;margin-top:8px">${t('coverSub')}</div>
   </div>
   <div>
-    <div style="font-size:36px;font-weight:800;line-height:1.2;margin-bottom:18px">Informe Financiero<br>para Inversores</div>
-    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:40px">Proyecciones financieras · DeFi / Asset Management Protocol</div>
+    <div style="font-size:36px;font-weight:800;line-height:1.2;margin-bottom:18px">${t('coverTitle')}</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:40px">${t('coverDesc')}</div>
     <div style="display:flex;gap:20px;flex-wrap:wrap">
-      ${kpiBox('💎','AuM/TVL Peak 2029',fK(Y[3].aum),'Assets Under Management','#9B59D0')}
-      ${kpiBox('📈','Revenue 2027',fK(Y[1].rev),'Protocol Revenue ($000s)','#27AE60')}
-      ${kpiBox('🚀','Breakeven',bk>=0?QQ[bk]:'TBD','Primer trimestre positivo','#F39C12')}
-      ${kpiBox('👥','Usuarios 2029',Y[3].usr.toLocaleString(),'CAGR '+cagr(Y[3].usr,Y[0].usr,3)+' anual','#1ABC9C')}
+      ${kpiBox('💎',t('kAuMPeak'),fK(Y[3].aum),t('kAuMSub'),'#9B59D0')}
+      ${kpiBox('📈',t('kRevenue27'),fK(Y[1].rev),t('kRevenueSub'),'#27AE60')}
+      ${kpiBox('🚀',t('kBreakeven'),bk>=0?QQ[bk]:'TBD',t('kBreakevenSub'),'#F39C12')}
+      ${kpiBox('👥',t('kUsers29'),Y[3].usr.toLocaleString(),'CAGR '+cagr(Y[3].usr,Y[0].usr,3)+t('kCagrAnnual'),'#1ABC9C')}
     </div>
   </div>
   <div style="font-size:10px;color:rgba(255,255,255,.35);border-top:1px solid rgba(255,255,255,.1);padding-top:16px;display:flex;justify-content:space-between">
-    <span>CONFIDENCIAL — Solo para uso de potenciales inversores autorizados</span>
-    <span>Generado: ${new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})}</span>
+    <span>${t('confidential')}</span>
+    <span>${t('generated')} ${dateStr}</span>
   </div>
 </div>
 
@@ -1883,124 +2078,124 @@ img{max-width:100%;display:block}
 <!-- ══ P.2: RESUMEN EJECUTIVO ══ -->
 <div class="page-break pad">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #7B2FBE;padding-bottom:10px;margin-bottom:18px">
-    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">Resumen Ejecutivo</div>
-    <div style="font-size:10px;color:#8892A0">Stabolut Financial Model · $000s</div>
+    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">${t('sExecSummary')}</div>
+    <div style="font-size:10px;color:#8892A0">${t('sModelSub')}</div>
   </div>
   <div class="three-col" style="margin-bottom:16px">
-    ${kpiBox('📈','Revenue CAGR',cagr(Y[3].rev,Y[0].rev,3),'2026→2029 anualizado','#27AE60')}
-    ${kpiBox('💎','AuM CAGR',cagr(Y[3].aum,Y[0].aum,3),'Assets Under Management','#7B2FBE')}
-    ${kpiBox('💵','Cash Max','$'+Math.max(...cb).toLocaleString()+'K','En '+QQ[cb.indexOf(Math.max(...cb))],'#1ABC9C')}
-    ${landscape?kpiBox('🚀','Breakeven',bk>=0?QQ[bk]:'TBD','Primer trimestre positivo','#F39C12'):''}
-    ${landscape?kpiBox('🏦','Net Income 2028',fK(Y[2].net),Y[2].net>=0?'Año de beneficio':'En curso',Y[2].net>=0?'#27AE60':'#E74C3C'):''}
-    ${landscape?kpiBox('👥','Usuarios 2029',Y[3].usr.toLocaleString(),'CAGR '+cagr(Y[3].usr,Y[0].usr,3),'#F39C12'):''}
+    ${kpiBox('📈',t('kRevenueCagr'),cagr(Y[3].rev,Y[0].rev,3),'2026→2029'+t('kCagrAnnual'),'#27AE60')}
+    ${kpiBox('💎',t('kAuMCagr'),cagr(Y[3].aum,Y[0].aum,3),t('kAuMSub'),'#7B2FBE')}
+    ${kpiBox('💵',t('kCashMax'),'$'+Math.max(...cb).toLocaleString()+'K',t('kCashMaxSub')+QQ[cb.indexOf(Math.max(...cb))],'#1ABC9C')}
+    ${landscape?kpiBox('🚀',t('kBreakeven'),bk>=0?QQ[bk]:'TBD',t('kBreakevenSub'),'#F39C12'):''}
+    ${landscape?kpiBox('🏦',t('kNetIncome'),fK(Y[2].net),Y[2].net>=0?t('kProfit'):t('kInProgress'),Y[2].net>=0?'#27AE60':'#E74C3C'):''}
+    ${landscape?kpiBox('👥',t('kUsers29'),Y[3].usr.toLocaleString(),'CAGR '+cagr(Y[3].usr,Y[0].usr,3)+t('kCagrAnnual'),'#F39C12'):''}
   </div>
   ${landscape?`<div class="two-col">
     <div>
-      ${sec('📊 KPIs Anuales ($000s)','Proyección 2026–2030E')}
+      ${sec(t('tKpiAnuales'),t('tKpiSub'))}
       <table style="margin-top:8px">
-        ${tblHdr(['Partida','2026','2027','2028','2029','2030E'])}
+        ${tblHdr([t('rPartidaH'),'2026','2027','2028','2029','2030E'])}
         <tbody>
-          ${tblRow(['Revenue',Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30],true,'#F3EAFB')}
-          ${tblRow(['OpEx',-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30],false,'')}
-          ${tblRow(['EBITDA',Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30],true,'#E8F8EF')}
-          ${tblRow(['Mg EBITDA',pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—'],false,'')}
-          ${tblRow(['Net Income',Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30],true,'#F3EAFB')}
-          ${tblRow(['Cash YE',Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15]],true,'#E8F8EF')}
-          ${tblRow(['AuM Peak',Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—'],false,'')}
-          ${tblRow(['Usuarios',Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—'],false,'')}
+          ${tblRow([t('rRevenue'),Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30],true,'#F3EAFB')}
+          ${tblRow([t('rOpex'),-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30],false,'')}
+          ${tblRow([t('rEBITDA'),Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30],true,'#E8F8EF')}
+          ${tblRow([t('rMgEBITDA'),pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—'],false,'')}
+          ${tblRow([t('rNetIncome'),Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30],true,'#F3EAFB')}
+          ${tblRow([t('rCashYE2'),Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15]],true,'#E8F8EF')}
+          ${tblRow([t('rAuMPeak2'),Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—'],false,'')}
+          ${tblRow([t('rUsers2'),Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—'],false,'')}
         </tbody>
       </table>
     </div>
     <div>
-      ${sec('📈 Revenue vs OpEx vs Net Income','Trimestral 2026–2029')}
+      ${sec(t('tRevVsOpex'),t('tRevVsOpexSub'))}
       <img src="${imgs.main}" style="border-radius:8px;border:1px solid #eee;margin-top:8px;width:100%">
     </div>
   </div>`:`
-  ${sec('📊 KPIs Anuales — Proyección 2026–2030','Todos los importes en $000s')}
+  ${sec(t('tKpiAnuales'),t('tKpiSub'))}
   <table>
-    ${tblHdr(['Partida ($000s)','2026','2027','2028','2029','2030E','CAGR 26→29'])}
+    ${tblHdr([t('rPartida'),'2026','2027','2028','2029','2030E','CAGR 26→29'])}
     <tbody>
-      ${tblRow(['Protocol Revenue',Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],true,'#F3EAFB')}
-      ${tblRow(['Total OpEx',-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,''],false,'')}
-      ${tblRow(['EBITDA',Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,''],true,'#E8F8EF')}
-      ${tblRow(['Margen EBITDA',pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—',''],false,'')}
-      ${tblRow(['Net Income',Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,''],true,'#F3EAFB')}
-      ${tblRow(['Cash Balance YE',Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15],''],true,'#E8F8EF')}
-      ${tblRow(['AuM/TVL Peak ($K)',Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],false,'')}
-      ${tblRow(['Usuarios Peak',Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],false,'')}
+      ${tblRow([t('rRevenue'),Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],true,'#F3EAFB')}
+      ${tblRow([t('rOpex'),-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,''],false,'')}
+      ${tblRow([t('rEBITDA'),Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,''],true,'#E8F8EF')}
+      ${tblRow([t('rEBITDAM'),pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—',''],false,'')}
+      ${tblRow([t('rNetIncome'),Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,''],true,'#F3EAFB')}
+      ${tblRow([t('rCashYE'),Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15],''],true,'#E8F8EF')}
+      ${tblRow([t('rAuMPeak'),Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],false,'')}
+      ${tblRow([t('rUsersPeak'),Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],false,'')}
     </tbody>
   </table>
-  ${sec('📈 Revenue vs OpEx vs Net Income','Evolución trimestral 2026–2029')}
+  ${sec(t('tRevVsOpex'),t('tRevVsOpexSub'))}
   <img src="${imgs.main}" style="border-radius:10px;border:1px solid #eee;margin-top:8px">`}
 </div>
 
 <!-- ══ P.3: AuM / TVL ══ -->
 <div class="page-break pad">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #7B2FBE;padding-bottom:10px;margin-bottom:18px">
-    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">AuM / TVL & Usuarios</div>
-    <div style="font-size:10px;color:#8892A0">Assets Under Management · Total Value Locked</div>
+    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">${t('sAuMTitle')}</div>
+    <div style="font-size:10px;color:#8892A0">${t('sAuMSub')}</div>
   </div>
   ${landscape?`<div class="two-col" style="margin-bottom:16px">
     <div>
-      ${sec('💎 AuM/TVL Trimestral ($000s)')}
+      ${sec(t('tAuMQ'))}
       <img src="${imgs.aum}" style="border-radius:8px;border:1px solid #eee;margin-top:8px;width:100%">
     </div>
     <div>
-      ${sec('👥 Crecimiento de Usuarios')}
+      ${sec(t('tUsersG'))}
       <img src="${imgs.users}" style="border-radius:8px;border:1px solid #eee;margin-top:8px;width:100%">
     </div>
   </div>
-  ${sec('📊 Tabla AuM/TVL, Usuarios & Revenue — Trimestral completo ($000s)')}
+  ${sec(t('tAuMTable'))}
   <table style="margin-top:8px">
-    ${tblHdr(['Métrica',...QQ.map(q=>q.replace(' ',"'")), 'Tot 26','Tot 27','Tot 28','Tot 29'])}
+    ${tblHdr([t('rMetrica'),...QQ.map(q=>q.replace(' ',"'")), 'Tot 26','Tot 27','Tot 28','Tot 29'])}
     <tbody>
-      ${tblRow(['👥 Usuarios',...u,...[0,1,2,3].map(y=>aSum(u,y))],false,'')}
-      ${tblRow(['💎 AuM/TVL ($K)',...a,...[0,1,2,3].map(y=>aSum(a,y))],true,'#F3EAFB')}
-      ${tblRow(['Revenue ($K)',...r,...[0,1,2,3].map(y=>aSum(r,y))],false,'#E8F8EF')}
+      ${tblRow([t('rUsersRow'),...u,...[0,1,2,3].map(y=>aSum(u,y))],false,'')}
+      ${tblRow([t('rAuMRow'),...a,...[0,1,2,3].map(y=>aSum(a,y))],true,'#F3EAFB')}
+      ${tblRow([t('rRevenueKRow'),...r,...[0,1,2,3].map(y=>aSum(r,y))],false,'#E8F8EF')}
     </tbody>
   </table>`:`
-  ${sec('💎 Evolución AuM/TVL','Trimestral 2026–2029 ($000s)')}
+  ${sec(t('tAuMQ'),'')}
   <img src="${imgs.aum}" style="border-radius:10px;border:1px solid #eee;margin-bottom:16px">
-  ${sec('👥 Crecimiento de Usuarios','Base de usuarios activos por trimestre')}
+  ${sec(t('tUsersG'),'')}
   <img src="${imgs.users}" style="border-radius:10px;border:1px solid #eee;margin-bottom:16px">
-  ${sec('📊 Tabla AuM/TVL & Revenue','Detalle trimestral · $000s')}
+  ${sec(t('tAuMTable'),'')}
   <div style="overflow-x:auto">
-  <table>${tblHdr(['Métrica',...QQ.map(q=>q.replace(' ',"'")).slice(0,8),'Tot 26','Tot 27'])}
-    <tbody>${tblRow(['👥 Usuarios',...u.slice(0,8),aSum(u,0),aSum(u,1)],false,'')}
-      ${tblRow(['💎 AuM/TVL ($K)',...a.slice(0,8),aSum(a,0),aSum(a,1)],true,'#F3EAFB')}
-      ${tblRow(['Revenue ($K)',...r.slice(0,8),aSum(r,0),aSum(r,1)],false,'#E8F8EF')}</tbody></table>
+  <table>${tblHdr([t('rMetrica'),...QQ.map(q=>q.replace(' ',"'")).slice(0,8),'Tot 26','Tot 27'])}
+    <tbody>${tblRow([t('rUsersRow'),...u.slice(0,8),aSum(u,0),aSum(u,1)],false,'')}
+      ${tblRow([t('rAuMRow'),...a.slice(0,8),aSum(a,0),aSum(a,1)],true,'#F3EAFB')}
+      ${tblRow([t('rRevenueKRow'),...r.slice(0,8),aSum(r,0),aSum(r,1)],false,'#E8F8EF')}</tbody></table>
   </div>
   <div style="margin-top:10px;overflow-x:auto">
-  <table>${tblHdr(['Métrica',...QQ.map(q=>q.replace(' ',"'")).slice(8),'Tot 28','Tot 29'])}
-    <tbody>${tblRow(['👥 Usuarios',...u.slice(8),aSum(u,2),aSum(u,3)],false,'')}
-      ${tblRow(['💎 AuM/TVL ($K)',...a.slice(8),aSum(a,2),aSum(a,3)],true,'#F3EAFB')}
-      ${tblRow(['Revenue ($K)',...r.slice(8),aSum(r,2),aSum(r,3)],false,'#E8F8EF')}</tbody></table>
+  <table>${tblHdr([t('rMetrica'),...QQ.map(q=>q.replace(' ',"'")).slice(8),'Tot 28','Tot 29'])}
+    <tbody>${tblRow([t('rUsersRow'),...u.slice(8),aSum(u,2),aSum(u,3)],false,'')}
+      ${tblRow([t('rAuMRow'),...a.slice(8),aSum(a,2),aSum(a,3)],true,'#F3EAFB')}
+      ${tblRow([t('rRevenueKRow'),...r.slice(8),aSum(r,2),aSum(r,3)],false,'#E8F8EF')}</tbody></table>
   </div>`}
 </div>
 
 <!-- ══ P.4: COSTES OPERATIVOS ══ -->
 <div class="page-break pad">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #7B2FBE;padding-bottom:10px;margin-bottom:18px">
-    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">Estructura de Costes</div>
-    <div style="font-size:10px;color:#8892A0">OpEx Desglosado · $000s</div>
+    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">${t('sCostsTitle')}</div>
+    <div style="font-size:10px;color:#8892A0">${t('sCostsSub')}</div>
   </div>
   <div class="${landscape?'two-col':''}">
     <div>
-      ${sec('💰 Distribución de Costes 2026','Porcentaje sobre OpEx total')}
+      ${sec(t('tCostDist'),t('tCostDistSub'))}
       <img src="${imgs.costDoughnut}" style="border-radius:${landscape?'8px':'10px'};border:1px solid #eee;margin-top:8px;${landscape?'width:100%':''}">
     </div>
     <div>
-      ${sec('📊 OpEx Anual por Partida ($000s) y % sobre total')}
+      ${sec(t('tOpexAnual'))}
       <table style="margin-top:8px">
-        ${tblHdr(['Partida','2026','% OpEx','2027','% OpEx','2028','% OpEx','2029','% OpEx'])}
+        ${tblHdr([t('rPartidaH'),'2026','% OpEx','2027','% OpEx','2028','% OpEx','2029','% OpEx'])}
         <tbody>
           ${Object.entries(BC).map(([k,v])=>{
             const ov=bcOverride[k]||[null,null,null,null];
             const effQ=v.map((x,i)=>{const yr=Math.floor(i/4);return ov[yr]!==null?ov[yr]/4:x;});
             const tots=yrs.map((_,y)=>aSum(effQ,y));
-            return `<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:5px 8px;padding-left:14px;font-size:10px">${k}${ov.some(x=>x!==null)?' ✏️':''}</td>${tots.map((t,y)=>`<td style="padding:5px 8px;text-align:right;font-size:10px">${fKK(t)}</td><td style="padding:5px 8px;text-align:right;font-size:10px;color:#8892A0">${pc(t,aSum(o,y))}</td>`).join('')}</tr>`;
+            return `<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:5px 8px;padding-left:14px;font-size:10px">${k}${ov.some(x=>x!==null)?' ✏️':''}</td>${tots.map((tv,y)=>`<td style="padding:5px 8px;text-align:right;font-size:10px">${fKK(tv)}</td><td style="padding:5px 8px;text-align:right;font-size:10px;color:#8892A0">${pc(tv,aSum(o,y))}</td>`).join('')}</tr>`;
           }).join('')}
-          <tr style="background:#7B2FBE;color:#fff;font-weight:700"><td style="padding:6px 8px">TOTAL OpEx</td>${yrs.map((_,y)=>`<td style="padding:6px 8px;text-align:right">${fKK(aSum(o,y))}</td><td style="padding:6px 8px;text-align:right">100%</td>`).join('')}</tr>
+          <tr style="background:#7B2FBE;color:#fff;font-weight:700"><td style="padding:6px 8px">${t('rOpex')}</td>${yrs.map((_,y)=>`<td style="padding:6px 8px;text-align:right">${fKK(aSum(o,y))}</td><td style="padding:6px 8px;text-align:right">100%</td>`).join('')}</tr>
         </tbody>
       </table>
     </div>
@@ -2010,92 +2205,92 @@ img{max-width:100%;display:block}
 <!-- ══ P.5: CASH FLOW ══ -->
 <div class="page-break pad">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #7B2FBE;padding-bottom:10px;margin-bottom:18px">
-    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">Cash Flow & Net Income</div>
-    <div style="font-size:10px;color:#8892A0">Posición de Tesorería · $000s</div>
+    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">${t('sCashTitle')}</div>
+    <div style="font-size:10px;color:#8892A0">${t('sCashSub')}</div>
   </div>
   ${landscape?`<div class="two-col" style="margin-bottom:16px">
     <div>
-      ${sec('💵 Cash Balance Acumulado')}
+      ${sec(t('tCashEvol'))}
       <img src="${imgs.cash}" style="border-radius:8px;border:1px solid #eee;margin-top:8px;width:100%">
     </div>
     <div>
-      ${sec('📋 P&L Anual Resumido ($000s)')}
+      ${sec(t('tPLResumen'))}
       <table style="margin-top:8px">
-        ${tblHdr(['Partida','2026','2027','2028','2029'])}
+        ${tblHdr([t('rPartidaH'),'2026','2027','2028','2029'])}
         <tbody>
-          ${tblRow(['Revenue',Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev],true,'#E8F8EF')}
-          ${tblRow(['OpEx',-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx],false,'')}
-          ${tblRow(['Net Income',Y[0].net,Y[1].net,Y[2].net,Y[3].net],true,'#F3EAFB')}
-          ${tblRow(['Capital Raise',aSum(cap,0),aSum(cap,1),aSum(cap,2),aSum(cap,3)],false,'')}
-          ${tblRow(['Cash Balance YE',Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash],true,'#E8F8EF')}
+          ${tblRow([t('rRevRow'),Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev],true,'#E8F8EF')}
+          ${tblRow([t('rOpexRow'),-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx],false,'')}
+          ${tblRow([t('rNetIncome'),Y[0].net,Y[1].net,Y[2].net,Y[3].net],true,'#F3EAFB')}
+          ${tblRow([t('rCapRaise'),aSum(cap,0),aSum(cap,1),aSum(cap,2),aSum(cap,3)],false,'')}
+          ${tblRow([t('rCashYE'),Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash],true,'#E8F8EF')}
         </tbody>
       </table>
     </div>
   </div>
-  ${sec('📋 P&L Trimestral Completo — 16 trimestres ($000s)')}
+  ${sec(t('tPLFull'))}
   <table style="margin-top:8px">
-    ${tblHdr(['Partida',...QQ.map(q=>q.replace(' ',"'")), 'Tot 26','Tot 27','Tot 28','Tot 29'])}
+    ${tblHdr([t('rPartidaH'),...QQ.map(q=>q.replace(' ',"'")), 'Tot 26','Tot 27','Tot 28','Tot 29'])}
     <tbody>
-      ${tblRow(['Revenue',...r,...[0,1,2,3].map(y=>aSum(r,y))],true,'#E8F8EF')}
-      ${tblRow(['Total OpEx',...o.map(v=>-v),...[0,1,2,3].map(y=>-aSum(o,y))],false,'')}
-      ${tblRow(['Net Income',...n,...[0,1,2,3].map(y=>aSum(n,y))],true,'#F3EAFB')}
-      ${tblRow(['Capital Raise',...cap,...[0,1,2,3].map(y=>aSum(cap,y))],false,'')}
-      ${tblRow(['Cash Balance',...cb,...[0,1,2,3].map(y=>cb[y*4+3])],true,'#E8F8EF')}
+      ${tblRow([t('rRevRow'),...r,...[0,1,2,3].map(y=>aSum(r,y))],true,'#E8F8EF')}
+      ${tblRow([t('rOpex'),...o.map(v=>-v),...[0,1,2,3].map(y=>-aSum(o,y))],false,'')}
+      ${tblRow([t('rNetIncome'),...n,...[0,1,2,3].map(y=>aSum(n,y))],true,'#F3EAFB')}
+      ${tblRow([t('rCapRaise'),...cap,...[0,1,2,3].map(y=>aSum(cap,y))],false,'')}
+      ${tblRow([t('rCashRow'),...cb,...[0,1,2,3].map(y=>cb[y*4+3])],true,'#E8F8EF')}
     </tbody>
   </table>`:`
-  ${sec('💵 Evolución Cash Balance','Acumulado trimestral 2026–2029')}
+  ${sec(t('tCashEvol'),'')}
   <img src="${imgs.cash}" style="border-radius:10px;border:1px solid #eee;margin-bottom:16px">
-  ${sec('📋 P&L Trimestral ($000s)')}
+  ${sec(t('tPLTrim'),'')}
   <div style="overflow-x:auto;margin-bottom:10px">
-  <table>${tblHdr(['Partida',...QQ.map(q=>q.replace(' ',"'")).slice(0,8),'Tot 26','Tot 27'])}
-    <tbody>${tblRow(['Revenue',...r.slice(0,8),aSum(r,0),aSum(r,1)],true,'#E8F8EF')}
-      ${tblRow(['Total OpEx',...o.slice(0,8).map(v=>-v),-aSum(o,0),-aSum(o,1)],false,'')}
-      ${tblRow(['Net Income',...n.slice(0,8),aSum(n,0),aSum(n,1)],true,'#F3EAFB')}
-      ${tblRow(['Cash Balance',...cb.slice(0,8),cb[3],cb[7]],true,'#E8F8EF')}</tbody></table></div>
+  <table>${tblHdr([t('rPartidaH'),...QQ.map(q=>q.replace(' ',"'")).slice(0,8),'Tot 26','Tot 27'])}
+    <tbody>${tblRow([t('rRevRow'),...r.slice(0,8),aSum(r,0),aSum(r,1)],true,'#E8F8EF')}
+      ${tblRow([t('rOpex'),...o.slice(0,8).map(v=>-v),-aSum(o,0),-aSum(o,1)],false,'')}
+      ${tblRow([t('rNetIncome'),...n.slice(0,8),aSum(n,0),aSum(n,1)],true,'#F3EAFB')}
+      ${tblRow([t('rCashRow'),...cb.slice(0,8),cb[3],cb[7]],true,'#E8F8EF')}</tbody></table></div>
   <div style="overflow-x:auto">
-  <table>${tblHdr(['Partida',...QQ.map(q=>q.replace(' ',"'")).slice(8),'Tot 28','Tot 29'])}
-    <tbody>${tblRow(['Revenue',...r.slice(8),aSum(r,2),aSum(r,3)],true,'#E8F8EF')}
-      ${tblRow(['Total OpEx',...o.slice(8).map(v=>-v),-aSum(o,2),-aSum(o,3)],false,'')}
-      ${tblRow(['Net Income',...n.slice(8),aSum(n,2),aSum(n,3)],true,'#F3EAFB')}
-      ${tblRow(['Cash Balance',...cb.slice(8),cb[11],cb[15]],true,'#E8F8EF')}</tbody></table></div>`}
+  <table>${tblHdr([t('rPartidaH'),...QQ.map(q=>q.replace(' ',"'")).slice(8),'Tot 28','Tot 29'])}
+    <tbody>${tblRow([t('rRevRow'),...r.slice(8),aSum(r,2),aSum(r,3)],true,'#E8F8EF')}
+      ${tblRow([t('rOpex'),...o.slice(8).map(v=>-v),-aSum(o,2),-aSum(o,3)],false,'')}
+      ${tblRow([t('rNetIncome'),...n.slice(8),aSum(n,2),aSum(n,3)],true,'#F3EAFB')}
+      ${tblRow([t('rCashRow'),...cb.slice(8),cb[11],cb[15]],true,'#E8F8EF')}</tbody></table></div>`}
 </div>
 
 <!-- ══ P.6: FORECAST 5 AÑOS ══ -->
 <div class="page-break pad">
   <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #7B2FBE;padding-bottom:10px;margin-bottom:18px">
-    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">Forecast 5 Años — 2026–2030</div>
-    <div style="font-size:10px;color:#8892A0">Proyección estratégica · $000s</div>
+    <div style="font-size:${landscape?'17px':'20px'};font-weight:900;color:#7B2FBE">${t('sForecastTitle')}</div>
+    <div style="font-size:10px;color:#8892A0">${t('sForecastSub')}</div>
   </div>
   <div class="${landscape?'two-col':''}">
     <div>
-      ${sec('📈 Revenue & Net Income Anual','Proyección 2026–2030E')}
+      ${sec(t('tAnnualRevNI'),t('tAnnualRevNISub'))}
       <img src="${imgs.annual}" style="border-radius:${landscape?'8px':'10px'};border:1px solid #eee;margin-top:8px;${landscape?'width:100%':''}">
     </div>
     <div>
-      ${sec('📊 Margen Neto (%)')}
+      ${sec(t('tNetMargin'))}
       <img src="${imgs.margin}" style="border-radius:${landscape?'8px':'10px'};border:1px solid #eee;margin-top:8px;${landscape?'width:100%':''}">
     </div>
   </div>
-  ${sec('📋 Tabla Resumen Anual 2026–2030E','')}
+  ${sec(t('tForecastTable'),'')}
   <table style="margin-top:10px">
-    ${tblHdr(['Concepto ($000s)','2026','2027','2028','2029','2030E','CAGR 26→29'])}
+    ${tblHdr([t('rConcept'),'2026','2027','2028','2029','2030E','CAGR 26→29'])}
     <tbody>
-      ${tblRow(['Protocol Revenue',Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],true,'#E8F8EF')}
-      ${tblRow(['Total OpEx',-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,''],false,'')}
-      ${tblRow(['EBITDA',Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,cagr(Y[3].rev-Y[3].opx,Y[0].rev-Y[0].opx,3)],true,'#F3EAFB')}
-      ${tblRow(['Margen EBITDA',pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—',''],false,'')}
-      ${tblRow(['Net Income',Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,''],true,'#F3EAFB')}
-      ${tblRow(['Cash Balance YE',Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15],''],true,'#E8F8EF')}
-      ${tblRow(['AuM/TVL Peak',Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],false,'')}
-      ${tblRow(['Usuarios Peak',Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],false,'')}
+      ${tblRow([t('rRevenue'),Y[0].rev,Y[1].rev,Y[2].rev,Y[3].rev,rev30,cagr(Y[3].rev,Y[0].rev,3)],true,'#E8F8EF')}
+      ${tblRow([t('rOpex'),-Y[0].opx,-Y[1].opx,-Y[2].opx,-Y[3].opx,-opx30,''],false,'')}
+      ${tblRow([t('rEBITDA'),Y[0].rev-Y[0].opx,Y[1].rev-Y[1].opx,Y[2].rev-Y[2].opx,Y[3].rev-Y[3].opx,net30,cagr(Y[3].rev-Y[3].opx,Y[0].rev-Y[0].opx,3)],true,'#F3EAFB')}
+      ${tblRow([t('rEBITDAM'),pc(Y[0].rev-Y[0].opx,Y[0].rev),pc(Y[1].rev-Y[1].opx,Y[1].rev),pc(Y[2].rev-Y[2].opx,Y[2].rev),pc(Y[3].rev-Y[3].opx,Y[3].rev),'—',''],false,'')}
+      ${tblRow([t('rNetIncome'),Y[0].net,Y[1].net,Y[2].net,Y[3].net,net30,''],true,'#F3EAFB')}
+      ${tblRow([t('rCashYE'),Y[0].cash,Y[1].cash,Y[2].cash,Y[3].cash,cb[15]+net30+MA[15],''],true,'#E8F8EF')}
+      ${tblRow([t('rAuMPeak'),Y[0].aum,Y[1].aum,Y[2].aum,Y[3].aum,'—',cagr(Y[3].aum,Y[0].aum,3)],false,'')}
+      ${tblRow([t('rUsersPeak'),Y[0].usr,Y[1].usr,Y[2].usr,Y[3].usr,'—',cagr(Y[3].usr,Y[0].usr,3)],false,'')}
     </tbody>
   </table>
   <div style="margin-top:20px;padding:14px 16px;background:#F3EAFB;border-radius:10px;border-left:4px solid #7B2FBE;font-size:10px;color:#4A5568;line-height:1.8">
-    <strong style="color:#7B2FBE">⚠️ Aviso Legal:</strong> Este documento contiene proyecciones financieras elaboradas con fines informativos para potenciales inversores. Las proyecciones se basan en hipótesis que pueden no materializarse. Los resultados reales pueden diferir. No constituye asesoramiento financiero ni oferta de inversión. <strong>CONFIDENCIAL.</strong>
+    ${t('disclaimer')}
   </div>
   <div style="margin-top:12px;display:flex;justify-content:space-between;font-size:9px;color:#8892A0;border-top:1px solid #eee;padding-top:10px">
-    <span>© 2026 Stabolut · Todos los derechos reservados</span>
-    <span>Generado: ${new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})}</span>
+    <span>${t('copyright')}</span>
+    <span>${t('generated')} ${dateStr}</span>
   </div>
 </div>
 
